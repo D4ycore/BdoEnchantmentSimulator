@@ -37,6 +37,7 @@ html,
 body {
 	max-width: 100vw;
 	/* overflow-x: hidden; */
+	height: -moz-available;
 	height: -webkit-fill-available;
 	font-family: var(--font-robo);
 }
@@ -71,6 +72,7 @@ a {
 	border-radius: 2rem;
 	border-color: rgb(var(--app-border-rgb));
 	border-style: solid;
+	width: -moz-available;
 	width: -webkit-fill-available;
 	min-width: min-content;
 	background: rgb(75, 75, 75);
@@ -213,6 +215,7 @@ a {
 		margin-bottom: 0.5rem;
 	}
 	& input {
+		width: -moz-available;
 		width: -webkit-fill-available;
 	}
 	& *:nth-child(2) {
