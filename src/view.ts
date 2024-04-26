@@ -56,7 +56,7 @@ export class View {
 		this.bUpgradeStop = nonNullElement(document.querySelector<HTMLButtonElement>('#bUpgradeStop'), 'Upgrade Stop');
 
 		this.iLastClick = nonNullElement(document.querySelector<HTMLInputElement>('#iLastClick'), 'Last Click');
-		this.iStacksCrafted = nonNullElement(document.querySelector<HTMLInputElement>('#iStacksCrafted'), 'Stacks Crafted');
+		this.iStacksCrafted = nonNullElement(document.querySelector<HTMLTextAreaElement>('#iStacksCrafted'), 'Stacks Crafted');
 	}
 
 	link(controller: Controller) {
