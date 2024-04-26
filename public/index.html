@@ -10,7 +10,18 @@
 	<body>
 		<div class="app">
 			<div class="header">
-				<button type="button" id="bColorScheme" title="Switch Color Scheme"></button>
+				<div>
+					<label for="bColorScheme">Switch Color Scheme</label>
+					<input type="button" id="bColorScheme" title="Switch Color Scheme" />
+				</div>
+				<div>
+					<label for="cbScaleOutput">Scale Output</label>
+					<input type="checkbox" id="cbScaleOutput" title="Scale Output to match Target Amount" />
+				</div>
+				<div>
+					<label for="cbShowDebug">Debug</label>
+					<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
+				</div>
 			</div>
 			<div class="content">
 				<table id="enchantment_items" aria-label="Enchantment Items">

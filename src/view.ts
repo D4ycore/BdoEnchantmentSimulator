@@ -17,6 +17,9 @@ function nonNullElementAll<E extends Element = Element>(elt: NodeListOf<E>, name
 }
 
 export class View {
+	private cbScaleOutput;
+	private cbShowDebug;
+
 	private lEnchantmentItems;
 	private bAddReblath;
 
@@ -34,9 +37,10 @@ export class View {
 	private iLastClick;
 	private iStacksCrafted;
 
-	private controller: Controller | undefined;
-
 	constructor() {
+		this.cbScaleOutput = nonNullElement(document.querySelector<HTMLInputElement>('#cbScaleOutput'), 'Scale Output');
+		this.cbShowDebug = nonNullElement(document.querySelector<HTMLInputElement>('#cbShowDebug'), 'Show Debug');
+
 		this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_item'), 'Enchantment Items');
 		this.bAddReblath = nonNullElement(document.querySelector<HTMLButtonElement>('#bAddReblath'), 'Add Reblath');
 
@@ -56,7 +60,14 @@ export class View {
 	}
 
 	link(controller: Controller) {
-		this.controller = controller;
+		this.cbScaleOutput.onchange = evt => {
+			logger.debug('so change', this.cbScaleOutput.checked);
+			controller.getScaleOutput().changed(this.cbScaleOutput.checked);
+		};
+		this.cbShowDebug.onchange = evt => {
+			logger.debug('sd change', this.cbShowDebug.checked);
+			controller.getShowDebug().changed(this.cbShowDebug.checked);
+		};
 
 		for (let ei_index = 0; ei_index < this.lEnchantmentItems.length; ei_index++) {
 			const enchantment_items = this.lEnchantmentItems[ei_index];
@@ -196,6 +207,9 @@ export class View {
 	}
 
 	init() {
+		this.cbScaleOutput.dispatchEvent(new Event('change'));
+		this.cbShowDebug.dispatchEvent(new Event('change'));
+
 		for (const enchantment_item of this.lEnchantmentItems) {
 			const sPityCurrent = enchantment_item.querySelector<HTMLSpanElement>('.ei_pity .current');
 			sPityCurrent?.dispatchEvent(new Event('change'));
@@ -233,7 +247,18 @@ export class View {
 		this.iStacksCrafted.dispatchEvent(new Event('change'));
 	}
 
-	enchantmentItem_Pity_Current_Set(ei_index: number, newPityCurrent: number) {
+	scaleOutput_Set(oldScaleOutput: boolean, newScaleOutput: boolean) {
+		logger.debug('so set');
+		this.cbScaleOutput.checked = newScaleOutput;
+		this.cbScaleOutput.dispatchEvent(new Event('change'));
+	}
+	showDebug_Set(oldShowDebug: boolean, newShowDebug: boolean) {
+		logger.debug('so set');
+		this.cbShowDebug.checked = newShowDebug;
+		this.cbShowDebug.dispatchEvent(new Event('change'));
+	}
+
+	enchantmentItem_Pity_Current_Set(ei_index: number, oldPityCurrent: number, newPityCurrent: number) {
 		logger.debug('eipc set');
 		const sPity = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity');
 		if (!sPity) return logger.warn(`Enchantment Item(${ei_index}) has no Pity Element`);
@@ -247,21 +272,21 @@ export class View {
 		if (newPityCurrent > 0 && parseInt(sPityCurrent.innerText) >= parseInt(sPityMax.innerText)) sPity.classList.add('pity_ready');
 		else sPity.classList.remove('pity_ready');
 	}
-	enchantmentItem_Pity_Max_Set(ei_index: number, newPityMax: number) {
+	enchantmentItem_Pity_Max_Set(ei_index: number, oldPityMax: number, newPityMax: number) {
 		logger.debug('eipm set');
 		const sPityMax = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity .max');
 		if (!sPityMax) return logger.warn(`Enchantment Item(${ei_index}) has no Pity Max Element`);
 		sPityMax.innerText = '' + newPityMax;
 		sPityMax.dispatchEvent(new Event('change'));
 	}
-	enchantmentItem_Amount_Set(ei_index: number, newAmount: number) {
+	enchantmentItem_Amount_Set(ei_index: number, oldAmount: number, newAmount: number) {
 		logger.debug('eia set');
 		const iAmount = this.lEnchantmentItems[ei_index]?.querySelector<HTMLInputElement>('.ei_amount');
 		if (!iAmount) return logger.warn(`Enchantment Item(${ei_index}) has no Amount Element`);
 		iAmount.value = '' + newAmount;
 		iAmount.dispatchEvent(new Event('change'));
 	}
-	enchantmentItem_WorthEach_Set(ei_index: number, newWorthEach: number) {
+	enchantmentItem_WorthEach_Set(ei_index: number, oldWorthEach: number, newWorthEach: number) {
 		logger.debug('eiwe set');
 		const iWorthEach = this.lEnchantmentItems[ei_index]?.querySelector<HTMLInputElement>('.ei_worth');
 		if (!iWorthEach) return logger.warn(`Enchantment Item(${ei_index}) has no Worth Element`);
@@ -269,33 +294,34 @@ export class View {
 		iWorthEach.dispatchEvent(new Event('change'));
 	}
 
-	familyFS_Set(newFamilyFS: number) {
+	familyFS_Set(oldFamilyFS: number, newFamilyFS: number) {
 		logger.debug('ffs set');
 		this.sFamilyFS.value = '' + newFamilyFS;
 		this.sFamilyFS.dispatchEvent(new Event('change'));
 	}
-	buyFS_Set(newStartFS: number) {
+	buyFS_Set(oldBuyFS: number, newBuyFS: number) {
 		logger.debug('bfs set');
-		this.sBuyFS.value = '' + newStartFS;
+		this.sBuyFS.value = '' + newBuyFS;
 		this.sBuyFS.dispatchEvent(new Event('change'));
 	}
-	targetAmount_Set(newTargetFS: number) {
+	targetAmount_Set(oldTargetAmount: number, newTargetAmount: number) {
 		logger.debug('ta set');
 		const min = this.iTargetAmount.getAttribute('min');
-		if (min && newTargetFS < parseInt(min)) return logger.warn(`Tried to set Target Amount(${this.iTargetAmount.value} => ${newTargetFS}) below the allowed minimum(${min})`);
-		this.iTargetAmount.value = '' + newTargetFS;
-		this.iTargetAmount.title = '' + newTargetFS;
+		if (min && newTargetAmount < parseInt(min))
+			return logger.warn(`Tried to set Target Amount(${this.iTargetAmount.value} => ${newTargetAmount}) below the allowed minimum(${min})`);
+		this.iTargetAmount.value = '' + newTargetAmount;
+		this.iTargetAmount.title = '' + newTargetAmount;
 		this.iTargetAmount.dispatchEvent(new Event('change'));
 	}
 
-	enchantmentStep_Item_Set(es_index: number, newItem: EnchantmentItem) {
+	enchantmentStep_Item_Set(es_index: number, oldItem: EnchantmentItem, newItem: EnchantmentItem) {
 		logger.debug('esi set');
 		const sItem = this.lEnchantmentSteps[es_index]?.querySelector<HTMLSelectElement>('.es_item');
 		if (!sItem) return logger.warn(`Enchantment Step(${es_index}) has no Item Element`);
 		sItem.value = '' + newItem.name;
 		sItem.dispatchEvent(new Event('change'));
 	}
-	enchantmentStep_StartFS_Set(es_index: number, newStartFS: number) {
+	enchantmentStep_StartFS_Set(es_index: number, oldStartFS: number, newStartFS: number) {
 		logger.debug('essfs set');
 		const spStartFS = this.lEnchantmentSteps[es_index]?.querySelector<HTMLSpanElement>('.es_start');
 		if (!spStartFS) return logger.warn(`Enchantment Step(${es_index}) has no Start Failstack Element`);
@@ -305,7 +331,7 @@ export class View {
 		spStartFS.innerText = '' + newStartFS;
 		spStartFS.dispatchEvent(new Event('change'));
 	}
-	enchantmentStep_EndFS_Set(es_index: number, newEndFS: number) {
+	enchantmentStep_EndFS_Set(es_index: number, oldEndFS: number, newEndFS: number) {
 		logger.debug('esefs set');
 		const spEndFS = this.lEnchantmentSteps[es_index]?.querySelector<HTMLSpanElement>('.es_end');
 		if (!spEndFS) return logger.warn(`Enchantment Step(${es_index}) has no End Failstack Element`);
@@ -315,7 +341,7 @@ export class View {
 		spEndFS.innerText = '' + newEndFS;
 		spEndFS.dispatchEvent(new Event('change'));
 	}
-	enchantmentStep_Clicks_Set(es_index: number, newClicks: number) {
+	enchantmentStep_Clicks_Set(es_index: number, oldClicks: number, newClicks: number) {
 		logger.debug('esc set');
 		const iClicksFS = this.lEnchantmentSteps[es_index]?.querySelector<HTMLInputElement>('.es_clicks');
 		if (!iClicksFS) return logger.warn(`Enchantment Step(${es_index}) has no Clicks Element`);
@@ -326,7 +352,7 @@ export class View {
 		iClicksFS.dispatchEvent(new Event('change'));
 	}
 
-	clicksPerIteration_Set(newClicksPerIteration: number) {
+	clicksPerIteration_Set(oldClicksPerIteration: number, newClicksPerIteration: number) {
 		logger.debug('cpi set');
 		const min = this.iClicksPerIteration.getAttribute('min');
 		if (min && newClicksPerIteration < parseInt(min))
@@ -334,7 +360,7 @@ export class View {
 		this.iClicksPerIteration.value = '' + newClicksPerIteration;
 		this.iClicksPerIteration.dispatchEvent(new Event('change'));
 	}
-	iterationsPerSecond_Set(newIterationsPerSecond: number) {
+	iterationsPerSecond_Set(oldIterationsPerSecond: number, newIterationsPerSecond: number) {
 		logger.debug('ips set');
 		const min = this.iIterationsPerSecond.getAttribute('min');
 		if (min && newIterationsPerSecond < parseInt(min))
@@ -343,12 +369,12 @@ export class View {
 		this.iIterationsPerSecond.dispatchEvent(new Event('change'));
 	}
 
-	lastClick_Set(newLastClick: string) {
+	lastClick_Set(oldLastClick: string, newLastClick: string) {
 		logger.debug('lc set');
 		this.iLastClick.value = newLastClick;
 		this.iLastClick.dispatchEvent(new Event('change'));
 	}
-	stacksCrafted_Set(newStacksCrafted: string) {
+	stacksCrafted_Set(oldStacksCrafted: string, newStacksCrafted: string) {
 		logger.debug('sc set');
 		this.iStacksCrafted.value = newStacksCrafted;
 		this.iStacksCrafted.dispatchEvent(new Event('change'));

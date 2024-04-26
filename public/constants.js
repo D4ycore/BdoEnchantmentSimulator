@@ -1,8 +1,3 @@
-export const DEBUG = false;
-export const LOG = true;
-export const INFO = true;
-export const WARN = true;
-export const ERROR = true;
 export const BLACKSTONE = 170000;
 export const SHARP = 2000000;
 export const CONCENTRATED = SHARP + BLACKSTONE * 2;

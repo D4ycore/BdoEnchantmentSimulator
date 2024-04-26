@@ -1,4 +1,4 @@
-import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED, DEBUG, FLAWLESSMAGICALBLACKSTONE, MEMORYFRAGMENT } from './constants.js';
+import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED, FLAWLESSMAGICALBLACKSTONE, MEMORYFRAGMENT } from './constants.js';
 import { EnchantmentItem } from './enhance_item.js';
 import { logger } from './logger.js';
 import { TEST_RNG } from './test_rng.js';
@@ -8,27 +8,6 @@ class FailStack {
         this.tier = tier;
         this.amount = amount;
         this.value = value;
-    }
-}
-class EnchantmentStep2 {
-    constructor(stepIndex, controller) {
-        const step = controller.getEnchantmentStep(stepIndex);
-        this._item = step.item.value();
-        this._startFS = step.startFS.value() - controller.getFamilyFS().value();
-        this._endFS = step.endFS.value() - controller.getFamilyFS().value();
-        this._clicks = step.clicks.value();
-    }
-    get item() {
-        return this._item;
-    }
-    get startFS() {
-        return this._startFS;
-    }
-    get endFS() {
-        return this._endFS;
-    }
-    get clicks() {
-        return this._clicks;
     }
 }
 export class Logic {
@@ -66,8 +45,6 @@ export class Logic {
         for (let n = 0; n < 1000; n++)
             this.addItem('Reblath');
         this.refresh();
-        if (DEBUG)
-            logger.clear();
     }
     setupSilver() {
         this.controller.getFamilyFS().value(2);
@@ -86,8 +63,6 @@ export class Logic {
         for (let n = 0; n < 1000; n++)
             this.addItem('Reblath');
         this.refresh();
-        if (DEBUG)
-            logger.clear();
     }
     setupOld() {
         this.controller.getFamilyFS().value(2);
@@ -106,8 +81,6 @@ export class Logic {
         for (let n = 0; n < 1000; n++)
             this.addItem('Reblath');
         this.refresh();
-        if (DEBUG)
-            logger.clear();
     }
     addItem(item) {
         logger.debug('addItem', item);
@@ -149,23 +122,19 @@ export class Logic {
         tetReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount / 1000000, 2));
         triReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1000000, 2));
         duoReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1000000, 2));
-        const targetAmount = this.controller.getTargetAmount().value();
-        let fsPrice = 0;
+        const scalar = this.controller.getScaleOutput().value() ? this.controller.getTargetAmount().value() : 1;
         let text = '';
         for (let i = 1; i < this.failstacks.size; i++) {
             const fs = this.failstacks.get(i);
             if (fs && fs.amount > 0) {
-                const fsAmountPerTarget = nf(fs.amount / targetAmount, 2);
+                const fsAmountPerTarget = nf(fs.amount / scalar, 2);
                 const fsPricePer = nf(fs.value / fs.amount / 1000000, 2);
                 text += ' fs:' + fs.tier + ' ' + fsAmountPerTarget + 'x each(' + fsPricePer + 'm) // ';
-                fsPrice += fs.value;
             }
         }
-        const clicksPerTarget = nf(this.clicks / targetAmount, 2);
-        const pricePerTarget = nf(this.price / 1000000 / targetAmount, 2);
-        const reblathPrice = EnchantmentItem.Reblath_Duo.value + EnchantmentItem.Reblath_Tri.value + EnchantmentItem.Reblath_Tet.value + EnchantmentItem.Reblath_Pen.value;
-        const totalPricePerTarget = nf((fsPrice + reblathPrice) / 1000000 / targetAmount, 2);
-        this.controller.getStacksCrafted().value(`cpt: ${clicksPerTarget} | ppt: ${pricePerTarget} | tppt: ${totalPricePerTarget} - ` + text);
+        const clicks = nf(this.clicks / scalar, 2);
+        const price = nf(this.price / 1000000 / scalar, 2);
+        this.controller.getStacksCrafted().value(`click: ${clicks} | price: ${price} | ` + text);
     }
     takeFs(x) {
         logger.debug('takeFs', x);
@@ -385,8 +354,8 @@ export class Logic {
         }
         this.controller.getLastClick().value(message);
         const endFS = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1).endFS.value() - this.controller.getFamilyFS().value();
-        const targetFs = this.controller.getTargetAmount().value();
-        if (this.failstacks.get(endFS).amount == targetFs) {
+        const targetAmount = this.controller.getTargetAmount().value();
+        if (this.failstacks.get(endFS).amount == targetAmount) {
             this.upgrading = false;
         }
     }
@@ -431,7 +400,6 @@ export class Logic {
             }
             else if ((esItem == EnchantmentItem.Reblath_Mon && EnchantmentItem.Reblath_Mon.amount > 0) ||
                 (esItem == EnchantmentItem.Blackstar_Mon && EnchantmentItem.Blackstar_Mon.amount > 0)) {
-                console.warn('looking for mon click', enchantmentStep);
                 for (let j = esEndFS - 1; j >= esStartFS; j--) {
                     if (j == esStartFS && this.failstacks.get(j).amount == 0) {
                         if (esStartFS == 5) {
@@ -487,29 +455,43 @@ export class Logic {
         else
             logger.debug('not found');
     }
-    enchantmentItem_Pity_Current_OnChange(reblathIndex, newPityCurrent) {
-        const reblath = this.controller.getEnchantmentItem(reblathIndex);
-        if (!reblath)
-            return logger.warn(`There are no ${reblathIndex + 1} Reblaths`);
-        logger.debug(`The Current Pity Stack of Reblath(${reblathIndex}) has changed(${reblath.amount.value()} => ${newPityCurrent})`);
+    scaleOutput_OnChange(oldScaleOutput, newScaleOutput) {
+        if (newScaleOutput)
+            logger.debug(`Now scales the Output`);
+        else
+            logger.debug(`Now doesn't scale the Output`);
+        this.refresh();
     }
-    enchantmentItem_Pity_Max_OnChange(reblathIndex, newPityMax) {
-        const reblath = this.controller.getEnchantmentItem(reblathIndex);
-        if (!reblath)
-            return logger.warn(`There are no ${reblathIndex + 1} Reblaths`);
-        logger.debug(`The Max Pity Stack of Reblath(${reblathIndex}) has changed(${reblath.amount.value()} => ${newPityMax})`);
+    showDebug_OnChange(oldShowDebug, newShowDebug) {
+        if (newShowDebug)
+            logger.debug(`Now shows debugging logs`);
+        else
+            logger.debug(`Now hides debugging logs`);
+        logger.showDebugs = newShowDebug;
     }
-    enchantmentItem_Amount_OnChange(reblathIndex, newReblathAmount) {
-        const reblath = this.controller.getEnchantmentItem(reblathIndex);
-        if (!reblath)
-            return logger.warn(`There are no ${reblathIndex + 1} Reblaths`);
-        logger.debug(`The Amount of Reblath(${reblathIndex}) has changed(${reblath.amount.value()} => ${newReblathAmount})`);
+    enchantmentItem_Pity_Current_OnChange(ei_index, oldPityCurrent, newPityCurrent) {
+        const enchantment_item = this.controller.getEnchantmentItem(ei_index);
+        if (!enchantment_item)
+            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        logger.debug(`The Current Pity Stack of Reblath(${ei_index}) has changed(${oldPityCurrent} => ${newPityCurrent})`);
     }
-    enchantmentItem_WorthEach_OnChange(reblathIndex, newReblathWorthEach) {
-        const reblath = this.controller.getEnchantmentItem(reblathIndex);
-        if (!reblath)
-            return logger.warn(`There are no ${reblathIndex + 1} Reblaths`);
-        logger.debug(`The Worth of each Reblath(${reblathIndex}) has changed(${reblath.worthEach.value()} => ${newReblathWorthEach})`);
+    enchantmentItem_Pity_Max_OnChange(ei_index, oldPityMax, newPityMax) {
+        const enchantment_item = this.controller.getEnchantmentItem(ei_index);
+        if (!enchantment_item)
+            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        logger.debug(`The Max Pity Stack of Reblath(${ei_index}) has changed(${oldPityMax} => ${newPityMax})`);
+    }
+    enchantmentItem_Amount_OnChange(ei_index, oldAmount, newAmount) {
+        const enchantment_item = this.controller.getEnchantmentItem(ei_index);
+        if (!enchantment_item)
+            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        logger.debug(`The Amount of Reblath(${ei_index}) has changed(${oldAmount} => ${newAmount})`);
+    }
+    enchantmentItem_WorthEach_OnChange(ei_index, oldWorthEach, newWorthEach) {
+        const enchantment_item = this.controller.getEnchantmentItem(ei_index);
+        if (!enchantment_item)
+            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        logger.debug(`The Worth of each Reblath(${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
     }
     addReblath_OnClick() {
         logger.debug('Add new Reblath');
@@ -521,76 +503,72 @@ export class Logic {
         this.addItem('Blackstar');
         this.refresh();
     }
-    familyFS_OnChange(newFamilyFS) {
-        logger.debug(`The Family FS has changed(${this.controller.getFamilyFS().value()} => ${newFamilyFS})`);
+    familyFS_OnChange(oldFamilyFS, newFamilyFS) {
+        logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
         const step = this.controller.getEnchantmentStep(0);
         if (!step)
             return logger.warn('There are no Enchantment Steps');
         step.startFS.value(newFamilyFS + this.controller.getBuyFS().value());
     }
-    buyFS_OnChange(newBuyFS) {
-        logger.debug(`The Buy FS has changed(${this.controller.getBuyFS().value()} => ${newBuyFS})`);
-        const step = this.controller.getEnchantmentStep(0);
-        if (!step)
+    buyFS_OnChange(oldBuyFS, newBuyFS) {
+        logger.debug(`The Buy FS has changed(${oldBuyFS} => ${newBuyFS})`);
+        const enchantment_step = this.controller.getEnchantmentStep(0);
+        if (!enchantment_step)
             return logger.warn('There are no Enchantment Steps');
-        step.startFS.value(this.controller.getFamilyFS().value() + newBuyFS);
+        enchantment_step.startFS.value(this.controller.getFamilyFS().value() + newBuyFS);
     }
-    targetAmount_OnChange(newTargetAmount) {
-        logger.debug(`The Target Amount has changed(${this.controller.getTargetAmount().value()} => ${newTargetAmount})`);
-    }
-    enchantmentStep_Item_OnChange(stepIndex, newItem) {
-        const step = this.controller.getEnchantmentStep(stepIndex);
-        if (!step)
-            return logger.warn(`There are no ${stepIndex + 1} Steps`);
-        logger.debug(`The Item of Step(${stepIndex}) has changed(${step.item.value().name} => ${newItem.name})`);
-        const startFS = step.startFS.value();
-        const clicks = step.clicks.value();
-        const endFS = startFS + newItem.failstack_increase * clicks;
-        step.endFS.value(endFS);
-    }
-    enchantmentStep_StartFS_OnChange(stepIndex, newStartFS) {
-        const step = this.controller.getEnchantmentStep(stepIndex);
-        if (!step)
-            return logger.warn(`There are no ${stepIndex + 1} Steps`);
-        logger.debug(`The Start FS of Step(${stepIndex}) has changed(${step.startFS.value()} => ${newStartFS})`);
-        const inc_per_clicks = step.item.value().failstack_increase;
-        const clicks = step.clicks.value();
-        const endFS = newStartFS + inc_per_clicks * clicks;
-        step.endFS.value(endFS);
-    }
-    enchantmentStep_EndFS_OnChange(stepIndex, newEndFS) {
-        const step = this.controller.getEnchantmentStep(stepIndex);
-        if (!step)
-            return logger.warn(`There are no ${stepIndex + 1} Steps`);
-        logger.debug(`The End FS of Step(${stepIndex}) has changed(${step.endFS.value()} => ${newEndFS})`);
-        const nextIndex = stepIndex + 1;
-        if (nextIndex >= this.controller.getEnchantmentStepsSize())
-            return;
-        const step_next = this.controller.getEnchantmentStep(nextIndex);
-        if (!step_next)
-            return logger.warn(`There are no ${nextIndex + 1} Steps`);
-        step_next.startFS.value(newEndFS);
-    }
-    enchantmentStep_Clicks_OnChange(stepIndex, newClicks) {
-        const step = this.controller.getEnchantmentStep(stepIndex);
-        if (!step)
-            return logger.warn(`There are no ${stepIndex + 1} Steps`);
-        logger.debug(`The Clicks of Step(${stepIndex}) has changed(${step.clicks.value()} => ${newClicks})`);
-        const startFS = step.startFS.value();
-        const inc_per_clicks = step.item.value().failstack_increase;
-        const endFS = startFS + inc_per_clicks * newClicks;
-        step.endFS.value(endFS);
-    }
-    singleClick_OnClick() {
-        logger.debug('Single Click');
-        this.Enchantment();
+    targetAmount_OnChange(oldTargetAmount, newTargetAmount) {
+        logger.debug(`The Target Amount has changed(${oldTargetAmount} => ${newTargetAmount})`);
         this.refresh();
     }
-    clicksPerIteration_OnChange(newClicksPerIteration) {
-        logger.debug(`The Clicks per Iterations has changed(${this.controller.getClicksPerIteration().value()} => ${newClicksPerIteration})`);
+    enchantmentStep_Item_OnChange(es_index, oldItem, newItem) {
+        const enchantment_step = this.controller.getEnchantmentStep(es_index);
+        if (!enchantment_step)
+            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        logger.debug(`The Item of Step(${es_index}) has changed(${oldItem.name} => ${newItem.name})`);
+        const startFS = enchantment_step.startFS.value();
+        const clicks = enchantment_step.clicks.value();
+        const endFS = startFS + newItem.failstack_increase * clicks;
+        enchantment_step.endFS.value(endFS);
     }
-    iterationsPerSecond_OnChange(newIterationsPerSecond) {
-        logger.debug(`The Iterations per Second has changed(${this.controller.getIterationsPerSecond().value()} => ${newIterationsPerSecond})`);
+    enchantmentStep_StartFS_OnChange(es_index, oldStartFS, newStartFS) {
+        const enchantment_step = this.controller.getEnchantmentStep(es_index);
+        if (!enchantment_step)
+            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        logger.debug(`The Start FS of Step(${es_index}) has changed(${oldStartFS} => ${newStartFS})`);
+        const inc_per_clicks = enchantment_step.item.value().failstack_increase;
+        const clicks = enchantment_step.clicks.value();
+        const endFS = newStartFS + inc_per_clicks * clicks;
+        enchantment_step.endFS.value(endFS);
+    }
+    enchantmentStep_EndFS_OnChange(es_index, oldEndFS, newEndFS) {
+        const enchantment_step = this.controller.getEnchantmentStep(es_index);
+        if (!enchantment_step)
+            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        logger.debug(`The End FS of Step(${es_index}) has changed(${oldEndFS} => ${newEndFS})`);
+        const nextIndex = es_index + 1;
+        if (nextIndex >= this.controller.getEnchantmentStepsSize())
+            return;
+        const es_next = this.controller.getEnchantmentStep(nextIndex);
+        if (!es_next)
+            return logger.warn(`There are no ${nextIndex + 1} Enchantment Steps`);
+        es_next.startFS.value(newEndFS);
+    }
+    enchantmentStep_Clicks_OnChange(es_index, oldClicks, newClicks) {
+        const enchantment_step = this.controller.getEnchantmentStep(es_index);
+        if (!enchantment_step)
+            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        logger.debug(`The Clicks of Step(${es_index}) has changed(${oldClicks} => ${newClicks})`);
+        const startFS = enchantment_step.startFS.value();
+        const inc_per_clicks = enchantment_step.item.value().failstack_increase;
+        const endFS = startFS + inc_per_clicks * newClicks;
+        enchantment_step.endFS.value(endFS);
+    }
+    clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration) {
+        logger.debug(`The Clicks per Iterations has changed(${oldClicksPerIteration} => ${newClicksPerIteration})`);
+    }
+    iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond) {
+        logger.debug(`The Iterations per Second has changed(${oldIterationsPerSecond} => ${newIterationsPerSecond})`);
     }
     async upgradeStartOnClick() {
         logger.debug('Upgrade Start');
@@ -612,10 +590,15 @@ export class Logic {
         logger.debug('Upgrade Stop');
         this.upgrading = false;
     }
-    lastClick_OnChange(newLastClick) {
-        logger.debug(`The Last Click has changed(${this.controller.getLastClick().value()} => ${newLastClick})`);
+    singleClick_OnClick() {
+        logger.debug('Single Click');
+        this.Enchantment();
+        this.refresh();
     }
-    stacksCrafted_OnChange(newStacksCrafted) {
-        logger.debug(`The Stacks Crafted has changed(${this.controller.getStacksCrafted().value()} => ${newStacksCrafted})`);
+    lastClick_OnChange(oldLastClick, newLastClick) {
+        logger.debug(`The Last Click has changed(${oldLastClick} => ${newLastClick})`);
+    }
+    stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted) {
+        logger.debug(`The Stacks Crafted has changed(${oldStacksCrafted} => ${newStacksCrafted})`);
     }
 }

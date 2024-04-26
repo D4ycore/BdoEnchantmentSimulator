@@ -1,24 +1,28 @@
-import { DEBUG, ERROR, INFO, LOG, WARN } from './constants.js';
-
 class Logger {
+	showDebugs = false;
+	showLogs = true;
+	showInfos = true;
+	showWarnings = true;
+	showErrors = true;
+
 	debug(...data: any[]) {
-		if (DEBUG) console.debug(...['DEBUG -', ...data]);
+		if (this.showDebugs) console.debug(...['DEBUG -', ...data]);
 	}
 
 	log(...data: any[]) {
-		if (LOG) console.log(...['LOG -', ...data]);
+		if (this.showLogs) console.log(...['LOG -', ...data]);
 	}
 
 	info(...data: any[]) {
-		if (INFO) console.info(...['INFO -', ...data]);
+		if (this.showInfos) console.info(...['INFO -', ...data]);
 	}
 
 	warn(...data: any[]) {
-		if (WARN) console.warn(...['WARN -', ...data]);
+		if (this.showWarnings) console.warn(...['WARN -', ...data]);
 	}
 
 	error(...data: any[]) {
-		if (ERROR) console.error(...['ERROR -', ...data]);
+		if (this.showErrors) console.error(...['ERROR -', ...data]);
 	}
 
 	clear() {

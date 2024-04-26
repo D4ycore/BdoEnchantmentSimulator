@@ -67,7 +67,7 @@ a {
 }
 
 .app {
-	padding: 1rem 2rem 2rem 2rem;
+	padding: 2rem;
 	margin: calc(max(0vw, 4vw - 1rem));
 	border-radius: 2rem;
 	border-color: rgb(var(--app-border-rgb));
@@ -80,7 +80,27 @@ a {
 }
 
 .header {
-	margin-bottom: 0.5rem;
+	display: flex;
+	gap: 2rem;
+	padding-bottom: 1rem;
+	margin-bottom: 1rem;
+
+	border-bottom: solid rgb(var(--background-start-rgb));
+
+	& button {
+		padding-inline: 2rem;
+	}
+
+	& label {
+		-webkit-user-select: none;
+		user-select: none;
+	}
+
+	& > div {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
 }
 
 #bColorScheme {
@@ -96,7 +116,7 @@ a {
 		outline: solid rgb(var(--color-scheme-button-rgb)) 1px;
 	}
 
-	box-shadow: 1px 1px 4px rgb(var(--background-end-rgb));
+	/* box-shadow: 1px 1px 4px rgb(var(--background-end-rgb)); */
 }
 
 .content {

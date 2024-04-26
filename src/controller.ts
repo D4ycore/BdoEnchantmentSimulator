@@ -3,6 +3,9 @@ import { Logic } from './logic.js';
 import { View } from './view.js';
 
 export class Controller {
+	private scaleOutput: Value<boolean>;
+	private showDebug: Value<boolean>;
+
 	private enchantment_items: _enchantment_item[];
 	private addReblath: Button;
 
@@ -27,24 +30,35 @@ export class Controller {
 		this.view = view;
 		this.logic = logic;
 
+		this.scaleOutput = new Value<boolean>(
+			false,
+			(oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput),
+			(oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput)
+		);
+		this.showDebug = new Value<boolean>(
+			false,
+			(oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug),
+			(oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug)
+		);
+
 		this.enchantment_items = [];
 		for (let i = 0; i < 5; i++) this.enchantment_items.push(new _enchantment_item(this.enchantment_items.length, this.view, this.logic));
 		this.addReblath = new Button(() => logic.addReblath_OnClick());
 
 		this.familyFS = new Value<number>(
 			0,
-			newFamilyFS => view.familyFS_Set(newFamilyFS),
-			newFamilyFS => logic.familyFS_OnChange(newFamilyFS)
+			(oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS),
+			(oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS)
 		);
 		this.buyFS = new Value<number>(
 			0,
-			newBuyFS => view.buyFS_Set(newBuyFS),
-			newBuyFS => logic.buyFS_OnChange(newBuyFS)
+			(oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS),
+			(oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS)
 		);
 		this.targetAmount = new Value<number>(
 			0,
-			newTargetAmount => view.targetAmount_Set(newTargetAmount),
-			newTargetAmount => logic.targetAmount_OnChange(newTargetAmount)
+			(oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount),
+			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount)
 		);
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
@@ -52,27 +66,34 @@ export class Controller {
 
 		this.clicksPerIteration = new Value<number>(
 			0,
-			newClicksPerIteration => view.clicksPerIteration_Set(newClicksPerIteration),
-			newClicksPerIteration => logic.clicksPerIteration_OnChange(newClicksPerIteration)
+			(oldClicksPerIteration, newClicksPerIteration) => view.clicksPerIteration_Set(oldClicksPerIteration, newClicksPerIteration),
+			(oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration)
 		);
 		this.iterationsPerSecond = new Value<number>(
 			0,
-			newIterationsPerSecond => view.iterationsPerSecond_Set(newIterationsPerSecond),
-			newIterationsPerSecond => logic.iterationsPerSecond_OnChange(newIterationsPerSecond)
+			(oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond),
+			(oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond)
 		);
 		this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
 		this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
 
 		this.lastClick = new Value<string>(
 			'',
-			newLastClick => view.lastClick_Set(newLastClick),
-			newLastClick => logic.lastClick_OnChange(newLastClick)
+			(oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick),
+			(oldLastClick, newLastClick) => logic.lastClick_OnChange(oldLastClick, newLastClick)
 		);
 		this.stacksCrafted = new Value<string>(
 			'',
-			newStacksCrafted => view.stacksCrafted_Set(newStacksCrafted),
-			newStacksCrafted => logic.stacksCrafted_OnChange(newStacksCrafted)
+			(oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted),
+			(oldStacksCrafted, newStacksCrafted) => logic.stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted)
 		);
+	}
+
+	getScaleOutput() {
+		return this.scaleOutput;
+	}
+	getShowDebug() {
+		return this.showDebug;
 	}
 
 	getEnchantmentItem(ei_index: number) {
@@ -143,23 +164,25 @@ class Button {
 
 class Value<T> {
 	private _value: T;
-	private onChange: (newValue: T) => void;
-	private change: (newValue: T) => void;
+	private onChange: (oldValue: T, newValue: T) => void;
+	private set: (oldValue: T, newValue: T) => void;
 
-	constructor(initialValue: T, change: (newValue: T) => void, onChange: (newValue: T) => void) {
+	constructor(initialValue: T, set: (oldValue: T, newValue: T) => void, onChange: (oldValue: T, newValue: T) => void) {
 		this._value = initialValue;
-		this.change = change;
+		this.set = set;
 		this.onChange = onChange;
 	}
 
 	value(newValue?: T) {
-		if (newValue != undefined) this.change(newValue);
+		const oldValue = this._value;
+		if (newValue != undefined) this.set(oldValue, newValue);
 		return this._value;
 	}
 
 	changed(newValue: T) {
-		if (this.onChange) this.onChange(newValue);
+		const oldValue = this._value;
 		this._value = newValue;
+		if (this.onChange) this.onChange(oldValue, newValue);
 	}
 }
 
@@ -172,23 +195,23 @@ export class EnchantmentStep {
 	constructor(index: number, view: View, logic: Logic) {
 		this.item = new Value<EnchantmentItem>(
 			EnchantmentItem.Reblath_Mon,
-			newItem => view.enchantmentStep_Item_Set(index, newItem),
-			newItem => logic.enchantmentStep_Item_OnChange(index, newItem)
+			(oldItem, newItem) => view.enchantmentStep_Item_Set(index, oldItem, newItem),
+			(oldItem, newItem) => logic.enchantmentStep_Item_OnChange(index, oldItem, newItem)
 		);
 		this.startFS = new Value<number>(
 			0,
-			newStartFS => view.enchantmentStep_StartFS_Set(index, newStartFS),
-			newStartFS => logic.enchantmentStep_StartFS_OnChange(index, newStartFS)
+			(oldStartFS, newStartFS) => view.enchantmentStep_StartFS_Set(index, oldStartFS, newStartFS),
+			(oldStartFS, newStartFS) => logic.enchantmentStep_StartFS_OnChange(index, oldStartFS, newStartFS)
 		);
 		this.endFS = new Value<number>(
 			0,
-			newEndFS => view.enchantmentStep_EndFS_Set(index, newEndFS),
-			newEndFS => logic.enchantmentStep_EndFS_OnChange(index, newEndFS)
+			(oldEndFS, newEndFS) => view.enchantmentStep_EndFS_Set(index, oldEndFS, newEndFS),
+			(oldEndFS, newEndFS) => logic.enchantmentStep_EndFS_OnChange(index, oldEndFS, newEndFS)
 		);
 		this.clicks = new Value<number>(
 			0,
-			newClicks => view.enchantmentStep_Clicks_Set(index, newClicks),
-			newClicks => logic.enchantmentStep_Clicks_OnChange(index, newClicks)
+			(oldClicks, newClicks) => view.enchantmentStep_Clicks_Set(index, oldClicks, newClicks),
+			(oldClicks, newClicks) => logic.enchantmentStep_Clicks_OnChange(index, oldClicks, newClicks)
 		);
 	}
 }
@@ -202,13 +225,13 @@ class _enchantment_item {
 		this.pity = new Pity(index, view, logic);
 		this.amount = new Value<number>(
 			0,
-			newAmount => view.enchantmentItem_Amount_Set(index, newAmount),
-			newAmount => logic.enchantmentItem_Amount_OnChange(index, newAmount)
+			(oldAmount, newAmount) => view.enchantmentItem_Amount_Set(index, oldAmount, newAmount),
+			(oldAmount, newAmount) => logic.enchantmentItem_Amount_OnChange(index, oldAmount, newAmount)
 		);
 		this.worthEach = new Value<number>(
 			0,
-			newWorthEach => view.enchantmentItem_WorthEach_Set(index, newWorthEach),
-			newWorthEach => logic.enchantmentItem_WorthEach_OnChange(index, newWorthEach)
+			(oldWorthEach, newWorthEach) => view.enchantmentItem_WorthEach_Set(index, oldWorthEach, newWorthEach),
+			(oldWorthEach, newWorthEach) => logic.enchantmentItem_WorthEach_OnChange(index, oldWorthEach, newWorthEach)
 		);
 	}
 }
@@ -220,13 +243,13 @@ class Pity {
 	constructor(index: number, view: View, logic: Logic) {
 		this.current = new Value<number>(
 			0,
-			newPityCurrent => view.enchantmentItem_Pity_Current_Set(index, newPityCurrent),
-			newPityCurrent => logic.enchantmentItem_Pity_Current_OnChange(index, newPityCurrent)
+			(oldPityCurrent, newPityCurrent) => view.enchantmentItem_Pity_Current_Set(index, oldPityCurrent, newPityCurrent),
+			(oldPityCurrent, newPityCurrent) => logic.enchantmentItem_Pity_Current_OnChange(index, oldPityCurrent, newPityCurrent)
 		);
 		this.max = new Value<number>(
 			0,
-			newPityMax => view.enchantmentItem_Pity_Max_Set(index, newPityMax),
-			newPityMax => logic.enchantmentItem_Pity_Max_OnChange(index, newPityMax)
+			(oldPityMax, newPityMax) => view.enchantmentItem_Pity_Max_Set(index, oldPityMax, newPityMax),
+			(oldPityMax, newPityMax) => logic.enchantmentItem_Pity_Max_OnChange(index, oldPityMax, newPityMax)
 		);
 	}
 }
