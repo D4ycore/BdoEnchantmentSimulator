@@ -1,0 +1,22 @@
+{
+	"name": "bdo-enchantment-simulator",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"build2": "yarn tsc",
+		"test": "tsc && cd public/test && node test.js"
+	},
+	"keywords": [],
+	"license": "MIT",
+	"dependencies": {},
+	"devDependencies": {
+		"@types/node": "^20.12.7",
+		"typescript": "^5.4.5"
+	},
+	"packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447",
+	"repository": "https://github.com/D4ycore/BdoEnchantmentSimulator.git",
+	"author": "SunFlow <sunflow.riven@gmail.com>, D4ycore <daycore@web.de>"
+}
