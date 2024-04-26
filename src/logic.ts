@@ -682,7 +682,7 @@ export class Logic {
 		while (this.upgrading) {
 			logger.debug('Iteration: ' + iteration);
 
-			for (let click = 0; click < this.controller.getClicksPerIteration().value(); click++) {
+			for (let click = 0; this.upgrading && click < this.controller.getClicksPerIteration().value(); click++) {
 				this.Enchantment();
 			}
 
