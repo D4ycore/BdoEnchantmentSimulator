@@ -678,12 +678,11 @@ export class Logic {
 	async upgradeStartOnClick() {
 		logger.debug('Upgrade Start');
 		this.upgrading = true;
-		const cpi = this.controller.getClicksPerIteration().value();
 		let iteration = 0;
 		while (this.upgrading) {
 			logger.debug('Iteration: ' + iteration);
 
-			for (let click = 0; click < cpi; click++) {
+			for (let click = 0; click < this.controller.getClicksPerIteration().value(); click++) {
 				this.Enchantment();
 			}
 
