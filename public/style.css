@@ -110,6 +110,7 @@ a {
 	& th {
 		padding-block-end: 0.25rem;
 		padding-inline: 0.5rem;
+		white-space: nowrap;
 		text-wrap: nowrap;
 	}
 	& td {
@@ -148,6 +149,7 @@ a {
 #settings {
 	display: flex;
 	flex-direction: column;
+	white-space: nowrap;
 	text-wrap: nowrap;
 	gap: 2rem;
 }
