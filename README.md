@@ -1,4 +1,1 @@
 # BdoEnchantmentSimulator
-
-asd
-abc
