@@ -1,8 +1,8 @@
-import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED, FLAWLESSMAGICALBLACKSTONE, MEMORYFRAGMENT } from '../util/constants.js';
-import EnchantmentItem from './EnchantmentItem.js';
-import logger from '../util/logger.js';
-import { TEST_RNG } from '../util/test_rng.js';
+import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED_MAGICAL_BLACKSTONE, FLAWLESS_MAGICAL_BLACKSTONE, MEMORY_FRAGMENT } from '../util/constants.js';
+import Logger from '../util/Logger.js';
+import { TEST_RNG } from '../util/TestRng.js';
 import { nf } from '../util/util.js';
+import EnchantmentItem from './EnchantmentItem.js';
 import { FailStack } from './FailStack.js';
 export default class Logic {
     constructor() {
@@ -77,7 +77,7 @@ export default class Logic {
         this.refresh();
     }
     addItem(item) {
-        logger.debug('addItem', item);
+        Logger.debug('addItem', item);
         switch (item) {
             case 'Reblath':
                 EnchantmentItem.Reblath_Mon.amount = EnchantmentItem.Reblath_Mon.amount + 10;
@@ -89,7 +89,7 @@ export default class Logic {
         }
     }
     refresh() {
-        logger.debug('refresh', this.currentFailstack);
+        Logger.debug('refresh', this.currentFailstack);
         const monReblathText = this.controller.getEnchantmentItem(0);
         const duoReblathText = this.controller.getEnchantmentItem(1);
         const triReblathText = this.controller.getEnchantmentItem(2);
@@ -131,72 +131,72 @@ export default class Logic {
         this.controller.getStacksCrafted().value(`click: ${clicks} | price: ${price} | ` + text);
     }
     takeFs(x) {
-        logger.debug('takeFs', x);
+        Logger.debug('takeFs', x);
         const targetFS = this.failstacks.get(x);
-        logger.debug('targetFS-b', targetFS);
+        Logger.debug('targetFS-b', targetFS);
         this.currentFailstack.tier = x;
         this.currentFailstack.value = targetFS.value / targetFS.amount;
         targetFS.value -= this.currentFailstack.value;
         this.currentFailstack.amount = 1;
         targetFS.amount -= 1;
-        logger.debug('targetFS-a', targetFS);
+        Logger.debug('targetFS-a', targetFS);
     }
     insertFs() {
-        logger.debug('insertFs', this.currentFailstack);
+        Logger.debug('insertFs', this.currentFailstack);
         const targetFs = this.failstacks.get(this.currentFailstack.tier);
         targetFs.amount++;
         targetFs.value += this.currentFailstack.value;
     }
     increaseFs(esItem) {
-        logger.debug('increaseFs', this.currentFailstack, esItem);
+        Logger.debug('increaseFs', this.currentFailstack, esItem);
         this.currentFailstack.tier = this.currentFailstack.tier + esItem.failstack_increase;
         switch (esItem) {
             case EnchantmentItem.Reblath_Tet:
-                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED + EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
+                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
                 EnchantmentItem.Reblath_Tet.value = EnchantmentItem.Reblath_Tet.value - EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
                 break;
             case EnchantmentItem.Reblath_Tri:
-                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED + EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
+                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
                 EnchantmentItem.Reblath_Tri.value = EnchantmentItem.Reblath_Tri.value - EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
                 break;
             case EnchantmentItem.Reblath_Duo:
-                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED + EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
+                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
                 EnchantmentItem.Reblath_Duo.value = EnchantmentItem.Reblath_Duo.value - EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
                 break;
             case EnchantmentItem.Reblath_Mon:
-                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED;
+                this.currentFailstack.value = this.currentFailstack.value + CONCENTRATED_MAGICAL_BLACKSTONE;
                 break;
             case EnchantmentItem.Blackstar_Tet:
                 this.currentFailstack.value =
-                    this.currentFailstack.value + FLAWLESSMAGICALBLACKSTONE + 20 * MEMORYFRAGMENT + EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
+                    this.currentFailstack.value + FLAWLESS_MAGICAL_BLACKSTONE + 20 * MEMORY_FRAGMENT + EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
                 EnchantmentItem.Blackstar_Tet.value = EnchantmentItem.Blackstar_Tet.value - EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
                 break;
             case EnchantmentItem.Blackstar_Tri:
                 this.currentFailstack.value =
-                    this.currentFailstack.value + FLAWLESSMAGICALBLACKSTONE + 20 * MEMORYFRAGMENT + EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
+                    this.currentFailstack.value + FLAWLESS_MAGICAL_BLACKSTONE + 20 * MEMORY_FRAGMENT + EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
                 EnchantmentItem.Blackstar_Tri.value = EnchantmentItem.Blackstar_Tri.value - EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
                 break;
             case EnchantmentItem.Blackstar_Duo:
                 this.currentFailstack.value =
-                    this.currentFailstack.value + FLAWLESSMAGICALBLACKSTONE + 20 * MEMORYFRAGMENT + EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
+                    this.currentFailstack.value + FLAWLESS_MAGICAL_BLACKSTONE + 20 * MEMORY_FRAGMENT + EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
                 EnchantmentItem.Blackstar_Duo.value = EnchantmentItem.Blackstar_Duo.value - EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
                 break;
             case EnchantmentItem.Blackstar_Mon:
-                this.currentFailstack.value = this.currentFailstack.value + FLAWLESSMAGICALBLACKSTONE + 20 * MEMORYFRAGMENT;
+                this.currentFailstack.value = this.currentFailstack.value + FLAWLESS_MAGICAL_BLACKSTONE + 20 * MEMORY_FRAGMENT;
                 break;
         }
     }
     deleteFs() {
-        logger.debug('deleteFs', this.currentFailstack);
+        Logger.debug('deleteFs', this.currentFailstack);
         this.currentFailstack.tier = 0;
         this.currentFailstack.amount = 0;
         this.currentFailstack.value = 0;
     }
     increaseItem(esItem, pitySuccess = false) {
-        logger.debug('itemIncrease', this.currentFailstack, esItem);
+        Logger.debug('itemIncrease', this.currentFailstack, esItem);
         switch (esItem) {
             case EnchantmentItem.Reblath_Tet:
-                EnchantmentItem.Reblath_Pen.value += CONCENTRATED;
+                EnchantmentItem.Reblath_Pen.value += CONCENTRATED_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Pen.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Pen.value += EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
@@ -205,11 +205,11 @@ export default class Logic {
                 EnchantmentItem.Reblath_Tet.amount--;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Pen.total_value += this.currentFailstack.value;
-                EnchantmentItem.Reblath_Pen.total_value += CONCENTRATED + EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount;
+                EnchantmentItem.Reblath_Pen.total_value += CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount;
                 EnchantmentItem.Reblath_Pen.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Tri:
-                EnchantmentItem.Reblath_Tet.value += CONCENTRATED;
+                EnchantmentItem.Reblath_Tet.value += CONCENTRATED_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tet.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Tet.value += EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
@@ -218,11 +218,11 @@ export default class Logic {
                 EnchantmentItem.Reblath_Tri.amount--;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tet.total_value += this.currentFailstack.value;
-                EnchantmentItem.Reblath_Tet.total_value += CONCENTRATED + EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount;
+                EnchantmentItem.Reblath_Tet.total_value += CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount;
                 EnchantmentItem.Reblath_Tet.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Duo:
-                EnchantmentItem.Reblath_Tri.value += CONCENTRATED;
+                EnchantmentItem.Reblath_Tri.value += CONCENTRATED_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tri.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Tri.value += EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
@@ -231,22 +231,22 @@ export default class Logic {
                 EnchantmentItem.Reblath_Duo.amount--;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tri.total_value += this.currentFailstack.value;
-                EnchantmentItem.Reblath_Tri.total_value += CONCENTRATED + EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount;
+                EnchantmentItem.Reblath_Tri.total_value += CONCENTRATED_MAGICAL_BLACKSTONE + EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount;
                 EnchantmentItem.Reblath_Tri.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Mon:
-                EnchantmentItem.Reblath_Duo.value += CONCENTRATED;
+                EnchantmentItem.Reblath_Duo.value += CONCENTRATED_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Duo.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Duo.amount++;
                 EnchantmentItem.Reblath_Mon.amount--;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Duo.total_value += this.currentFailstack.value;
-                EnchantmentItem.Reblath_Duo.total_value += CONCENTRATED;
+                EnchantmentItem.Reblath_Duo.total_value += CONCENTRATED_MAGICAL_BLACKSTONE;
                 EnchantmentItem.Reblath_Duo.total_amount++;
                 break;
             case EnchantmentItem.Blackstar_Tet:
-                EnchantmentItem.Blackstar_Pen.value += FLAWLESSMAGICALBLACKSTONE;
+                EnchantmentItem.Blackstar_Pen.value += FLAWLESS_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Pen.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Pen.value += EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
@@ -255,7 +255,7 @@ export default class Logic {
                 EnchantmentItem.Blackstar_Tet.amount--;
                 break;
             case EnchantmentItem.Blackstar_Tri:
-                EnchantmentItem.Blackstar_Tet.value += FLAWLESSMAGICALBLACKSTONE;
+                EnchantmentItem.Blackstar_Tet.value += FLAWLESS_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Tet.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Tet.value += EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
@@ -264,7 +264,7 @@ export default class Logic {
                 EnchantmentItem.Blackstar_Tri.amount--;
                 break;
             case EnchantmentItem.Blackstar_Duo:
-                EnchantmentItem.Blackstar_Tri.value += FLAWLESSMAGICALBLACKSTONE;
+                EnchantmentItem.Blackstar_Tri.value += FLAWLESS_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Tri.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Tri.value += EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
@@ -273,7 +273,7 @@ export default class Logic {
                 EnchantmentItem.Blackstar_Duo.amount--;
                 break;
             case EnchantmentItem.Blackstar_Mon:
-                EnchantmentItem.Blackstar_Duo.value += FLAWLESSMAGICALBLACKSTONE;
+                EnchantmentItem.Blackstar_Duo.value += FLAWLESS_MAGICAL_BLACKSTONE;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Duo.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Duo.amount++;
@@ -282,7 +282,7 @@ export default class Logic {
         }
     }
     decreaseItem(esItem) {
-        logger.debug('itemDecrease', this.currentFailstack, esItem);
+        Logger.debug('itemDecrease', this.currentFailstack, esItem);
         switch (esItem) {
             case EnchantmentItem.Reblath_Tet:
                 EnchantmentItem.Reblath_Tri.amount++;
@@ -312,11 +312,11 @@ export default class Logic {
                 EnchantmentItem.Blackstar_Duo.amount--;
                 break;
         }
-        logger.debug(EnchantmentItem.Reblath_Mon, EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri);
+        Logger.debug(EnchantmentItem.Reblath_Mon, EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri);
     }
     upgrade(esItem) {
-        logger.debug('upgrade', this.currentFailstack, esItem);
-        this.price += CONCENTRATED;
+        Logger.debug('upgrade', this.currentFailstack, esItem);
+        this.price += CONCENTRATED_MAGICAL_BLACKSTONE;
         const pity = esItem.pity;
         const applyPity = pity.check();
         let message;
@@ -355,10 +355,10 @@ export default class Logic {
     }
     Enchantment() {
         this.clicks += 1;
-        logger.debug('Enchantment', this.controller.getEnchantmentStepsSize(), this.currentFailstack);
+        Logger.debug('Enchantment', this.controller.getEnchantmentStepsSize(), this.currentFailstack);
         let esItem;
         for (let es_index = this.controller.getEnchantmentStepsSize() - 1; es_index >= 0; es_index--) {
-            logger.debug('Enchantment Step', es_index);
+            Logger.debug('Enchantment Step', es_index);
             let fsFound = false;
             const enchantmentStep = this.controller.getEnchantmentStep(es_index);
             esItem = enchantmentStep.item.value();
@@ -443,83 +443,83 @@ export default class Logic {
                 break;
         }
         if (this.currentFailstack.amount > 0 && esItem) {
-            logger.debug('found', this.currentFailstack);
+            Logger.debug('found', this.currentFailstack);
             this.upgrade(esItem);
         }
         else
-            logger.debug('not found');
+            Logger.debug('not found');
     }
     scaleOutput_OnChange(oldScaleOutput, newScaleOutput) {
         if (newScaleOutput)
-            logger.debug(`Now scales the Output`);
+            Logger.debug(`Now scales the Output`);
         else
-            logger.debug(`Now doesn't scale the Output`);
+            Logger.debug(`Now doesn't scale the Output`);
         this.refresh();
     }
     showDebug_OnChange(oldShowDebug, newShowDebug) {
         if (newShowDebug)
-            logger.debug(`Now shows debugging logs`);
+            Logger.debug(`Now shows debugging logs`);
         else
-            logger.debug(`Now hides debugging logs`);
-        logger.showDebugs = newShowDebug;
+            Logger.debug(`Now hides debugging logs`);
+        Logger.showDebugs = newShowDebug;
     }
     enchantmentItem_Pity_Current_OnChange(ei_index, oldPityCurrent, newPityCurrent) {
         const enchantment_item = this.controller.getEnchantmentItem(ei_index);
         if (!enchantment_item)
-            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
-        logger.debug(`The Current Pity Stack of Reblath(${ei_index}) has changed(${oldPityCurrent} => ${newPityCurrent})`);
+            return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        Logger.debug(`The Current Pity Stack of Reblath(${ei_index}) has changed(${oldPityCurrent} => ${newPityCurrent})`);
     }
     enchantmentItem_Pity_Max_OnChange(ei_index, oldPityMax, newPityMax) {
         const enchantment_item = this.controller.getEnchantmentItem(ei_index);
         if (!enchantment_item)
-            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
-        logger.debug(`The Max Pity Stack of Reblath(${ei_index}) has changed(${oldPityMax} => ${newPityMax})`);
+            return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        Logger.debug(`The Max Pity Stack of Reblath(${ei_index}) has changed(${oldPityMax} => ${newPityMax})`);
     }
     enchantmentItem_Amount_OnChange(ei_index, oldAmount, newAmount) {
         const enchantment_item = this.controller.getEnchantmentItem(ei_index);
         if (!enchantment_item)
-            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
-        logger.debug(`The Amount of Reblath(${ei_index}) has changed(${oldAmount} => ${newAmount})`);
+            return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        Logger.debug(`The Amount of Reblath(${ei_index}) has changed(${oldAmount} => ${newAmount})`);
     }
     enchantmentItem_WorthEach_OnChange(ei_index, oldWorthEach, newWorthEach) {
         const enchantment_item = this.controller.getEnchantmentItem(ei_index);
         if (!enchantment_item)
-            return logger.warn(`There are no ${ei_index + 1} Reblaths`);
-        logger.debug(`The Worth of each Reblath(${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
+            return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+        Logger.debug(`The Worth of each Reblath(${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
     }
     addReblath_OnClick() {
-        logger.debug('Add new Reblath');
+        Logger.debug('Add new Reblath');
         this.addItem('Reblath');
         this.refresh();
     }
     addBlackStar_OnClick() {
-        logger.debug('Add new Blackstar');
+        Logger.debug('Add new Blackstar');
         this.addItem('Blackstar');
         this.refresh();
     }
     familyFS_OnChange(oldFamilyFS, newFamilyFS) {
-        logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
+        Logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
         const step = this.controller.getEnchantmentStep(0);
         if (!step)
-            return logger.warn('There are no Enchantment Steps');
+            return Logger.warn('There are no Enchantment Steps');
         step.startFS.value(newFamilyFS + this.controller.getBuyFS().value());
     }
     buyFS_OnChange(oldBuyFS, newBuyFS) {
-        logger.debug(`The Buy FS has changed(${oldBuyFS} => ${newBuyFS})`);
+        Logger.debug(`The Buy FS has changed(${oldBuyFS} => ${newBuyFS})`);
         const enchantment_step = this.controller.getEnchantmentStep(0);
         if (!enchantment_step)
-            return logger.warn('There are no Enchantment Steps');
+            return Logger.warn('There are no Enchantment Steps');
         enchantment_step.startFS.value(this.controller.getFamilyFS().value() + newBuyFS);
     }
     targetAmount_OnChange(oldTargetAmount, newTargetAmount) {
-        logger.debug(`The Target Amount has changed(${oldTargetAmount} => ${newTargetAmount})`);
+        Logger.debug(`The Target Amount has changed(${oldTargetAmount} => ${newTargetAmount})`);
         this.refresh();
     }
     enchantmentStep_Item_OnChange(es_index, oldItem, newItem) {
         const enchantment_step = this.controller.getEnchantmentStep(es_index);
         if (!enchantment_step)
-            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
-        logger.debug(`The Item of Step(${es_index}) has changed(${oldItem.name} => ${newItem.name})`);
+            return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        Logger.debug(`The Item of Step(${es_index}) has changed(${oldItem.name} => ${newItem.name})`);
         const startFS = enchantment_step.startFS.value();
         const clicks = enchantment_step.clicks.value();
         const endFS = startFS + newItem.failstack_increase * clicks;
@@ -528,8 +528,8 @@ export default class Logic {
     enchantmentStep_StartFS_OnChange(es_index, oldStartFS, newStartFS) {
         const enchantment_step = this.controller.getEnchantmentStep(es_index);
         if (!enchantment_step)
-            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
-        logger.debug(`The Start FS of Step(${es_index}) has changed(${oldStartFS} => ${newStartFS})`);
+            return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        Logger.debug(`The Start FS of Step(${es_index}) has changed(${oldStartFS} => ${newStartFS})`);
         const inc_per_clicks = enchantment_step.item.value().failstack_increase;
         const clicks = enchantment_step.clicks.value();
         const endFS = newStartFS + inc_per_clicks * clicks;
@@ -538,61 +538,61 @@ export default class Logic {
     enchantmentStep_EndFS_OnChange(es_index, oldEndFS, newEndFS) {
         const enchantment_step = this.controller.getEnchantmentStep(es_index);
         if (!enchantment_step)
-            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
-        logger.debug(`The End FS of Step(${es_index}) has changed(${oldEndFS} => ${newEndFS})`);
+            return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        Logger.debug(`The End FS of Step(${es_index}) has changed(${oldEndFS} => ${newEndFS})`);
         const nextIndex = es_index + 1;
         if (nextIndex >= this.controller.getEnchantmentStepsSize())
             return;
         const es_next = this.controller.getEnchantmentStep(nextIndex);
         if (!es_next)
-            return logger.warn(`There are no ${nextIndex + 1} Enchantment Steps`);
+            return Logger.warn(`There are no ${nextIndex + 1} Enchantment Steps`);
         es_next.startFS.value(newEndFS);
     }
     enchantmentStep_Clicks_OnChange(es_index, oldClicks, newClicks) {
         const enchantment_step = this.controller.getEnchantmentStep(es_index);
         if (!enchantment_step)
-            return logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
-        logger.debug(`The Clicks of Step(${es_index}) has changed(${oldClicks} => ${newClicks})`);
+            return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
+        Logger.debug(`The Clicks of Step(${es_index}) has changed(${oldClicks} => ${newClicks})`);
         const startFS = enchantment_step.startFS.value();
         const inc_per_clicks = enchantment_step.item.value().failstack_increase;
         const endFS = startFS + inc_per_clicks * newClicks;
         enchantment_step.endFS.value(endFS);
     }
     clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration) {
-        logger.debug(`The Clicks per Iterations has changed(${oldClicksPerIteration} => ${newClicksPerIteration})`);
+        Logger.debug(`The Clicks per Iterations has changed(${oldClicksPerIteration} => ${newClicksPerIteration})`);
     }
     iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond) {
-        logger.debug(`The Iterations per Second has changed(${oldIterationsPerSecond} => ${newIterationsPerSecond})`);
+        Logger.debug(`The Iterations per Second has changed(${oldIterationsPerSecond} => ${newIterationsPerSecond})`);
     }
     async upgradeStartOnClick() {
-        logger.debug('Upgrade Start');
+        Logger.debug('Upgrade Start');
         this.upgrading = true;
         let iteration = 0;
         while (this.upgrading) {
-            logger.debug('Iteration: ' + iteration);
+            Logger.debug('Iteration: ' + iteration);
             for (let click = 0; this.upgrading && click < this.controller.getClicksPerIteration().value(); click++) {
                 this.Enchantment();
             }
             this.refresh();
             const delay = 1000 / this.controller.getIterationsPerSecond().value();
-            logger.debug('delay: ' + delay);
+            Logger.debug('delay: ' + delay);
             await new Promise(r => setTimeout(r, delay));
             iteration++;
         }
     }
     upgradeStop_OnClick() {
-        logger.debug('Upgrade Stop');
+        Logger.debug('Upgrade Stop');
         this.upgrading = false;
     }
     singleClick_OnClick() {
-        logger.debug('Single Click');
+        Logger.debug('Single Click');
         this.Enchantment();
         this.refresh();
     }
     lastClick_OnChange(oldLastClick, newLastClick) {
-        logger.debug(`The Last Click has changed(${oldLastClick} => ${newLastClick})`);
+        Logger.debug(`The Last Click has changed(${oldLastClick} => ${newLastClick})`);
     }
     stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted) {
-        logger.debug(`The Stacks Crafted has changed(${oldStacksCrafted} => ${newStacksCrafted})`);
+        Logger.debug(`The Stacks Crafted has changed(${oldStacksCrafted} => ${newStacksCrafted})`);
     }
 }

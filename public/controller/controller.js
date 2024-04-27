@@ -1,7 +1,7 @@
 import Button from './Button.js';
-import Value from './Value.js';
-import { EnchantmentStep } from './EnchantmentStep.js';
 import EnchantmentItem from './EnchantmentItem.js';
+import { EnchantmentStep } from './EnchantmentStep.js';
+import Value from './Value.js';
 export default class Controller {
     constructor(view, logic) {
         this.view = view;

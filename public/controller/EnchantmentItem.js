@@ -1,5 +1,5 @@
-import Value from './Value.js';
 import Pity from './Pity.js';
+import Value from './Value.js';
 export default class EnchantmentItem {
     constructor(index, view, logic) {
         this.pity = new Pity(index, view, logic);
