@@ -1,4 +1,4 @@
-class Logger {
+export class Logger {
     constructor() {
         this.showDebugs = false;
         this.showLogs = true;
@@ -30,4 +30,4 @@ class Logger {
         console.clear();
     }
 }
-export const logger = new Logger();
+export default new Logger();

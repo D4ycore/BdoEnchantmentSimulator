@@ -1,5 +1,5 @@
-import { EnchantmentItems } from './enhance_item.js';
-import { logger } from './logger.js';
+import { EnchantmentItems } from '../logic/EnchantmentItem.js';
+import logger from '../util/logger.js';
 function nonNullElement2(elt, name) {
     if (!elt || (elt instanceof NodeList && elt.length == 0))
         throw new Error(`'${name}' Element missing`);
@@ -15,8 +15,9 @@ function nonNullElementAll(elt, name) {
         throw new Error(`'${name}' Element missing`);
     return elt;
 }
-export class View {
+export default class View {
     constructor() {
+        logger.warn('constructor view.ts', logger.showErrors);
         this.cbScaleOutput = nonNullElement(document.querySelector('#cbScaleOutput'), 'Scale Output');
         this.cbShowDebug = nonNullElement(document.querySelector('#cbShowDebug'), 'Show Debug');
         this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll('.enchantment_item'), 'Enchantment Items');

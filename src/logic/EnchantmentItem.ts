@@ -1,46 +1,11 @@
+import Pity from './Pity.js';
+
 export const EnchantmentItems = new Map<string, EnchantmentItem>();
 
-class Pity {
-	static readonly NULL = new Pity(0);
-
-	static readonly White_Mon = new Pity(7);
-	static readonly White_Duo = new Pity(8);
-	static readonly White_Tri = new Pity(12);
-	static readonly White_Tet = new Pity(35);
-
-	static readonly Blackstar_Mon = new Pity(6);
-	static readonly Blackstar_Duo = new Pity(8);
-	static readonly Blackstar_Tri = new Pity(25);
-	static readonly Blackstar_Tet = new Pity(40);
-
-	private _max;
-	private _current: number = 0;
-
-	private constructor(max: number) {
-		this._max = max;
-	}
-
-	public get max(): number {
-		return this._max;
-	}
-	public get current(): number {
-		return this._current;
-	}
-
-	increase() {
-		this._current++;
-	}
-	check() {
-		return this._current >= this._max;
-	}
-	reset() {
-		this._current = 0;
-	}
-}
-export class EnchantmentItem {
+export default class EnchantmentItem {
 	public static readonly Reblath_Mon = new EnchantmentItem('Reblath_Mon', 3, 7.692, Pity.White_Mon);
 	public static readonly Reblath_Duo = new EnchantmentItem('Reblath_Duo', 4, 6.25, Pity.White_Duo);
-	public static readonly Reblath_Tri = new EnchantmentItem('Reblath_Tri', 5, 2.0, Pity.White_Tri);
+	public static readonly Reblath_Tri = new EnchantmentItem('Reblath_Tri', 5, 2, Pity.White_Tri);
 	public static readonly Reblath_Tet = new EnchantmentItem('Reblath_Tet', 6, 0.3, Pity.White_Tet);
 	public static readonly Reblath_Pen = new EnchantmentItem('Reblath_Pen', 0, 0, Pity.NULL);
 

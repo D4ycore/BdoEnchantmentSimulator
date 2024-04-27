@@ -5,15 +5,20 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"build": "tsc",
-		"build2": "yarn tsc",
-		"test": "tsc && cd public/test && node test.js"
+		"tscBuild": "tsc",
+		"tscClean": "tsc --build --clean",
+		"test": "tsc && cd public/test && node test.js",
+		"clean": "rimraf public/",
+		"copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.png public/",
+		"build": "yarn clean && tsc && yarn copy-files"
 	},
 	"keywords": [],
 	"license": "MIT",
 	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^20.12.7",
+		"copyfiles": "^2.4.1",
+		"rimraf": "^5.0.5",
 		"typescript": "^5.4.5"
 	},
 	"packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447",

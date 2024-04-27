@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/png" href="img/icon.png" />
+		<title>BDO Simulator</title>
+	</head>
+	<body>
+		<div class="app">
+			<div class="header">
+				<div>
+					<label for="bColorScheme">Switch Color Scheme</label>
+					<input type="button" id="bColorScheme" title="Switch Color Scheme" />
+				</div>
+				<div>
+					<label for="cbScaleOutput">Scale Output</label>
+					<input type="checkbox" id="cbScaleOutput" title="Scale Output to match Target Amount" />
+				</div>
+				<div>
+					<label for="cbShowDebug">Debug</label>
+					<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
+				</div>
+			</div>
+			<div class="content">
+				<table id="enchantment_items" aria-label="Enchantment Items">
+					<thead class="item_header">
+						<th></th>
+						<th>Amount</th>
+						<th>Worth Each</th>
+					</thead>
+					<tbody>
+						<tr class="enchantment_item mon">
+							<td class="ei_wrapper">
+								<img src="img/Mon.png" class="ei_image" alt="I" />
+								<span title="Reblath Mon Pity" class="ei_pity">
+									<span class="current">0</span>
+									<span class="seperator">/</span>
+									<span class="max">0</span>
+								</span>
+							</td>
+							<td><input disabled type="text" title="Reblath Mon Amount" class="ei_amount" value="0" placeholder="0" /></td>
+						</tr>
+						<tr class="enchantment_item duo">
+							<td class="ei_wrapper">
+								<img src="img/Duo.png" class="ei_image" alt="II" />
+								<span title="Reblath Duo Pity" class="ei_pity">
+									<span class="current">0</span>
+									<span class="seperator">/</span>
+									<span class="max">0</span>
+								</span>
+							</td>
+							<td><input disabled type="text" title="Reblath Duo Amount" class="ei_amount" value="0" placeholder="0" /></td>
+							<td><input disabled type="text" title="Reblath Duo Worth" class="ei_worth" placeholder="0" /></td>
+						</tr>
+						<tr class="enchantment_item tri">
+							<td class="ei_wrapper">
+								<img src="img/Tri.png" class="ei_image" alt="III" />
+								<span title="Reblath Tri Pity" class="ei_pity">
+									<span class="current">0</span>
+									<span class="seperator">/</span>
+									<span class="max">0</span>
+								</span>
+							</td>
+							<td><input disabled type="text" title="Reblath Tri Amount" class="ei_amount" value="0" placeholder="0" /></td>
+							<td><input disabled type="text" title="Reblath Tri Worth" class="ei_worth" placeholder="0" /></td>
+						</tr>
+						<tr class="enchantment_item tet">
+							<td class="ei_wrapper">
+								<img src="img/Tet.png" class="ei_image" alt="IV" />
+								<span title="Reblath Tet Pity" class="ei_pity">
+									<span class="current">0</span>
+									<span class="seperator">/</span>
+									<span class="max">0</span>
+								</span>
+							</td>
+							<td><input disabled type="text" title="Reblath Tet Amount" class="ei_amount" value="0" placeholder="0" /></td>
+							<td><input disabled type="text" title="Reblath Tet Worth" class="ei_worth" placeholder="0" /></td>
+						</tr>
+						<tr class="enchantment_item pen">
+							<td class="ei_wrapper">
+								<img src="img/Pen.png" class="ei_image" alt="V" />
+							</td>
+							<td><input disabled type="text" title="Reblath Pen Amount" class="ei_amount" value="0" placeholder="0" /></td>
+							<td><input disabled type="text" title="Reblath Pen Worth" class="ei_worth" placeholder="0" /></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="3"><input type="button" id="bAddReblath" value="Add Reblath" /></td>
+						</tr>
+					</tfoot>
+				</table>
+				<div id="settings">
+					<div id="general">
+						<label for="ffs" title="0-5">Familystack</label>
+						<select id="ffs" class="autowidth" autowidth="general">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+						</select>
+						<label for="sBuyFS">Failstack to Buy</label>
+						<select id="sBuyFS" class="autowidth" autowidth="general">
+							<option>5</option>
+							<option>10</option>
+							<option>15</option>
+							<option>20</option>
+							<option>25</option>
+							<option>30</option>
+						</select>
+						<label for="iTargetAmount">How many End FS</label>
+						<input type="number" id="iTargetAmount" class="autowidth" autowidth="general" value="1" min="1" placeholder="1" />
+					</div>
+					<table id="enchantment_steps" aria-label="Enchantment Steps">
+						<thead class="es_header">
+							<tr>
+								<th>Item</th>
+								<th>Start</th>
+								<th>Target</th>
+								<th>Clicks</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="enchantment_step es_0">
+								<td><select class="es_item es_0"></select></td>
+								<td><span class="es_start es_0">0</span></td>
+								<td><span class="es_end es_0">0</span></td>
+								<td><input type="number" class="es_clicks es_0 autowidth" autowidth="enchantment_step" title="Clicks" value="1" min="1" placeholder="1" /></td>
+							</tr>
+							<tr class="enchantment_step es_1">
+								<td><select class="es_item es_1"></select></td>
+								<td><span class="es_start es_1">0</span></td>
+								<td><span class="es_end es_1">0</span></td>
+								<td><input type="number" class="es_clicks es_1 autowidth" autowidth="enchantment_step" title="Clicks" value="1" min="1" placeholder="1" /></td>
+							</tr>
+							<tr class="enchantment_step es_2">
+								<td><select class="es_item es_2"></select></td>
+								<td><span class="es_start es_2">0</span></td>
+								<td><span class="es_end es_2">0</span></td>
+								<td><input type="number" class="es_clicks es_2 autowidth" autowidth="enchantment_step" title="Clicks" value="1" min="1" placeholder="1" /></td>
+							</tr>
+							<tr class="enchantment_step es_3">
+								<td><select class="es_item es_3"></select></td>
+								<td><span class="es_start es_3">0</span></td>
+								<td><span class="es_end es_3">0</span></td>
+								<td><input type="number" class="es_clicks es_3 autowidth" autowidth="enchantment_step" title="Clicks" value="1" min="1" placeholder="1" /></td>
+							</tr>
+						</tbody>
+					</table>
+					<div id="iteration">
+						<label for="iClicksPerIteration">Clicks per Iteration</label>
+						<input type="number" id="iClicksPerIteration" value="1" min="1" placeholder="1" />
+						<label for="iIterationsPerSecond">Iterations per Second</label>
+						<input type="number" id="iIterationsPerSecond" value="1" min="1" placeholder="1" />
+						<input type="button" id="bUpgradeStart" value="Upgrade Start" />
+						<input type="button" id="bUpgradeStop" value="Upgrade Stop" />
+						<input type="button" id="bSingleClick" value="Single Click" />
+					</div>
+				</div>
+			</div>
+			<div id="output">
+				<label for="iLastClick">Last Click</label>
+				<input type="text" id="iLastClick" />
+				<label for="iStacksCrafted">Stacks craftet, worth each</label>
+				<textarea type="text" id="iStacksCrafted"></textarea>
+			</div>
+		</div>
+		<script type="module" src="index.js"></script>
+	</body>
+</html>

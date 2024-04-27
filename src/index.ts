@@ -1,7 +1,7 @@
-import { View } from './view.js';
-import { Logic } from './logic.js';
-import { Controller } from './controller.js';
-import { logger } from './logger.js';
+import View from './view/View.js';
+import Logic from './logic/Logic.js';
+import Controller from './controller/Controller.js';
+import Logger from './util/Logger.js';
 
 function init() {
 	const view = new View();
@@ -24,7 +24,7 @@ function initColorSchemeButton() {
 			const currentTheme = dataTheme ?? preferedTheme;
 			const newTheme = currentTheme == 'dark' ? 'light' : 'dark';
 
-			logger.debug(dataTheme, preferedTheme, currentTheme, newTheme);
+			Logger.debug(dataTheme, preferedTheme, currentTheme, newTheme);
 			document.documentElement.setAttribute('data-theme', newTheme);
 		};
 }

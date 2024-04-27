@@ -1,5 +1,8 @@
-import { EnchantmentItem } from './enhance_item.js';
-export class Controller {
+import Button from './Button.js';
+import Value from './Value.js';
+import { EnchantmentStep } from './EnchantmentStep.js';
+import EnchantmentItem from './EnchantmentItem.js';
+export default class Controller {
     constructor(view, logic) {
         this.view = view;
         this.logic = logic;
@@ -7,7 +10,7 @@ export class Controller {
         this.showDebug = new Value(false, (oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug), (oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug));
         this.enchantment_items = [];
         for (let i = 0; i < 5; i++)
-            this.enchantment_items.push(new _enchantment_item(this.enchantment_items.length, this.view, this.logic));
+            this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
         this.addReblath = new Button(() => logic.addReblath_OnClick());
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
@@ -76,54 +79,5 @@ export class Controller {
     }
     removeStep() {
         this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
-    }
-}
-class Button {
-    constructor(onClick) {
-        this.onClick = onClick;
-    }
-    click() {
-        if (this.onClick)
-            this.onClick();
-    }
-}
-class Value {
-    constructor(initialValue, set, onChange) {
-        this._value = initialValue;
-        this.set = set;
-        this.onChange = onChange;
-    }
-    value(newValue) {
-        const oldValue = this._value;
-        if (newValue != undefined)
-            this.set(oldValue, newValue);
-        return this._value;
-    }
-    changed(newValue) {
-        const oldValue = this._value;
-        this._value = newValue;
-        if (this.onChange)
-            this.onChange(oldValue, newValue);
-    }
-}
-export class EnchantmentStep {
-    constructor(index, view, logic) {
-        this.item = new Value(EnchantmentItem.Reblath_Mon, (oldItem, newItem) => view.enchantmentStep_Item_Set(index, oldItem, newItem), (oldItem, newItem) => logic.enchantmentStep_Item_OnChange(index, oldItem, newItem));
-        this.startFS = new Value(0, (oldStartFS, newStartFS) => view.enchantmentStep_StartFS_Set(index, oldStartFS, newStartFS), (oldStartFS, newStartFS) => logic.enchantmentStep_StartFS_OnChange(index, oldStartFS, newStartFS));
-        this.endFS = new Value(0, (oldEndFS, newEndFS) => view.enchantmentStep_EndFS_Set(index, oldEndFS, newEndFS), (oldEndFS, newEndFS) => logic.enchantmentStep_EndFS_OnChange(index, oldEndFS, newEndFS));
-        this.clicks = new Value(0, (oldClicks, newClicks) => view.enchantmentStep_Clicks_Set(index, oldClicks, newClicks), (oldClicks, newClicks) => logic.enchantmentStep_Clicks_OnChange(index, oldClicks, newClicks));
-    }
-}
-class _enchantment_item {
-    constructor(index, view, logic) {
-        this.pity = new Pity(index, view, logic);
-        this.amount = new Value(0, (oldAmount, newAmount) => view.enchantmentItem_Amount_Set(index, oldAmount, newAmount), (oldAmount, newAmount) => logic.enchantmentItem_Amount_OnChange(index, oldAmount, newAmount));
-        this.worthEach = new Value(0, (oldWorthEach, newWorthEach) => view.enchantmentItem_WorthEach_Set(index, oldWorthEach, newWorthEach), (oldWorthEach, newWorthEach) => logic.enchantmentItem_WorthEach_OnChange(index, oldWorthEach, newWorthEach));
-    }
-}
-class Pity {
-    constructor(index, view, logic) {
-        this.current = new Value(0, (oldPityCurrent, newPityCurrent) => view.enchantmentItem_Pity_Current_Set(index, oldPityCurrent, newPityCurrent), (oldPityCurrent, newPityCurrent) => logic.enchantmentItem_Pity_Current_OnChange(index, oldPityCurrent, newPityCurrent));
-        this.max = new Value(0, (oldPityMax, newPityMax) => view.enchantmentItem_Pity_Max_Set(index, oldPityMax, newPityMax), (oldPityMax, newPityMax) => logic.enchantmentItem_Pity_Max_OnChange(index, oldPityMax, newPityMax));
     }
 }

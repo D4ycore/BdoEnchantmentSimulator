@@ -1,16 +1,10 @@
-import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED, FLAWLESSMAGICALBLACKSTONE, MEMORYFRAGMENT } from './constants.js';
-import { EnchantmentItem } from './enhance_item.js';
-import { logger } from './logger.js';
-import { TEST_RNG } from './test_rng.js';
-import { nf } from './util.js';
-class FailStack {
-    constructor(tier = 0, amount = 0, value = 0) {
-        this.tier = tier;
-        this.amount = amount;
-        this.value = value;
-    }
-}
-export class Logic {
+import { BLACKSTART_MON, BUY_FS_10, BUY_FS_15, BUY_FS_20, BUY_FS_25, BUY_FS_30, BUY_FS_5, CONCENTRATED, FLAWLESSMAGICALBLACKSTONE, MEMORYFRAGMENT } from '../util/constants.js';
+import EnchantmentItem from './EnchantmentItem.js';
+import logger from '../util/logger.js';
+import { TEST_RNG } from '../util/test_rng.js';
+import { nf } from '../util/util.js';
+import { FailStack } from './FailStack.js';
+export default class Logic {
     constructor() {
         this.currentFailstack = new FailStack();
         this.failstacks = new Map();

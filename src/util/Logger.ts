@@ -1,4 +1,4 @@
-class Logger {
+export class Logger {
 	showDebugs = false;
 	showLogs = true;
 	showInfos = true;
@@ -30,4 +30,4 @@ class Logger {
 	}
 }
 
-export const logger = new Logger();
+export default new Logger();

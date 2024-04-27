@@ -1,7 +1,11 @@
-import { View } from './view.js';
-import { Logic } from './logic.js';
-import { Controller } from './controller.js';
+import View from './view/view.js';
+import Logic from './logic/logic.js';
+import Controller from './controller/controller.js';
+import logger from './util/logger.js';
 function init() {
+    logger.warn('init index.ts', logger.showErrors);
+    logger.showErrors = false;
+    logger.warn('init index.ts', logger.showErrors);
     const view = new View();
     const logic = new Logic();
     const controller = new Controller(view, logic);
@@ -19,7 +23,7 @@ function initColorSchemeButton() {
             const preferedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const currentTheme = dataTheme ?? preferedTheme;
             const newTheme = currentTheme == 'dark' ? 'light' : 'dark';
-            console.debug(dataTheme, preferedTheme, currentTheme, newTheme);
+            logger.debug(dataTheme, preferedTheme, currentTheme, newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
         };
 }
