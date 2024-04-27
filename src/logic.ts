@@ -54,7 +54,7 @@ export class Logic {
 		this.controller.getEnchantmentStep(3)?.clicks.value(18);
 		this.controller.getClicksPerIteration().value(1);
 		this.controller.getIterationsPerSecond().value(1000);
-		for (let n = 0; n < 100; n++) this.addItem('Reblath');
+		for (let n = 0; n < 10; n++) this.addItem('Reblath');
 		this.refresh();
 	}
 
