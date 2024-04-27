@@ -52,9 +52,9 @@ export default class Logic {
 		this.controller.getEnchantmentStep(2)?.clicks.value(9);
 		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
 		this.controller.getEnchantmentStep(3)?.clicks.value(18);
-		this.controller.getClicksPerIteration().value(10000);
-		this.controller.getIterationsPerSecond().value(100);
-		for (let n = 0; n < 1000; n++) this.addItem('Reblath');
+		this.controller.getClicksPerIteration().value(1);
+		this.controller.getIterationsPerSecond().value(1000);
+		for (let n = 0; n < 10; n++) this.addItem('Reblath');
 		this.refresh();
 	}
 
