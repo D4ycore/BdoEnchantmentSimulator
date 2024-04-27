@@ -1,4 +1,4 @@
-import { nonNullElement, nonNullElementAll } from 'src/util/util.js';
+import { nonNullElement, nonNullElementAll } from '../util/util.js';
 import Controller from '../controller/Controller.js';
 import EnchantmentItem, { EnchantmentItems } from '../logic/EnchantmentItem.js';
 import Logger from '../util/Logger.js';
