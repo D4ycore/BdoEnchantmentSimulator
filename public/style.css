@@ -244,6 +244,7 @@
 	--color-total-value: var(--color-green-11);
 	--color-combined-value: var(--color-green-9);
 	--color-pen-renblath-total-value: var(--color-orange-11);
+	--color-shadowed: var(--color-hinted-8);
 }
 
 [data-theme='dark'] {
@@ -269,7 +270,7 @@
 	--color-combined-cost: var(--color-red-11);
 	--color-total-value: var(--color-green-10);
 	--color-combined-value: var(--color-green-13);
-	--color-pen-renblath-total-value: var(--color-orange-12);
+	--color-pen-renblath-total-value: var(--color-orange-11);
 	--color-shadowed: var(--color-hinted-8);
 }
 
@@ -378,6 +379,10 @@ a {
 		white-space: nowrap;
 		text-wrap: nowrap;
 	}
+	& th[scope='row'] {
+		padding-block: var(--space-025);
+		padding-inline: var(--space-0);
+	}
 	& td {
 		padding-block: var(--space-025);
 		padding-inline: var(--space-05);
@@ -407,8 +412,10 @@ a {
 .ei_pity {
 	display: flex;
 	align-items: flex-end;
+	justify-content: flex-start;
 	margin-left: 3px;
 	font-size: var(--font-size-9);
+	min-width: 5ch;
 }
 
 #settings {
@@ -484,7 +491,7 @@ a {
 #output {
 	display: grid;
 	grid-template-columns: 1fr;
-	margin-bottom: var(--space-05);
+
 	& label {
 		margin-inline-start: var(--space-025);
 	}
@@ -576,7 +583,7 @@ textarea {
 	color: var(--color-pen-renblath-total-value);
 }
 
-.shadow {
+.shadowed {
 	color: var(--color-shadowed);
 	font-style: oblique;
 	font-style: italic;

@@ -1,5 +1,5 @@
 import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js';
-import EnchantmentMaterial, { EnchantmentMaterialShadow } from '../logic/EnchantmentMaterial.js';
+import EnchantmentMaterial, { EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
 import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
 export default class View {
@@ -358,11 +358,6 @@ export default class View {
         const combined_fs_value = evaluation.failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1000000;
         const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
         const combined_sum = combined_value - combined_cost;
-        console.log(combined_cost, combined_item_value, combined_fs_value);
-        console.log(Pen_Reblath_Amount, evaluation.failstacks_75_value, Pen_Reblath_75_FS_value);
-        console.log(combined_value, combined_sum);
-        console.log('');
-        console.log('');
         this.dEvaluation.innerHTML = `
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
@@ -406,12 +401,12 @@ export default class View {
 		`;
     }
     addMaterial(material) {
-        const isShadow = material instanceof EnchantmentMaterialShadow;
+        const isShadowed = material instanceof EnchantmentMaterialShadowed;
         return `
-		<span class="${isShadow ? 'shadow' : ''}">${material.name}</span>
-		<span class="grid-item ${isShadow ? 'shadow' : ''}">${nf_commas(material.used)}</span>
-		<span class="grid-item ${isShadow ? 'shadow' : 'faded'}">${nf_commas(material.cost / 1000000, 3)} m</span>
-		<span class="grid-item ${isShadow ? 'shadow' : 'total_cost'}">${nf_commas((material.cost * material.used) / 1000000, 3)} m</span>
+		<span class="${isShadowed ? 'shadowed' : ''}">${material.name}</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : ''}">${nf_commas(material.used)}</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : 'faded'}">${nf_commas(material.cost / 1000000, 3)} m</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : 'total_cost'}">${nf_commas((material.cost * material.used) / 1000000, 3)} m</span>
 		`;
     }
     addItem(item, failstacks_75_value) {
