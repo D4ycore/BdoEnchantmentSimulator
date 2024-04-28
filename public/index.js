@@ -1,7 +1,7 @@
-import View from './view/View.js';
-import Logic from './logic/Logic.js';
 import Controller from './controller/Controller.js';
+import Logic from './logic/Logic.js';
 import Logger from './util/Logger.js';
+import View from './view/View.js';
 function init() {
     const view = new View();
     const logic = new Logic();

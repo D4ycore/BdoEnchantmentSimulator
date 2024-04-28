@@ -479,7 +479,7 @@ export default class View {
 	addFailstack(failstack: FailStack) {
 		return `
 		<span class="">${failstack.tier}</span>
-		<span class="grid-item">${failstack.amount}</span>
+		<span class="grid-item">${nf_commas(failstack.amount)}</span>
 		<span class="grid-item faded">${nf_commas(failstack.value / failstack.amount / 1_000_000, 3)} m</span>
 		<span class="grid-item total_value">${nf_commas(failstack.value / 1_000_000, 3)} m</span> 
 		`;
@@ -498,7 +498,7 @@ export default class View {
 	addFailstackTotal(failstack: FailStack) {
 		return `
 		<span class="">${failstack.tier}</span>
-		<span class="grid-item">${failstack.total_amount}</span>
+		<span class="grid-item">${nf_commas(failstack.total_amount)}</span>
 		<span class="grid-item faded">${nf_commas(failstack.total_value / failstack.total_amount / 1_000_000, 3)} m</span>
 		<span class="grid-item">${nf_commas(failstack.total_value / 1_000_000, 3)} m</span> 
 		`;
