@@ -1,5 +1,6 @@
+import { FailStack } from '../logic/FailStack.js';
 import Logic from '../logic/Logic.js';
-import View from '../view/View.js';
+import View, { Evaluation } from '../view/View.js';
 import Button from './Button.js';
 import EnchantmentItem from './EnchantmentItem.js';
 import { EnchantmentStep } from './EnchantmentStep.js';
@@ -15,6 +16,7 @@ export default class Controller {
 	private familyFS: Value<number>;
 	private buyFS: Value<number>;
 	private targetAmount: Value<number>;
+	private currentTargetFS: Value<number>;
 	private enchantment_steps: EnchantmentStep[];
 	private singleClick: Button;
 
@@ -25,6 +27,9 @@ export default class Controller {
 
 	private lastClick: Value<string>;
 	private stacksCrafted: Value<string>;
+
+	private evaluation: Setter<Evaluation>;
+	private failstacks: Setter<FailStack[]>;
 
 	private view: View;
 	private logic: Logic;
@@ -63,6 +68,11 @@ export default class Controller {
 			(oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount),
 			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount)
 		);
+		this.currentTargetFS = new Value<number>(
+			0,
+			(oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS),
+			(oldCurrentTargetFS, newCurrentTargetFS) => logic.currentTargetFS_OnChange(oldCurrentTargetFS, newCurrentTargetFS)
+		);
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
 		this.singleClick = new Button(() => logic.singleClick_OnClick());
@@ -90,6 +100,9 @@ export default class Controller {
 			(oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted),
 			(oldStacksCrafted, newStacksCrafted) => logic.stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted)
 		);
+
+		this.evaluation = new Setter<Evaluation>(newEvaluation => view.showEvaluation(newEvaluation));
+		this.failstacks = new Setter<FailStack[]>(newFailstacks => view.showFailstacks(newFailstacks));
 	}
 
 	getScaleOutput() {
@@ -114,6 +127,9 @@ export default class Controller {
 	}
 	getTargetAmount() {
 		return this.targetAmount;
+	}
+	getCurrentTargetFS() {
+		return this.currentTargetFS;
 	}
 	getEnchantmentStep(es_index: number) {
 		return this.enchantment_steps[es_index];
@@ -150,5 +166,24 @@ export default class Controller {
 	}
 	removeStep() {
 		this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
+	}
+
+	getEvaluation() {
+		return this.evaluation;
+	}
+	getFailstacks() {
+		return this.failstacks;
+	}
+}
+
+class Setter<T> {
+	private _set: (newValue: T) => void;
+
+	constructor(set: (newValue: T) => void) {
+		this._set = set;
+	}
+
+	set(newValue: T) {
+		this._set(newValue);
 	}
 }

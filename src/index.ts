@@ -69,7 +69,7 @@ function initAutoWidth() {
 		elt.oninput = () => checkAutoWidth(type);
 	});
 
-	for (const type of autoWidthRulesTypes) sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: 250ms } `);
+	for (const type of autoWidthRulesTypes) sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: var(--timing-long) } `);
 
 	if (!rules) return;
 	for (const type of autoWidthRulesTypes) {

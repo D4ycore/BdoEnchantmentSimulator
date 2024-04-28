@@ -1,6 +1,16 @@
+export function nf_fixed(value, precision) {
+    return value.toFixed(precision);
+}
+export function nf_commas(value, precision) {
+    if (!precision)
+        return value.toLocaleString('en-US');
+    else
+        return value.toLocaleString('en-US', { minimumFractionDigits: precision });
+}
 export function nf(value, precision) {
-    const scalar = Math.pow(10, precision);
-    return Math.round(value * scalar) / scalar;
+    const fixed = value.toFixed(precision);
+    const ret = parseFloat(fixed);
+    return ret;
 }
 export function nonNullElement(elt, name) {
     if (!elt)

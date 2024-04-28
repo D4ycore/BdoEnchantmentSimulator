@@ -9,79 +9,79 @@
 	</head>
 	<body>
 		<div class="app">
-			<div class="header">
-				<div>
+			<div id="header">
+				<div class="option">
 					<label for="bColorScheme">Switch Color Scheme</label>
 					<input type="button" id="bColorScheme" title="Switch Color Scheme" />
 				</div>
-				<div>
+				<div class="option">
 					<label for="cbScaleOutput">Scale Output</label>
 					<input type="checkbox" id="cbScaleOutput" title="Scale Output to match Target Amount" />
 				</div>
-				<div>
+				<div class="option">
 					<label for="cbShowDebug">Debug</label>
 					<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
 				</div>
 			</div>
 			<div class="content">
 				<table id="enchantment_items" aria-label="Enchantment Items">
-					<thead class="item_header">
+					<thead id="item_header">
 						<th></th>
 						<th>Amount</th>
 						<th>Worth Each</th>
 					</thead>
 					<tbody>
 						<tr class="enchantment_item mon">
-							<td class="ei_wrapper">
+							<th class="ei_wrapper" scope="row">
 								<img src="img/Mon.png" class="ei_image" alt="I" />
 								<span title="Reblath Mon Pity" class="ei_pity">
 									<span class="current">0</span>
 									<span class="seperator">/</span>
 									<span class="max">0</span>
 								</span>
-							</td>
+							</th>
 							<td><input disabled type="text" title="Reblath Mon Amount" class="ei_amount" value="0" placeholder="0" /></td>
 						</tr>
 						<tr class="enchantment_item duo">
-							<td class="ei_wrapper">
+							<th class="ei_wrapper" scope="row">
 								<img src="img/Duo.png" class="ei_image" alt="II" />
 								<span title="Reblath Duo Pity" class="ei_pity">
 									<span class="current">0</span>
 									<span class="seperator">/</span>
 									<span class="max">0</span>
 								</span>
-							</td>
+							</th>
 							<td><input disabled type="text" title="Reblath Duo Amount" class="ei_amount" value="0" placeholder="0" /></td>
 							<td><input disabled type="text" title="Reblath Duo Worth" class="ei_worth" placeholder="0" /></td>
 						</tr>
 						<tr class="enchantment_item tri">
-							<td class="ei_wrapper">
+							<th class="ei_wrapper" scope="row">
 								<img src="img/Tri.png" class="ei_image" alt="III" />
 								<span title="Reblath Tri Pity" class="ei_pity">
 									<span class="current">0</span>
 									<span class="seperator">/</span>
 									<span class="max">0</span>
 								</span>
-							</td>
+							</th>
 							<td><input disabled type="text" title="Reblath Tri Amount" class="ei_amount" value="0" placeholder="0" /></td>
 							<td><input disabled type="text" title="Reblath Tri Worth" class="ei_worth" placeholder="0" /></td>
 						</tr>
 						<tr class="enchantment_item tet">
-							<td class="ei_wrapper">
+							<th class="ei_wrapper" scope="row">
 								<img src="img/Tet.png" class="ei_image" alt="IV" />
 								<span title="Reblath Tet Pity" class="ei_pity">
 									<span class="current">0</span>
 									<span class="seperator">/</span>
 									<span class="max">0</span>
 								</span>
-							</td>
+							</th>
 							<td><input disabled type="text" title="Reblath Tet Amount" class="ei_amount" value="0" placeholder="0" /></td>
 							<td><input disabled type="text" title="Reblath Tet Worth" class="ei_worth" placeholder="0" /></td>
 						</tr>
 						<tr class="enchantment_item pen">
-							<td class="ei_wrapper">
+							<th class="ei_wrapper" scope="row">
 								<img src="img/Pen.png" class="ei_image" alt="V" />
-							</td>
+							</th>
 							<td><input disabled type="text" title="Reblath Pen Amount" class="ei_amount" value="0" placeholder="0" /></td>
 							<td><input disabled type="text" title="Reblath Pen Worth" class="ei_worth" placeholder="0" /></td>
 						</tr>
@@ -112,11 +112,14 @@
 							<option>25</option>
 							<option>30</option>
 						</select>
-						<label for="iTargetAmount">How many End FS</label>
+						<label for="iTargetAmount">
+							<span>How many End FS</span>
+							<span id="spCurrentTargetFS" class="faded">(0/0)</span>
+						</label>
 						<input type="number" id="iTargetAmount" class="autowidth" autowidth="general" value="1" min="1" placeholder="1" />
 					</div>
 					<table id="enchantment_steps" aria-label="Enchantment Steps">
-						<thead class="es_header">
+						<thead id="es_header">
 							<tr>
 								<th>Item</th>
 								<th>Start</th>
@@ -169,6 +172,17 @@
 				<textarea type="text" id="iStacksCrafted"></textarea>
 			</div>
 		</div>
+		<div class="app">
+			<div class="grid-list-wrapper">
+				<div id="evaluation" class="grid-list"></div>
+			</div>
+		</div>
+		<div class="app">
+			<div class="grid-list-wrapper">
+				<div id="failstacks" class="grid-list"></div>
+			</div>
+		</div>
 		<script type="module" src="index.js"></script>
+		<!-- <script type="module" src="../public/index.js"></script> -->
 	</body>
 </html>

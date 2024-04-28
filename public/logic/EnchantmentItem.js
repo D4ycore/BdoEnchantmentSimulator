@@ -1,5 +1,5 @@
 import Pity from './Pity.js';
-export const EnchantmentItems = new Map();
+export const ENCHANTMENT_ITEMS = new Map();
 class EnchantmentItem {
     constructor(name, failstack_increase, base_chance, pity) {
         this.amount = 0;
@@ -11,7 +11,7 @@ class EnchantmentItem {
         this._failstack_increase = failstack_increase;
         this._pity = pity;
         if (pity != Pity.NULL)
-            EnchantmentItems.set(name, this);
+            ENCHANTMENT_ITEMS.set(name, this);
     }
     get name() {
         return this._name;
@@ -26,14 +26,14 @@ class EnchantmentItem {
         return this._pity;
     }
 }
-EnchantmentItem.Reblath_Mon = new EnchantmentItem('Reblath_Mon', 3, 7.692, Pity.White_Mon);
-EnchantmentItem.Reblath_Duo = new EnchantmentItem('Reblath_Duo', 4, 6.25, Pity.White_Duo);
-EnchantmentItem.Reblath_Tri = new EnchantmentItem('Reblath_Tri', 5, 2, Pity.White_Tri);
-EnchantmentItem.Reblath_Tet = new EnchantmentItem('Reblath_Tet', 6, 0.3, Pity.White_Tet);
-EnchantmentItem.Reblath_Pen = new EnchantmentItem('Reblath_Pen', 0, 0, Pity.NULL);
-EnchantmentItem.Blackstar_Mon = new EnchantmentItem('Blackstar_Mon', 3, 10.63, Pity.NULL);
-EnchantmentItem.Blackstar_Duo = new EnchantmentItem('Blackstar_Duo', 4, 3.4, Pity.NULL);
-EnchantmentItem.Blackstar_Tri = new EnchantmentItem('Blackstar_Tri', 5, 0.51, Pity.NULL);
-EnchantmentItem.Blackstar_Tet = new EnchantmentItem('Blackstar_Tet', 6, 0.2, Pity.NULL);
-EnchantmentItem.Blackstar_Pen = new EnchantmentItem('Blackstar_Pen', 0, 0, Pity.NULL);
+EnchantmentItem.Reblath_Mon = new EnchantmentItem('Reblath Mon', 3, 7.692, Pity.White_Mon);
+EnchantmentItem.Reblath_Duo = new EnchantmentItem('Reblath Duo', 4, 6.25, Pity.White_Duo);
+EnchantmentItem.Reblath_Tri = new EnchantmentItem('Reblath Tri', 5, 2, Pity.White_Tri);
+EnchantmentItem.Reblath_Tet = new EnchantmentItem('Reblath Tet', 6, 0.3, Pity.White_Tet);
+EnchantmentItem.Reblath_Pen = new EnchantmentItem('Reblath Pen', 0, 0, Pity.NULL);
+EnchantmentItem.Blackstar_Mon = new EnchantmentItem('Blackstar Mon', 3, 10.63, Pity.NULL);
+EnchantmentItem.Blackstar_Duo = new EnchantmentItem('Blackstar Duo', 4, 3.4, Pity.NULL);
+EnchantmentItem.Blackstar_Tri = new EnchantmentItem('Blackstar Tri', 5, 0.51, Pity.NULL);
+EnchantmentItem.Blackstar_Tet = new EnchantmentItem('Blackstar Tet', 6, 0.2, Pity.NULL);
+EnchantmentItem.Blackstar_Pen = new EnchantmentItem('Blackstar Pen', 0, 0, Pity.NULL);
 export default EnchantmentItem;

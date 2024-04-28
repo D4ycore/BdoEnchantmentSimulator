@@ -3,12 +3,20 @@ import Logic from './logic/Logic.js';
 import Controller from './controller/Controller.js';
 import Logger from './util/Logger.js';
 function init() {
+    Logger.showDebugs = true;
+    console.warn('Construct View');
     const view = new View();
+    console.warn('Construct Logic');
     const logic = new Logic();
+    console.warn('Construct Controller');
     const controller = new Controller(view, logic);
+    console.warn('Link View');
     view.link(controller);
+    console.warn('Link Logic');
     logic.link(controller);
+    console.warn('Init View');
     view.init();
+    console.warn('Init Logic');
     logic.init();
 }
 init();
@@ -55,7 +63,7 @@ function initAutoWidth() {
         elt.oninput = () => checkAutoWidth(type);
     });
     for (const type of autoWidthRulesTypes)
-        sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: 250ms } `);
+        sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: var(--timing-long) } `);
     if (!rules)
         return;
     for (const type of autoWidthRulesTypes) {

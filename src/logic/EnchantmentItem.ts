@@ -1,19 +1,19 @@
 import Pity from './Pity.js';
 
-export const EnchantmentItems = new Map<string, EnchantmentItem>();
+export const ENCHANTMENT_ITEMS = new Map<string, EnchantmentItem>();
 
 export default class EnchantmentItem {
-	public static readonly Reblath_Mon = new EnchantmentItem('Reblath_Mon', 3, 7.692, Pity.White_Mon);
-	public static readonly Reblath_Duo = new EnchantmentItem('Reblath_Duo', 4, 6.25, Pity.White_Duo);
-	public static readonly Reblath_Tri = new EnchantmentItem('Reblath_Tri', 5, 2, Pity.White_Tri);
-	public static readonly Reblath_Tet = new EnchantmentItem('Reblath_Tet', 6, 0.3, Pity.White_Tet);
-	public static readonly Reblath_Pen = new EnchantmentItem('Reblath_Pen', 0, 0, Pity.NULL);
+	public static readonly Reblath_Mon = new EnchantmentItem('Reblath Mon', 3, 7.692, Pity.White_Mon);
+	public static readonly Reblath_Duo = new EnchantmentItem('Reblath Duo', 4, 6.25, Pity.White_Duo);
+	public static readonly Reblath_Tri = new EnchantmentItem('Reblath Tri', 5, 2, Pity.White_Tri);
+	public static readonly Reblath_Tet = new EnchantmentItem('Reblath Tet', 6, 0.3, Pity.White_Tet);
+	public static readonly Reblath_Pen = new EnchantmentItem('Reblath Pen', 0, 0, Pity.NULL);
 
-	public static readonly Blackstar_Mon = new EnchantmentItem('Blackstar_Mon', 3, 10.63, Pity.NULL);
-	public static readonly Blackstar_Duo = new EnchantmentItem('Blackstar_Duo', 4, 3.4, Pity.NULL);
-	public static readonly Blackstar_Tri = new EnchantmentItem('Blackstar_Tri', 5, 0.51, Pity.NULL);
-	public static readonly Blackstar_Tet = new EnchantmentItem('Blackstar_Tet', 6, 0.2, Pity.NULL);
-	public static readonly Blackstar_Pen = new EnchantmentItem('Blackstar_Pen', 0, 0, Pity.NULL);
+	public static readonly Blackstar_Mon = new EnchantmentItem('Blackstar Mon', 3, 10.63, Pity.NULL);
+	public static readonly Blackstar_Duo = new EnchantmentItem('Blackstar Duo', 4, 3.4, Pity.NULL);
+	public static readonly Blackstar_Tri = new EnchantmentItem('Blackstar Tri', 5, 0.51, Pity.NULL);
+	public static readonly Blackstar_Tet = new EnchantmentItem('Blackstar Tet', 6, 0.2, Pity.NULL);
+	public static readonly Blackstar_Pen = new EnchantmentItem('Blackstar Pen', 0, 0, Pity.NULL);
 
 	private _name: string;
 	private _failstack_increase: number;
@@ -30,7 +30,7 @@ export default class EnchantmentItem {
 		this._base_chance = base_chance;
 		this._failstack_increase = failstack_increase;
 		this._pity = pity;
-		if (pity != Pity.NULL) EnchantmentItems.set(name, this);
+		if (pity != Pity.NULL) ENCHANTMENT_ITEMS.set(name, this);
 	}
 
 	public get name(): string {

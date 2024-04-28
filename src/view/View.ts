@@ -1,7 +1,9 @@
-import { nonNullElement, nonNullElementAll } from '../util/util.js';
 import Controller from '../controller/Controller.js';
-import EnchantmentItem, { EnchantmentItems } from '../logic/EnchantmentItem.js';
+import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js';
+import EnchantmentMaterial, { EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
+import { FailStack } from '../logic/FailStack.js';
 import Logger from '../util/Logger.js';
+import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
 
 export default class View {
 	private cbScaleOutput;
@@ -13,6 +15,7 @@ export default class View {
 	private sFamilyFS;
 	private sBuyFS;
 	private iTargetAmount;
+	private spCurrentTargetFS;
 	private lEnchantmentSteps;
 	private bSingleClick;
 
@@ -24,6 +27,9 @@ export default class View {
 	private iLastClick;
 	private iStacksCrafted;
 
+	private dEvaluation;
+	private dFailstacks;
+
 	constructor() {
 		this.cbScaleOutput = nonNullElement(document.querySelector<HTMLInputElement>('#cbScaleOutput'), 'Scale Output');
 		this.cbShowDebug = nonNullElement(document.querySelector<HTMLInputElement>('#cbShowDebug'), 'Show Debug');
@@ -34,6 +40,7 @@ export default class View {
 		this.sFamilyFS = nonNullElement(document.querySelector<HTMLSelectElement>('#ffs'), 'Familystack');
 		this.sBuyFS = nonNullElement(document.querySelector<HTMLSelectElement>('#sBuyFS'), 'Failstack to Buy');
 		this.iTargetAmount = nonNullElement(document.querySelector<HTMLInputElement>('#iTargetAmount'), 'How many Failstacks');
+		this.spCurrentTargetFS = nonNullElement(document.querySelector<HTMLSpanElement>('#spCurrentTargetFS'), 'Current Target Failstacks');
 		this.lEnchantmentSteps = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_step'), 'Enchantment Steps');
 		this.bSingleClick = nonNullElement(document.querySelector<HTMLButtonElement>('#bSingleClick'), 'Single Click');
 
@@ -44,6 +51,9 @@ export default class View {
 
 		this.iLastClick = nonNullElement(document.querySelector<HTMLInputElement>('#iLastClick'), 'Last Click');
 		this.iStacksCrafted = nonNullElement(document.querySelector<HTMLTextAreaElement>('#iStacksCrafted'), 'Stacks Crafted');
+
+		this.dEvaluation = nonNullElement(document.querySelector<HTMLDivElement>('#evaluation'), 'Evaluation');
+		this.dFailstacks = nonNullElement(document.querySelector<HTMLDivElement>('#failstacks'), 'Failstacks');
 	}
 
 	link(controller: Controller) {
@@ -111,6 +121,11 @@ export default class View {
 			const val = parseInt(this.iTargetAmount.value) || parseInt(this.iTargetAmount.placeholder);
 			controller.getTargetAmount().changed(val);
 		};
+		this.spCurrentTargetFS.onchange = evt => {
+			Logger.debug('ctfs change');
+			const val = parseInt(this.spCurrentTargetFS.innerHTML.replace('(', '').replace(')', '').split('/')[0]!);
+			controller.getCurrentTargetFS().changed(val);
+		};
 
 		for (let es_index = 0; es_index < this.lEnchantmentSteps.length; es_index++) {
 			const enchantment_step = this.lEnchantmentSteps[es_index];
@@ -118,15 +133,15 @@ export default class View {
 
 			const sItem = enchantment_step.querySelector<HTMLSelectElement>('.es_item');
 			if (!sItem) continue;
-			for (const item of EnchantmentItems) {
+			for (const item of ENCHANTMENT_ITEMS) {
 				const option = document.createElement('option');
-				option.text = item[0];
+				option.text = item[1].name;
 				sItem.append(option);
 			}
 
 			sItem.onchange = evt => {
 				Logger.debug('esi change');
-				const item = EnchantmentItems.get(sItem.value);
+				const item = ENCHANTMENT_ITEMS.get(sItem.value);
 				if (!item) return;
 				controller.getEnchantmentStep(es_index)?.item.changed(item);
 			};
@@ -212,6 +227,7 @@ export default class View {
 		this.sFamilyFS.dispatchEvent(new Event('change'));
 		this.sBuyFS.dispatchEvent(new Event('change'));
 		this.iTargetAmount.dispatchEvent(new Event('change'));
+		this.spCurrentTargetFS.dispatchEvent(new Event('change'));
 		for (const step of this.lEnchantmentSteps) {
 			const sStepItem = step.querySelector<HTMLSelectElement>('.es_item');
 			sStepItem?.dispatchEvent(new Event('change'));
@@ -300,6 +316,11 @@ export default class View {
 		this.iTargetAmount.title = '' + newTargetAmount;
 		this.iTargetAmount.dispatchEvent(new Event('change'));
 	}
+	currentTargetFS_Set(oldCurrentTargetFS: number, newCurrentTargetFS: number) {
+		Logger.debug('ctfs set');
+		this.spCurrentTargetFS.innerText = `(${newCurrentTargetFS}/${this.iTargetAmount.value})`;
+		this.spCurrentTargetFS.dispatchEvent(new Event('change'));
+	}
 
 	enchantmentStep_Item_Set(es_index: number, oldItem: EnchantmentItem, newItem: EnchantmentItem) {
 		Logger.debug('esi set');
@@ -365,5 +386,134 @@ export default class View {
 		Logger.debug('sc set');
 		this.iStacksCrafted.value = newStacksCrafted;
 		this.iStacksCrafted.dispatchEvent(new Event('change'));
+	}
+
+	showEvaluation(evaluation: Evaluation) {
+		const combined_cost = EnchantmentMaterial.total_cost() / 1_000_000;
+		const combined_item_value =
+			evaluation.items
+				.filter(item => item != EnchantmentItem.Reblath_Pen)
+				.map(item => item.value)
+				.reduce((prev, current) => prev + current, 0) / 1_000_000;
+		const Pen_Reblath_Amount = evaluation.items.find(item => item == EnchantmentItem.Reblath_Pen)?.amount;
+		const Pen_Reblath_75_FS_value = ((Pen_Reblath_Amount ?? 0) * evaluation.failstacks_75_value) / 1_000_000;
+		const combined_fs_value = evaluation.failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
+		const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
+		const combined_sum = combined_value - combined_cost;
+
+		this.dEvaluation.innerHTML = `
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space">Combined Sum</span>
+		<span class="combined_sum">${nf_commas(combined_sum, 3)} m</span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space">Combined Cost</span>
+		<span class="grid-item combined_cost">${nf_commas(combined_cost, 3)} m</span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="grid-header">Combined Value</span>
+		<span class="grid-item combined_value">${nf_commas(combined_value, 3)} m</span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="grid-header">Material</span>
+		<span class="grid-header">Used</span>
+		<span class="grid-header">Cost</span>
+		<span class="grid-header">Total Cost</span>
+		${evaluation.materials.map(material => this.addMaterial(material)).join('')}
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="grid-header">Item</span>
+		<span class="grid-header">Amount</span>
+		<span class="grid-header">Value</span>
+		<span class="grid-header">Total Value</span>
+		${evaluation.items.map(item => this.addItem(item, evaluation.failstacks_75_value)).join('')}
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="eval_space"></span>
+		<span class="grid-header">FS</span>
+		<span class="grid-header">Amount</span>
+		<span class="grid-header">Value</span>
+		<span class="grid-header">Total Value</span>
+		${evaluation.failstacks.map(failstack => this.addFailstack(failstack)).join('')}
+		`;
+	}
+
+	addMaterial(material: EnchantmentMaterial) {
+		const isShadowed = material instanceof EnchantmentMaterialShadowed;
+		return `
+		<span class="${isShadowed ? 'shadowed' : ''}">${material.name}</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : ''}">${nf_commas(material.used)}</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : 'faded'}">${nf_commas(material.cost / 1_000_000, 3)} m</span>
+		<span class="grid-item ${isShadowed ? 'shadowed' : 'total_cost'}">${nf_commas((material.cost * material.used) / 1_000_000, 3)} m</span>
+		`;
+	}
+
+	addItem(item: EnchantmentItem, failstacks_75_value: number) {
+		const isPenReblath = item == EnchantmentItem.Reblath_Pen;
+		const itemClass = isPenReblath ? 'pen_reblath_total_value' : 'total_value';
+
+		const itemRow = `
+		<span class="">${item.name}</span>
+		<span class="grid-item">${nf_commas(item.amount)}</span>
+		<span class="grid-item faded">${nf_commas(item.value / item.amount / 1_000_000, 3)} m</span>
+		<span class="grid-item ${itemClass}">${nf_commas(item.value / 1_000_000, 3)} m</span>
+		`;
+
+		if (!isPenReblath) return itemRow;
+
+		const fs_75_row = `
+			<span class="">(FS 75)</span>
+			<span class="grid-item">${nf_commas(item.amount)}</span>
+			<span class="grid-item faded">${nf_commas(failstacks_75_value / 1_000_000, 3)} m</span>
+			<span class="grid-item total_value">${nf_commas((failstacks_75_value * item.amount) / 1_000_000, 3)} m</span>
+			`;
+		return itemRow + fs_75_row;
+	}
+
+	addFailstack(failstack: FailStack) {
+		return `
+		<span class="">${failstack.tier}</span>
+		<span class="grid-item">${failstack.amount}</span>
+		<span class="grid-item faded">${nf_commas(failstack.value / failstack.amount / 1_000_000, 3)} m</span>
+		<span class="grid-item total_value">${nf_commas(failstack.value / 1_000_000, 3)} m</span> 
+		`;
+	}
+
+	showFailstacks(failstacks: FailStack[]) {
+		this.dFailstacks.innerHTML = `
+		<span class="grid-header">FS</span>
+		<span class="grid-header">Amount</span>
+		<span class="grid-header">Value</span>
+		<span class="grid-header">Total Value</span>
+		${failstacks.map(failstack => this.addFailstackTotal(failstack)).join('')}
+		`;
+	}
+
+	addFailstackTotal(failstack: FailStack) {
+		return `
+		<span class="">${failstack.tier}</span>
+		<span class="grid-item">${failstack.total_amount}</span>
+		<span class="grid-item faded">${nf_commas(failstack.total_value / failstack.total_amount / 1_000_000, 3)} m</span>
+		<span class="grid-item">${nf_commas(failstack.total_value / 1_000_000, 3)} m</span> 
+		`;
+	}
+}
+
+export class Evaluation {
+	readonly materials: EnchantmentMaterial[];
+	readonly items: EnchantmentItem[];
+	readonly failstacks: FailStack[];
+	readonly failstacks_75_value: number;
+	constructor(costs: EnchantmentMaterial[], items: EnchantmentItem[], failstacks: FailStack[], failstacks_75_value: number) {
+		this.materials = costs;
+		this.items = items;
+		this.failstacks = failstacks;
+		this.failstacks_75_value = failstacks_75_value;
 	}
 }
