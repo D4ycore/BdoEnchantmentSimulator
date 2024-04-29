@@ -8,7 +8,7 @@
 		<title>BDO Simulator</title>
 	</head>
 	<body>
-		<div class="app">
+		<div id="simulation" class="app">
 			<div id="header">
 				<div class="option">
 					<label for="bColorScheme">Switch Color Scheme</label>
@@ -22,6 +22,11 @@
 					<label for="cbShowDebug">Debug</label>
 					<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
 				</div>
+				<nav>
+					<a href="#simulation">Simulation</a>
+					<a href="#evaluation">Evaluation</a>
+					<a href="#failstacks">Failstacks</a>
+				</nav>
 			</div>
 			<div class="content">
 				<table id="enchantment_items" aria-label="Enchantment Items">
@@ -172,14 +177,14 @@
 				<textarea type="text" id="iStacksCrafted"></textarea>
 			</div>
 		</div>
-		<div class="app">
+		<div id="evaluation" class="app">
 			<div class="grid-list-wrapper">
-				<div id="evaluation" class="grid-list"></div>
+				<div class="grid-list"></div>
 			</div>
 		</div>
-		<div class="app">
+		<div id="failstacks" class="app">
 			<div class="grid-list-wrapper">
-				<div id="failstacks" class="grid-list"></div>
+				<div class="grid-list"></div>
 			</div>
 		</div>
 		<script type="module" src="index.js"></script>

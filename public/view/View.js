@@ -20,8 +20,8 @@ export default class View {
         this.bUpgradeStop = nonNullElement(document.querySelector('#bUpgradeStop'), 'Upgrade Stop');
         this.iLastClick = nonNullElement(document.querySelector('#iLastClick'), 'Last Click');
         this.iStacksCrafted = nonNullElement(document.querySelector('#iStacksCrafted'), 'Stacks Crafted');
-        this.dEvaluation = nonNullElement(document.querySelector('#evaluation'), 'Evaluation');
-        this.dFailstacks = nonNullElement(document.querySelector('#failstacks'), 'Failstacks');
+        this.dEvaluation = nonNullElement(document.querySelector('#evaluation .grid-list'), 'Evaluation');
+        this.dFailstacks = nonNullElement(document.querySelector('#failstacks .grid-list'), 'Failstacks');
     }
     link(controller) {
         this.cbScaleOutput.onchange = evt => {

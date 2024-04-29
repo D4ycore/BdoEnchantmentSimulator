@@ -52,8 +52,8 @@ export default class View {
 		this.iLastClick = nonNullElement(document.querySelector<HTMLInputElement>('#iLastClick'), 'Last Click');
 		this.iStacksCrafted = nonNullElement(document.querySelector<HTMLTextAreaElement>('#iStacksCrafted'), 'Stacks Crafted');
 
-		this.dEvaluation = nonNullElement(document.querySelector<HTMLDivElement>('#evaluation'), 'Evaluation');
-		this.dFailstacks = nonNullElement(document.querySelector<HTMLDivElement>('#failstacks'), 'Failstacks');
+		this.dEvaluation = nonNullElement(document.querySelector<HTMLDivElement>('#evaluation .grid-list'), 'Evaluation');
+		this.dFailstacks = nonNullElement(document.querySelector<HTMLDivElement>('#failstacks .grid-list'), 'Failstacks');
 	}
 
 	link(controller: Controller) {

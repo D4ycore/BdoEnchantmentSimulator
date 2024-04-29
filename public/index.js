@@ -76,3 +76,23 @@ function initAutoWidth() {
     }
 }
 initAutoWidth();
+function initStickyHeader() {
+    const header = document.getElementById('header');
+    if (!header)
+        return;
+    let sticky;
+    let isSticky = false;
+    window.onscroll = () => {
+        if (!isSticky)
+            sticky = header.offsetTop;
+        if (window.scrollY > sticky) {
+            header.classList.add('fixed-header');
+            isSticky = true;
+        }
+        else {
+            header.classList.remove('fixed-header');
+            isSticky = false;
+        }
+    };
+}
+initStickyHeader();
