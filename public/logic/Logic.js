@@ -3,7 +3,7 @@ import { TEST_RNG } from '../util/TestRng.js';
 import { nf, nf_commas, nf_fixed } from '../util/util.js';
 import { Evaluation } from '../view/View.js';
 import EnchantmentItem from './EnchantmentItem.js';
-import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from './EnchantmentMaterial.js';
+import EnchantmentMaterial, { EnchantmentMaterialShadowed } from './EnchantmentMaterial.js';
 import { FailStack } from './FailStack.js';
 export default class Logic {
     constructor() {
@@ -15,7 +15,6 @@ export default class Logic {
         this.failstacks = new Map();
         this.rand = new TEST_RNG(0);
         this.upgrading = false;
-        this.costs = 0;
         this.clicks = 0;
         for (let i = 1; i <= 500; i++)
             this.failstacks.set(i, new FailStack(i));
@@ -136,16 +135,12 @@ export default class Logic {
             }
         }
         const clicks = nf_commas(this.clicks);
-        const costs = scaleOutput ? nf_commas(this.costs / 1000000 / scalarr, 2) : nf_commas(this.costs / 1000000);
-        this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m | ` + text);
-        const materials = ENCHANTMENT_MATERIALS.filter(material => material.used > 0);
-        const items = [EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri, EnchantmentItem.Reblath_Tet, EnchantmentItem.Reblath_Pen]
-            .filter(item => item.amount > 0)
-            .map(item => item);
+        const costs = scaleOutput ? nf_commas(EnchantmentMaterial.total_cost() / 1000000 / scalarr, 3) : nf_commas(EnchantmentMaterial.total_cost() / 1000000);
+        this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m| ` + text);
         const failstacks = Array.from(this.failstacks)
             .filter(fs => fs[1].amount > 0)
             .map(fs => fs[1]);
-        const evaluation = new Evaluation(materials, items, failstacks, this.findFS75Value());
+        const evaluation = new Evaluation(failstacks, this.findFS75Value());
         this.controller.getEvaluation().set(evaluation);
         this.controller.getFailstacks().set(Array.from(this.failstacks)
             .filter(fs => fs[1].total_amount > 0)
@@ -194,47 +189,39 @@ export default class Logic {
         this.currentFailstack.tier += esItem.failstack_increase;
         switch (esItem) {
             case EnchantmentItem.Reblath_Tet:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
                 this.currentFailstack.value += EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
                 EnchantmentItem.Reblath_Tet.value -= EnchantmentItem.Reblath_Tet.value / EnchantmentItem.Reblath_Tet.amount;
                 break;
             case EnchantmentItem.Reblath_Tri:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
                 this.currentFailstack.value += EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
                 EnchantmentItem.Reblath_Tri.value -= EnchantmentItem.Reblath_Tri.value / EnchantmentItem.Reblath_Tri.amount;
                 break;
             case EnchantmentItem.Reblath_Duo:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
                 this.currentFailstack.value += EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
                 EnchantmentItem.Reblath_Duo.value -= EnchantmentItem.Reblath_Duo.value / EnchantmentItem.Reblath_Duo.amount;
                 break;
             case EnchantmentItem.Reblath_Mon:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
                 break;
             case EnchantmentItem.Blackstar_Tet:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost + EnchantmentMaterial.MEMORY_FRAGMENT.cost * 20;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use() + EnchantmentMaterial.MEMORY_FRAGMENT.use(20);
                 this.currentFailstack.value += EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
                 EnchantmentItem.Blackstar_Tet.value -= EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
                 break;
             case EnchantmentItem.Blackstar_Tri:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost + EnchantmentMaterial.MEMORY_FRAGMENT.cost * 20;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use() + EnchantmentMaterial.MEMORY_FRAGMENT.use(20);
                 this.currentFailstack.value += EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
                 EnchantmentItem.Blackstar_Tri.value -= EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
                 break;
             case EnchantmentItem.Blackstar_Duo:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost + EnchantmentMaterial.MEMORY_FRAGMENT.cost * 20;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use() + EnchantmentMaterial.MEMORY_FRAGMENT.use(20);
                 this.currentFailstack.value += EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
                 EnchantmentItem.Blackstar_Duo.value -= EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
                 break;
             case EnchantmentItem.Blackstar_Mon:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost + EnchantmentMaterial.MEMORY_FRAGMENT.cost * 20;
                 this.currentFailstack.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use() + EnchantmentMaterial.MEMORY_FRAGMENT.use(20);
                 break;
         }
@@ -249,7 +236,6 @@ export default class Logic {
         Logger.debug('itemIncrease', this.currentFailstack, esItem);
         switch (esItem) {
             case EnchantmentItem.Reblath_Tet:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Pen.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Pen.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
@@ -264,7 +250,6 @@ export default class Logic {
                 EnchantmentItem.Reblath_Pen.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Tri:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tet.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Tet.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
@@ -279,7 +264,6 @@ export default class Logic {
                 EnchantmentItem.Reblath_Tet.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Duo:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Tri.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Tri.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
@@ -294,7 +278,6 @@ export default class Logic {
                 EnchantmentItem.Reblath_Tri.total_amount++;
                 break;
             case EnchantmentItem.Reblath_Mon:
-                this.costs += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Reblath_Duo.value += this.currentFailstack.value;
                 EnchantmentItem.Reblath_Duo.value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.use();
@@ -307,7 +290,6 @@ export default class Logic {
                 break;
             case EnchantmentItem.Blackstar_Tet:
                 EnchantmentItem.Blackstar_Pen.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use();
-                this.costs += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Pen.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Pen.value += EnchantmentItem.Blackstar_Tet.value / EnchantmentItem.Blackstar_Tet.amount;
@@ -317,7 +299,6 @@ export default class Logic {
                 break;
             case EnchantmentItem.Blackstar_Tri:
                 EnchantmentItem.Blackstar_Tet.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use();
-                this.costs += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Tet.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Tet.value += EnchantmentItem.Blackstar_Tri.value / EnchantmentItem.Blackstar_Tri.amount;
@@ -327,7 +308,6 @@ export default class Logic {
                 break;
             case EnchantmentItem.Blackstar_Duo:
                 EnchantmentItem.Blackstar_Tri.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use();
-                this.costs += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Tri.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Tri.value += EnchantmentItem.Blackstar_Duo.value / EnchantmentItem.Blackstar_Duo.amount;
@@ -337,7 +317,6 @@ export default class Logic {
                 break;
             case EnchantmentItem.Blackstar_Mon:
                 EnchantmentItem.Blackstar_Duo.value += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.use();
-                this.costs += EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE.cost;
                 if (!pitySuccess)
                     EnchantmentItem.Blackstar_Duo.value += this.currentFailstack.value;
                 EnchantmentItem.Blackstar_Duo.amount++;
@@ -405,8 +384,7 @@ export default class Logic {
             }
             else {
                 message += `Failed with a Failstack of ${this.currentFailstack.tier}`;
-                message += `, because ${nf_fixed(roll, 2)} >  ${nf_fixed(uppChance, 2)}`;
-                message += `. Pity-Stacks ${pity.current}/${pity.max}`;
+                message += `, because ${nf_fixed(roll, 2)} > ${nf_fixed(uppChance, 2)}`;
                 this.increaseFs(esItem);
                 this.decreaseItem(esItem);
                 this.insertFs(false);
@@ -458,7 +436,6 @@ export default class Logic {
                         this.failstacks.get(30).value += EnchantmentMaterialShadowed.BUY_FS_30.use();
                         this.failstacks.get(30).total_amount++;
                         this.failstacks.get(30).total_value += EnchantmentMaterialShadowed.BUY_FS_30.cost;
-                        this.costs += EnchantmentMaterialShadowed.BUY_FS_30.cost;
                         j = 30;
                     }
                     if (j >= esStartFS && this.failstacks.get(j).amount > 0) {
@@ -477,42 +454,36 @@ export default class Logic {
                             this.failstacks.get(5).value += EnchantmentMaterialShadowed.BUY_FS_5.use();
                             this.failstacks.get(5).total_amount++;
                             this.failstacks.get(5).total_value += EnchantmentMaterialShadowed.BUY_FS_5.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_5.cost;
                         }
                         if (esStartFS == 10) {
                             this.failstacks.get(10).amount++;
                             this.failstacks.get(10).value += EnchantmentMaterialShadowed.BUY_FS_10.use();
                             this.failstacks.get(10).total_amount++;
                             this.failstacks.get(10).total_value += EnchantmentMaterialShadowed.BUY_FS_10.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_10.cost;
                         }
                         if (esStartFS == 15) {
                             this.failstacks.get(15).amount++;
                             this.failstacks.get(15).value += EnchantmentMaterialShadowed.BUY_FS_15.use();
                             this.failstacks.get(15).total_amount++;
                             this.failstacks.get(15).total_value += EnchantmentMaterialShadowed.BUY_FS_15.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_15.cost;
                         }
                         if (esStartFS == 20) {
                             this.failstacks.get(20).amount++;
                             this.failstacks.get(20).value += EnchantmentMaterialShadowed.BUY_FS_20.use();
                             this.failstacks.get(20).total_amount++;
                             this.failstacks.get(20).total_value += EnchantmentMaterialShadowed.BUY_FS_20.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_20.cost;
                         }
                         if (esStartFS == 25) {
                             this.failstacks.get(25).amount++;
                             this.failstacks.get(25).value += EnchantmentMaterialShadowed.BUY_FS_25.use();
                             this.failstacks.get(25).total_amount++;
                             this.failstacks.get(25).total_value += EnchantmentMaterialShadowed.BUY_FS_25.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_25.cost;
                         }
                         if (esStartFS == 30) {
                             this.failstacks.get(30).amount++;
                             this.failstacks.get(30).value += EnchantmentMaterialShadowed.BUY_FS_30.use();
                             this.failstacks.get(30).total_amount++;
                             this.failstacks.get(30).total_value += EnchantmentMaterialShadowed.BUY_FS_30.cost;
-                            this.costs += EnchantmentMaterialShadowed.BUY_FS_30.cost;
                         }
                     }
                     if (j >= esStartFS && this.failstacks.get(j).amount > 0) {

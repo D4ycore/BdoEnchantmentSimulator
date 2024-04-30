@@ -1,11 +1,13 @@
 import Controller from '../controller/Controller.js';
 import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js';
-import EnchantmentMaterial, { EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
+import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
 import { FailStack } from '../logic/FailStack.js';
 import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
 
 export default class View {
+	private controller!: Controller;
+
 	private cbScaleOutput;
 	private cbShowDebug;
 
@@ -57,6 +59,8 @@ export default class View {
 	}
 
 	link(controller: Controller) {
+		this.controller = controller;
+
 		this.cbScaleOutput.onchange = evt => {
 			Logger.debug('so change', this.cbScaleOutput.checked);
 			controller.getScaleOutput().changed(this.cbScaleOutput.checked);
@@ -389,14 +393,13 @@ export default class View {
 	}
 
 	showEvaluation(evaluation: Evaluation) {
+		// console.log(this.controller.getScaleOutput().value());
+
+		const materials: EnchantmentMaterial[] = ENCHANTMENT_MATERIALS.filter(material => material.used > 0);
+		const items = [EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri, EnchantmentItem.Reblath_Tet].filter(item => item.amount > 0);
 		const combined_cost = EnchantmentMaterial.total_cost() / 1_000_000;
-		const combined_item_value =
-			evaluation.items
-				.filter(item => item != EnchantmentItem.Reblath_Pen)
-				.map(item => item.value)
-				.reduce((prev, current) => prev + current, 0) / 1_000_000;
-		const Pen_Reblath_Amount = evaluation.items.find(item => item == EnchantmentItem.Reblath_Pen)?.amount;
-		const Pen_Reblath_75_FS_value = ((Pen_Reblath_Amount ?? 0) * evaluation.failstacks_75_value) / 1_000_000;
+		const combined_item_value = items.map(item => item.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
+		const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * evaluation.failstacks_75_value) / 1_000_000;
 		const combined_fs_value = evaluation.failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
 		const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
 		const combined_sum = combined_value - combined_cost;
@@ -422,7 +425,7 @@ export default class View {
 		<span class="grid-header">Used</span>
 		<span class="grid-header">Cost</span>
 		<span class="grid-header">Total Cost</span>
-		${evaluation.materials.map(material => this.addMaterial(material)).join('')}
+		${materials.map(material => this.addMaterial(material)).join('')}
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
@@ -431,7 +434,8 @@ export default class View {
 		<span class="grid-header">Amount</span>
 		<span class="grid-header">Value</span>
 		<span class="grid-header">Total Value</span>
-		${evaluation.items.map(item => this.addItem(item, evaluation.failstacks_75_value)).join('')}
+		${items.map(item => this.addItem(item)).join('')}
+		${this.addPenReblath(evaluation.failstacks_75_value)}
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
@@ -454,26 +458,28 @@ export default class View {
 		`;
 	}
 
-	addItem(item: EnchantmentItem, failstacks_75_value: number) {
-		const isPenReblath = item == EnchantmentItem.Reblath_Pen;
-		const itemClass = isPenReblath ? 'pen_reblath_total_value' : 'total_value';
-
-		const itemRow = `
+	addItem(item: EnchantmentItem) {
+		return `
 		<span class="">${item.name}</span>
 		<span class="grid-item">${nf_commas(item.amount)}</span>
 		<span class="grid-item faded">${nf_commas(item.value / item.amount / 1_000_000, 3)} m</span>
-		<span class="grid-item ${itemClass}">${nf_commas(item.value / 1_000_000, 3)} m</span>
+		<span class="grid-item total_value">${nf_commas(item.value / 1_000_000, 3)} m</span>
 		`;
+	}
 
-		if (!isPenReblath) return itemRow;
-
-		const fs_75_row = `
-			<span class="">(FS 75)</span>
-			<span class="grid-item">${nf_commas(item.amount)}</span>
-			<span class="grid-item faded">${nf_commas(failstacks_75_value / 1_000_000, 3)} m</span>
-			<span class="grid-item total_value">${nf_commas((failstacks_75_value * item.amount) / 1_000_000, 3)} m</span>
-			`;
-		return itemRow + fs_75_row;
+	addPenReblath(failstacks_75_value: number) {
+		const penReblath = EnchantmentItem.Reblath_Pen;
+		if (penReblath.amount < 1) return ``;
+		return `
+		<span class="">${penReblath.name}</span>
+		<span class="grid-item">${nf_commas(penReblath.amount)}</span>
+		<span class="grid-item faded">${nf_commas(penReblath.value / penReblath.amount / 1_000_000, 3)} m</span>
+		<span class="grid-item pen_reblath_total_value">${nf_commas(penReblath.value / 1_000_000, 3)} m</span>
+		<span class="">(FS 75)</span>
+		<span class="grid-item">${nf_commas(penReblath.amount)}</span>
+		<span class="grid-item faded">${nf_commas(failstacks_75_value / 1_000_000, 3)} m</span>
+		<span class="grid-item total_value">${nf_commas((failstacks_75_value * penReblath.amount) / 1_000_000, 3)} m</span>
+		`;
 	}
 
 	addFailstack(failstack: FailStack) {
@@ -506,13 +512,13 @@ export default class View {
 }
 
 export class Evaluation {
-	readonly materials: EnchantmentMaterial[];
-	readonly items: EnchantmentItem[];
+	// readonly materials: EnchantmentMaterial[];
+	// readonly items: EnchantmentItem[];
 	readonly failstacks: FailStack[];
 	readonly failstacks_75_value: number;
-	constructor(costs: EnchantmentMaterial[], items: EnchantmentItem[], failstacks: FailStack[], failstacks_75_value: number) {
-		this.materials = costs;
-		this.items = items;
+	constructor(failstacks: FailStack[], failstacks_75_value: number) {
+		// this.materials = materials;
+		// this.items = items;
 		this.failstacks = failstacks;
 		this.failstacks_75_value = failstacks_75_value;
 	}

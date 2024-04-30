@@ -2,7 +2,9 @@ var _a;
 export const ENCHANTMENT_MATERIALS = [];
 class EnchantmentMaterial {
     static total_cost() {
-        return this.TOTAL_COST;
+        return ENCHANTMENT_MATERIALS.filter(material => !(material instanceof EnchantmentMaterialShadowed))
+            .map(material => material.cost * material.used)
+            .reduce((total, current) => total + current, 0);
     }
     constructor(name, cost) {
         this.used = 0;
@@ -16,17 +18,22 @@ class EnchantmentMaterial {
     get cost() {
         return this._cost;
     }
+    set cost(newCost) {
+        this._cost = newCost;
+    }
     use(amount = 1) {
         this.used += amount;
-        EnchantmentMaterial.TOTAL_COST += this._cost * amount;
         return this._cost * amount;
     }
 }
-EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', 170000);
-EnchantmentMaterial.SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', 2000000);
-EnchantmentMaterial.MEMORY_FRAGMENT = new EnchantmentMaterial('Memory Fragment', 3800000);
-EnchantmentMaterial.BLACKSTAR_MON = new EnchantmentMaterial('Blackstar Mon', 1990000000);
-EnchantmentMaterial.TOTAL_COST = 0;
+EnchantmentMaterial.DEFAULT_BLACKSTONE = 170000;
+EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 2000000;
+EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT = 3800000;
+EnchantmentMaterial.DEFAULT_BLACKSTAR_MON = 1990000000;
+EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', EnchantmentMaterial.DEFAULT_BLACKSTONE);
+EnchantmentMaterial.SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD);
+EnchantmentMaterial.MEMORY_FRAGMENT = new EnchantmentMaterial('Memory Fragment', EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT);
+EnchantmentMaterial.BLACKSTAR_MON = new EnchantmentMaterial('Blackstar Mon', EnchantmentMaterial.DEFAULT_BLACKSTAR_MON);
 export default EnchantmentMaterial;
 export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
     constructor(name, ...parents) {

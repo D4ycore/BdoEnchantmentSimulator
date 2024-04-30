@@ -1,19 +1,24 @@
 export const ENCHANTMENT_MATERIALS: EnchantmentMaterial[] = [];
 
 export default class EnchantmentMaterial {
-	public static readonly BLACKSTONE = new EnchantmentMaterial('Blackstone', 170_000);
-	public static readonly SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', 2_000_000);
-	public static readonly MEMORY_FRAGMENT = new EnchantmentMaterial('Memory Fragment', 3_800_000);
+	private static readonly DEFAULT_BLACKSTONE = 170_000;
+	private static readonly DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 2_000_000;
+	private static readonly DEFAULT_MEMORY_FRAGMENT = 3_800_000;
+	private static readonly DEFAULT_BLACKSTAR_MON = 1_990_000_000;
 
-	public static readonly BLACKSTAR_MON = new EnchantmentMaterial('Blackstar Mon', 1_990_000_000);
+	public static readonly BLACKSTONE = new EnchantmentMaterial('Blackstone', EnchantmentMaterial.DEFAULT_BLACKSTONE);
+	public static readonly SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD);
+	public static readonly MEMORY_FRAGMENT = new EnchantmentMaterial('Memory Fragment', EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT);
 
-	private static TOTAL_COST = 0;
+	public static readonly BLACKSTAR_MON = new EnchantmentMaterial('Blackstar Mon', EnchantmentMaterial.DEFAULT_BLACKSTAR_MON);
 
 	public static total_cost() {
-		return this.TOTAL_COST;
+		return ENCHANTMENT_MATERIALS.filter(material => !(material instanceof EnchantmentMaterialShadowed))
+			.map(material => material.cost * material.used)
+			.reduce((total, current) => total + current, 0);
 	}
 
-	private _name: string;
+	private readonly _name: string;
 	public used: number = 0;
 	private _cost: number;
 
@@ -31,9 +36,12 @@ export default class EnchantmentMaterial {
 		return this._cost;
 	}
 
+	public set cost(newCost: number) {
+		this._cost = newCost;
+	}
+
 	public use(amount: number = 1): number {
 		this.used += amount;
-		EnchantmentMaterial.TOTAL_COST += this._cost * amount;
 		return this._cost * amount;
 	}
 }
@@ -52,7 +60,7 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
 	);
 	public static readonly FLAWLESS_MAGICAL_BLACKSTONE = new EnchantmentMaterialShadowed('Flawless Magical Blackstone', { material: this.SHARP_BLACK_CRYSTAL_SHARD, amount: 2 });
 
-	public parents: { material: EnchantmentMaterial; amount: number }[];
+	public readonly parents: { material: EnchantmentMaterial; amount: number }[];
 
 	private constructor(name: string, ...parents: { material: EnchantmentMaterial; amount: number }[]) {
 		super(name, 0);
