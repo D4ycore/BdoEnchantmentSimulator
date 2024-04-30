@@ -3,27 +3,30 @@ export const ENCHANTMENT_MATERIALS = [];
 class EnchantmentMaterial {
     static total_cost() {
         return ENCHANTMENT_MATERIALS.filter(material => !(material instanceof EnchantmentMaterialShadowed))
-            .map(material => material.cost * material.used)
+            .map(material => material.price * material.used)
             .reduce((total, current) => total + current, 0);
     }
     constructor(name, cost) {
         this.used = 0;
         this._name = name;
-        this._cost = cost;
+        this.price_default = cost;
+        this._price = cost;
         ENCHANTMENT_MATERIALS.push(this);
     }
     get name() {
         return this._name;
     }
-    get cost() {
-        return this._cost;
+    get price() {
+        return this._price;
     }
-    set cost(newCost) {
-        this._cost = newCost;
+    set price(newPrice) {
+        if (isNaN(newPrice))
+            newPrice = this.price_default;
+        this._price = newPrice;
     }
     use(amount = 1) {
         this.used += amount;
-        return this._cost * amount;
+        return this._price * amount;
     }
 }
 EnchantmentMaterial.DEFAULT_BLACKSTONE = 170000;
@@ -40,10 +43,10 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
         super(name, 0);
         this.parents = parents;
     }
-    get cost() {
+    get price() {
         let total = 0;
         for (const parent of this.parents)
-            total += parent.material.cost * parent.amount;
+            total += parent.material.price * parent.amount;
         return total;
     }
     use(amount = 1) {
@@ -55,7 +58,7 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
     }
 }
 _a = EnchantmentMaterialShadowed;
-EnchantmentMaterialShadowed.BUY_FS_5 = new _a('Buy FS &nbsp; 5', { material: _a.BLACKSTONE, amount: 5 });
+EnchantmentMaterialShadowed.BUY_FS_5 = new _a('Buy FS &nbsp;&nbsp;5', { material: _a.BLACKSTONE, amount: 5 });
 EnchantmentMaterialShadowed.BUY_FS_10 = new _a('Buy FS 10', { material: _a.BLACKSTONE, amount: 12 });
 EnchantmentMaterialShadowed.BUY_FS_15 = new _a('Buy FS 15', { material: _a.BLACKSTONE, amount: 21 });
 EnchantmentMaterialShadowed.BUY_FS_20 = new _a('Buy FS 20', { material: _a.BLACKSTONE, amount: 33 });

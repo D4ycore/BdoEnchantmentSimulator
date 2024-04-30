@@ -3,7 +3,8 @@ import Logic from '../logic/Logic.js';
 import View, { Evaluation } from '../view/View.js';
 import Button from './Button.js';
 import EnchantmentItem from './EnchantmentItem.js';
-import { EnchantmentStep } from './EnchantmentStep.js';
+import EnchantmentStep from './EnchantmentStep.js';
+import Setter from './Setter.js';
 import Value from './Value.js';
 
 export default class Controller {
@@ -16,7 +17,7 @@ export default class Controller {
 	private familyFS: Value<number>;
 	private buyFS: Value<number>;
 	private targetAmount: Value<number>;
-	private currentTargetFS: Value<number>;
+	private currentTargetFS: Setter<{ current: number; max: number }>;
 	private enchantment_steps: EnchantmentStep[];
 	private singleClick: Button;
 
@@ -25,8 +26,8 @@ export default class Controller {
 	private upgradeStart: Button;
 	private upgradeStop: Button;
 
-	private lastClick: Value<string>;
-	private stacksCrafted: Value<string>;
+	private lastClick: Setter<string>;
+	private stacksCrafted: Setter<string>;
 
 	private evaluation: Setter<Evaluation>;
 	private failstacks: Setter<FailStack[]>;
@@ -68,11 +69,7 @@ export default class Controller {
 			(oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount),
 			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount)
 		);
-		this.currentTargetFS = new Value<number>(
-			0,
-			(oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS),
-			(oldCurrentTargetFS, newCurrentTargetFS) => logic.currentTargetFS_OnChange(oldCurrentTargetFS, newCurrentTargetFS)
-		);
+		this.currentTargetFS = new Setter<{ current: number; max: number }>(newCurrentTargetFS => view.currentTargetFS_Set(newCurrentTargetFS));
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
 		this.singleClick = new Button(() => logic.singleClick_OnClick());
@@ -82,6 +79,7 @@ export default class Controller {
 			(oldClicksPerIteration, newClicksPerIteration) => view.clicksPerIteration_Set(oldClicksPerIteration, newClicksPerIteration),
 			(oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration)
 		);
+
 		this.iterationsPerSecond = new Value<number>(
 			0,
 			(oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond),
@@ -90,16 +88,8 @@ export default class Controller {
 		this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
 		this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
 
-		this.lastClick = new Value<string>(
-			'',
-			(oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick),
-			(oldLastClick, newLastClick) => logic.lastClick_OnChange(oldLastClick, newLastClick)
-		);
-		this.stacksCrafted = new Value<string>(
-			'',
-			(oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted),
-			(oldStacksCrafted, newStacksCrafted) => logic.stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted)
-		);
+		this.lastClick = new Setter<string>(newLastClick => view.lastClick_Set(newLastClick));
+		this.stacksCrafted = new Setter<string>(newStacksCrafted => view.stacksCrafted_Set(newStacksCrafted));
 
 		this.evaluation = new Setter<Evaluation>(newEvaluation => view.showEvaluation(newEvaluation));
 		this.failstacks = new Setter<FailStack[]>(newFailstacks => view.showFailstacks(newFailstacks));
@@ -173,17 +163,5 @@ export default class Controller {
 	}
 	getFailstacks() {
 		return this.failstacks;
-	}
-}
-
-class Setter<T> {
-	private _set: (newValue: T) => void;
-
-	constructor(set: (newValue: T) => void) {
-		this._set = set;
-	}
-
-	set(newValue: T) {
-		this._set(newValue);
 	}
 }

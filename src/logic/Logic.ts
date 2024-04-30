@@ -8,6 +8,8 @@ import EnchantmentMaterial, { EnchantmentMaterialShadowed } from './EnchantmentM
 import { FailStack } from './FailStack.js';
 
 export default class Logic {
+	private initialized = false;
+
 	private controller!: Controller;
 
 	private currentFailstack: { tier: number; value: number; amount: number } = {
@@ -32,6 +34,8 @@ export default class Logic {
 
 	init() {
 		this.setupDemo();
+		this.initialized = true;
+		this.refresh();
 	}
 
 	private setupDemo() {
@@ -49,7 +53,6 @@ export default class Logic {
 		this.controller.getClicksPerIteration().value(1);
 		this.controller.getIterationsPerSecond().value(1000);
 		for (let n = 0; n < 10; n++) this.addItem('Reblath');
-		this.refresh();
 	}
 
 	private setupSilver() {
@@ -67,7 +70,6 @@ export default class Logic {
 		this.controller.getClicksPerIteration().value(10000);
 		this.controller.getIterationsPerSecond().value(100);
 		for (let n = 0; n < 1000; n++) this.addItem('Reblath');
-		this.refresh();
 	}
 
 	private setupOld() {
@@ -85,7 +87,6 @@ export default class Logic {
 		this.controller.getClicksPerIteration().value(10000);
 		this.controller.getIterationsPerSecond().value(100);
 		for (let n = 0; n < 1000; n++) this.addItem('Reblath');
-		this.refresh();
 	}
 
 	private addItem(item: string) {
@@ -102,7 +103,8 @@ export default class Logic {
 	}
 
 	private refresh() {
-		Logger.debug('refresh', this.currentFailstack);
+		Logger.debug('refresh', this.initialized);
+		if (!this.initialized) return;
 
 		const monReblathText = this.controller.getEnchantmentItem(0)!;
 		const duoReblathText = this.controller.getEnchantmentItem(1)!;
@@ -111,17 +113,17 @@ export default class Logic {
 		const penReblathText = this.controller.getEnchantmentItem(4)!;
 
 		const monReblathPity = this.controller.getEnchantmentItem(0)!.pity;
-		monReblathPity.current.value(EnchantmentItem.Reblath_Mon.pity.current);
-		monReblathPity.max.value(EnchantmentItem.Reblath_Mon.pity.max);
+		monReblathPity.current.set(EnchantmentItem.Reblath_Mon.pity.current);
+		monReblathPity.max.set(EnchantmentItem.Reblath_Mon.pity.max);
 		const duoReblathPity = this.controller.getEnchantmentItem(1)!.pity;
-		duoReblathPity.current.value(EnchantmentItem.Reblath_Duo.pity.current);
-		duoReblathPity.max.value(EnchantmentItem.Reblath_Duo.pity.max);
+		duoReblathPity.current.set(EnchantmentItem.Reblath_Duo.pity.current);
+		duoReblathPity.max.set(EnchantmentItem.Reblath_Duo.pity.max);
 		const triReblathPity = this.controller.getEnchantmentItem(2)!.pity;
-		triReblathPity.current.value(EnchantmentItem.Reblath_Tri.pity.current);
-		triReblathPity.max.value(EnchantmentItem.Reblath_Tri.pity.max);
+		triReblathPity.current.set(EnchantmentItem.Reblath_Tri.pity.current);
+		triReblathPity.max.set(EnchantmentItem.Reblath_Tri.pity.max);
 		const tetReblathPity = this.controller.getEnchantmentItem(3)!.pity;
-		tetReblathPity.current.value(EnchantmentItem.Reblath_Tet.pity.current);
-		tetReblathPity.max.value(EnchantmentItem.Reblath_Tet.pity.max);
+		tetReblathPity.current.set(EnchantmentItem.Reblath_Tet.pity.current);
+		tetReblathPity.max.set(EnchantmentItem.Reblath_Tet.pity.max);
 
 		monReblathText.amount.value(EnchantmentItem.Reblath_Mon.amount);
 		duoReblathText.amount.value(EnchantmentItem.Reblath_Duo.amount);
@@ -153,7 +155,7 @@ export default class Logic {
 		const clicks = nf_commas(this.clicks);
 		const costs = scaleOutput ? nf_commas(EnchantmentMaterial.total_cost() / 1_000_000 / scalarr, 3) : nf_commas(EnchantmentMaterial.total_cost() / 1_000_000);
 
-		this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m| ` + text);
+		this.controller.getStacksCrafted().set(`clicks: ${clicks} | costs: ${costs} m | ` + text);
 
 		const failstacks = Array.from(this.failstacks)
 			.filter(fs => fs[1].amount > 0)
@@ -166,6 +168,14 @@ export default class Logic {
 				.filter(fs => fs[1].total_amount > 0)
 				.map(fs => fs[1])
 		);
+
+		const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1)!.endFS.value() - this.controller.getFamilyFS().value();
+		let currentTargetFS = 0;
+		for (let i = endFS_min; i < this.failstacks.size; i++) {
+			const fs = this.failstacks.get(i)!;
+			if (fs.amount) currentTargetFS += fs.amount;
+		}
+		this.controller.getCurrentTargetFS().set({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
 	}
 
 	private findFS75Value() {
@@ -251,14 +261,14 @@ export default class Logic {
 	}
 
 	private resetFS() {
-		Logger.debug('deleteFs', this.currentFailstack);
+		Logger.debug('resetFS', this.currentFailstack);
 		this.currentFailstack.tier = 0;
 		this.currentFailstack.amount = 0;
 		this.currentFailstack.value = 0;
 	}
 
 	private increaseItem(esItem: EnchantmentItem, pitySuccess: boolean) {
-		Logger.debug('itemIncrease', this.currentFailstack, esItem);
+		Logger.debug('increaseItem', this.currentFailstack, esItem);
 		switch (esItem) {
 			case EnchantmentItem.Reblath_Tet:
 				if (!pitySuccess) EnchantmentItem.Reblath_Pen.value += this.currentFailstack.value;
@@ -269,7 +279,7 @@ export default class Logic {
 				EnchantmentItem.Reblath_Tet.amount--;
 
 				if (!pitySuccess) EnchantmentItem.Reblath_Pen.total_value += this.currentFailstack.value;
-				EnchantmentItem.Reblath_Pen.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
+				EnchantmentItem.Reblath_Pen.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.price;
 				EnchantmentItem.Reblath_Pen.total_value += EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount;
 				EnchantmentItem.Reblath_Pen.total_amount++;
 				break;
@@ -282,7 +292,7 @@ export default class Logic {
 				EnchantmentItem.Reblath_Tri.amount--;
 
 				if (!pitySuccess) EnchantmentItem.Reblath_Tet.total_value += this.currentFailstack.value;
-				EnchantmentItem.Reblath_Tet.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
+				EnchantmentItem.Reblath_Tet.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.price;
 				EnchantmentItem.Reblath_Tet.total_value += EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount;
 				EnchantmentItem.Reblath_Tet.total_amount++;
 				break;
@@ -295,7 +305,7 @@ export default class Logic {
 				EnchantmentItem.Reblath_Duo.amount--;
 
 				if (!pitySuccess) EnchantmentItem.Reblath_Tri.total_value += this.currentFailstack.value;
-				EnchantmentItem.Reblath_Tri.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
+				EnchantmentItem.Reblath_Tri.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.price;
 				EnchantmentItem.Reblath_Tri.total_value += EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount;
 				EnchantmentItem.Reblath_Tri.total_amount++;
 				break;
@@ -306,7 +316,7 @@ export default class Logic {
 				EnchantmentItem.Reblath_Mon.amount--;
 
 				if (!pitySuccess) EnchantmentItem.Reblath_Duo.total_value += this.currentFailstack.value;
-				EnchantmentItem.Reblath_Duo.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.cost;
+				EnchantmentItem.Reblath_Duo.total_value += EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE.price;
 				EnchantmentItem.Reblath_Duo.total_amount++;
 				break;
 			case EnchantmentItem.Blackstar_Tet:
@@ -413,7 +423,7 @@ export default class Logic {
 			}
 		}
 
-		this.controller.getLastClick().value(message);
+		this.controller.getLastClick().set(message);
 
 		const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1)!.endFS.value() - this.controller.getFamilyFS().value();
 		const targetAmount = this.controller.getTargetAmount().value();
@@ -423,7 +433,7 @@ export default class Logic {
 			const fs = this.failstacks.get(i)!;
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
-		this.controller.getCurrentTargetFS().value(currentTargetFS);
+
 		if (currentTargetFS >= targetAmount) this.upgrading = false;
 	}
 
@@ -462,7 +472,7 @@ export default class Logic {
 						this.failstacks.get(30)!.amount++;
 						this.failstacks.get(30)!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
 						this.failstacks.get(30)!.total_amount++;
-						this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.cost;
+						this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
 						j = 30;
 					}
 					if (j >= esStartFS && this.failstacks.get(j)!.amount > 0) {
@@ -481,37 +491,37 @@ export default class Logic {
 							this.failstacks.get(5)!.amount++;
 							this.failstacks.get(5)!.value += EnchantmentMaterialShadowed.BUY_FS_5.use();
 							this.failstacks.get(5)!.total_amount++;
-							this.failstacks.get(5)!.total_value += EnchantmentMaterialShadowed.BUY_FS_5.cost;
+							this.failstacks.get(5)!.total_value += EnchantmentMaterialShadowed.BUY_FS_5.price;
 						}
 						if (esStartFS == 10) {
 							this.failstacks.get(10)!.amount++;
 							this.failstacks.get(10)!.value += EnchantmentMaterialShadowed.BUY_FS_10.use();
 							this.failstacks.get(10)!.total_amount++;
-							this.failstacks.get(10)!.total_value += EnchantmentMaterialShadowed.BUY_FS_10.cost;
+							this.failstacks.get(10)!.total_value += EnchantmentMaterialShadowed.BUY_FS_10.price;
 						}
 						if (esStartFS == 15) {
 							this.failstacks.get(15)!.amount++;
 							this.failstacks.get(15)!.value += EnchantmentMaterialShadowed.BUY_FS_15.use();
 							this.failstacks.get(15)!.total_amount++;
-							this.failstacks.get(15)!.total_value += EnchantmentMaterialShadowed.BUY_FS_15.cost;
+							this.failstacks.get(15)!.total_value += EnchantmentMaterialShadowed.BUY_FS_15.price;
 						}
 						if (esStartFS == 20) {
 							this.failstacks.get(20)!.amount++;
 							this.failstacks.get(20)!.value += EnchantmentMaterialShadowed.BUY_FS_20.use();
 							this.failstacks.get(20)!.total_amount++;
-							this.failstacks.get(20)!.total_value += EnchantmentMaterialShadowed.BUY_FS_20.cost;
+							this.failstacks.get(20)!.total_value += EnchantmentMaterialShadowed.BUY_FS_20.price;
 						}
 						if (esStartFS == 25) {
 							this.failstacks.get(25)!.amount++;
 							this.failstacks.get(25)!.value += EnchantmentMaterialShadowed.BUY_FS_25.use();
 							this.failstacks.get(25)!.total_amount++;
-							this.failstacks.get(25)!.total_value += EnchantmentMaterialShadowed.BUY_FS_25.cost;
+							this.failstacks.get(25)!.total_value += EnchantmentMaterialShadowed.BUY_FS_25.price;
 						}
 						if (esStartFS == 30) {
 							this.failstacks.get(30)!.amount++;
 							this.failstacks.get(30)!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
 							this.failstacks.get(30)!.total_amount++;
-							this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.cost;
+							this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
 						}
 					}
 					if (j >= esStartFS && this.failstacks.get(j)!.amount > 0) {
@@ -521,7 +531,7 @@ export default class Logic {
 					}
 				}
 			} else if (esItem == EnchantmentItem.Reblath_Mon && EnchantmentItem.Reblath_Mon.amount == 0) {
-				this.controller.getLastClick().value('keine mons');
+				this.controller.getLastClick().set('keine mons');
 				this.upgrading = false;
 				fsFound = true;
 			}
@@ -552,32 +562,18 @@ export default class Logic {
 	}
 
 	/* Unused */
-	enchantmentItem_Pity_Current_OnChange(ei_index: number, oldPityCurrent: number, newPityCurrent: number) {
-		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
-		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
-
-		Logger.debug(`The Current Pity Stack of Reblath(${ei_index}) has changed(${oldPityCurrent} => ${newPityCurrent})`);
-	}
-	/* Unused */
-	enchantmentItem_Pity_Max_OnChange(ei_index: number, oldPityMax: number, newPityMax: number) {
-		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
-		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
-
-		Logger.debug(`The Max Pity Stack of Reblath(${ei_index}) has changed(${oldPityMax} => ${newPityMax})`);
-	}
-	/* Unused */
 	enchantmentItem_Amount_OnChange(ei_index: number, oldAmount: number, newAmount: number) {
 		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
-		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
-		Logger.debug(`The Amount of Reblath(${ei_index}) has changed(${oldAmount} => ${newAmount})`);
+		Logger.debug(`The Amount of Enchantment Item (${ei_index}) has changed(${oldAmount} => ${newAmount})`);
 	}
 	/* Unused */
 	enchantmentItem_WorthEach_OnChange(ei_index: number, oldWorthEach: number, newWorthEach: number) {
 		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
-		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Reblaths`);
+		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
-		Logger.debug(`The Worth of each Reblath(${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
+		Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
 	}
 	addReblath_OnClick() {
 		Logger.debug('Add new Reblath');
@@ -594,10 +590,10 @@ export default class Logic {
 	familyFS_OnChange(oldFamilyFS: number, newFamilyFS: number) {
 		Logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
 
-		const step = this.controller.getEnchantmentStep(0);
-		if (!step) return Logger.warn('There are no Enchantment Steps');
+		const enchantment_step = this.controller.getEnchantmentStep(0);
+		if (!enchantment_step) return Logger.warn('There are no Enchantment Steps');
 
-		step.startFS.value(newFamilyFS + this.controller.getBuyFS().value());
+		enchantment_step.startFS.value(newFamilyFS + this.controller.getBuyFS().value());
 	}
 	buyFS_OnChange(oldBuyFS: number, newBuyFS: number) {
 		Logger.debug(`The Buy FS has changed(${oldBuyFS} => ${newBuyFS})`);
@@ -611,11 +607,6 @@ export default class Logic {
 	targetAmount_OnChange(oldTargetAmount: number, newTargetAmount: number) {
 		Logger.debug(`The Target Amount has changed(${oldTargetAmount} => ${newTargetAmount})`);
 		this.refresh();
-	}
-
-	/* Unused */
-	currentTargetFS_OnChange(oldCurrentTargetFS: number, newCurrentTargetFS: number) {
-		Logger.debug(`The Current Target FS has changed(${oldCurrentTargetFS} => ${newCurrentTargetFS})`);
 	}
 
 	enchantmentStep_Item_OnChange(es_index: number, oldItem: EnchantmentItem, newItem: EnchantmentItem) {
@@ -645,6 +636,8 @@ export default class Logic {
 		if (!enchantment_step) return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
 
 		Logger.debug(`The End FS of Step(${es_index}) has changed(${oldEndFS} => ${newEndFS})`);
+
+		if (es_index == this.controller.getEnchantmentStepsSize() - 1) this.refresh();
 
 		const nextIndex = es_index + 1;
 		if (nextIndex >= this.controller.getEnchantmentStepsSize()) return;
@@ -702,14 +695,5 @@ export default class Logic {
 		Logger.debug('Single Click');
 		this.Enchantment();
 		this.refresh();
-	}
-
-	/* Unused */
-	lastClick_OnChange(oldLastClick: string, newLastClick: string) {
-		Logger.debug(`The Last Click has changed(${oldLastClick} => ${newLastClick})`);
-	}
-	/* Unused */
-	stacksCrafted_OnChange(oldStacksCrafted: string, newStacksCrafted: string) {
-		Logger.debug(`The Stacks Crafted has changed(${oldStacksCrafted} => ${newStacksCrafted})`);
 	}
 }

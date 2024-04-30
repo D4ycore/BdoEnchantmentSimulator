@@ -14,17 +14,19 @@ export default class EnchantmentMaterial {
 
 	public static total_cost() {
 		return ENCHANTMENT_MATERIALS.filter(material => !(material instanceof EnchantmentMaterialShadowed))
-			.map(material => material.cost * material.used)
+			.map(material => material.price * material.used)
 			.reduce((total, current) => total + current, 0);
 	}
 
 	private readonly _name: string;
 	public used: number = 0;
-	private _cost: number;
+	private readonly price_default: number;
+	private _price: number;
 
 	protected constructor(name: string, cost: number) {
 		this._name = name;
-		this._cost = cost;
+		this.price_default = cost;
+		this._price = cost;
 		ENCHANTMENT_MATERIALS.push(this);
 	}
 
@@ -32,22 +34,23 @@ export default class EnchantmentMaterial {
 		return this._name;
 	}
 
-	public get cost(): number {
-		return this._cost;
+	public get price(): number {
+		return this._price;
 	}
 
-	public set cost(newCost: number) {
-		this._cost = newCost;
+	public set price(newPrice: number) {
+		if (isNaN(newPrice)) newPrice = this.price_default;
+		this._price = newPrice;
 	}
 
 	public use(amount: number = 1): number {
 		this.used += amount;
-		return this._cost * amount;
+		return this._price * amount;
 	}
 }
 
 export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
-	public static readonly BUY_FS_5 = new EnchantmentMaterialShadowed('Buy FS &nbsp; 5', { material: this.BLACKSTONE, amount: 5 });
+	public static readonly BUY_FS_5 = new EnchantmentMaterialShadowed('Buy FS &nbsp;&nbsp;5', { material: this.BLACKSTONE, amount: 5 });
 	public static readonly BUY_FS_10 = new EnchantmentMaterialShadowed('Buy FS 10', { material: this.BLACKSTONE, amount: 12 });
 	public static readonly BUY_FS_15 = new EnchantmentMaterialShadowed('Buy FS 15', { material: this.BLACKSTONE, amount: 21 });
 	public static readonly BUY_FS_20 = new EnchantmentMaterialShadowed('Buy FS 20', { material: this.BLACKSTONE, amount: 33 });
@@ -67,9 +70,9 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
 		this.parents = parents;
 	}
 
-	public get cost(): number {
+	public get price(): number {
 		let total = 0;
-		for (const parent of this.parents) total += parent.material.cost * parent.amount;
+		for (const parent of this.parents) total += parent.material.price * parent.amount;
 		return total;
 	}
 

@@ -3,7 +3,7 @@ import Logic from '../logic/Logic.js';
 import View from '../view/View.js';
 import Value from './Value.js';
 
-export class EnchantmentStep {
+export default class EnchantmentStep {
 	item: Value<EnchantmentItem>;
 	startFS: Value<number>;
 	endFS: Value<number>;

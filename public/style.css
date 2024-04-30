@@ -8,9 +8,11 @@
 	--color-hinted-2: #18181b;
 	--color-hinted-3: #1f1f23;
 	--color-hinted-4: #26262c;
+	--color-hinted-45: #2b2b31;
 	--color-hinted-5: #323239;
 	--color-hinted-6: #3b3b44;
 	--color-hinted-7: #53535f;
+	--color-hinted-75: #6b6b7b;
 	--color-hinted-8: #848494;
 	--color-hinted-9: #adadb8;
 	--color-hinted-10: #c8c8d0;
@@ -208,7 +210,7 @@
 	--font-size-8: 1rem;
 	--font-size-9: 0.7rem;
 	--font-size-10: 0.5rem;
-	--font-size-base: var(--font-size-6);
+	--font-size-base: var(--font-size-8);
 	--font-weight-normal: 400;
 	--font-weight-semibold: 600;
 	--font-weight-bold: 700;
@@ -220,13 +222,13 @@
 	--font-display: 'Roobert', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	--font-mono: monospace;
 	scroll-behavior: smooth;
+	scroll-padding-top: 70px;
 }
 
 :root {
 	color-scheme: light;
 	--color-font: var(--color-hinted-1);
 	--color-font-2: var(--color-hinted-3);
-	--color-font-disabled: var(--color-hinted-7);
 	--color-font-faded: var(--color-hinted-7);
 
 	--color-font-shadow: color-mix(in srgb, var(--color-hinted-15), transparent 100%);
@@ -253,7 +255,6 @@
 
 	--color-font: var(--color-hinted-14);
 	--color-font-2: var(--color-hinted-12);
-	--color-font-disabled: var(--color-hinted-9);
 	--color-font-faded: var(--color-hinted-9);
 
 	--color-font-shadow: color-mix(in srgb, var(--color-hinted-1), transparent 50%);
@@ -282,15 +283,6 @@
 }
 
 body {
-	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-items: center;
-	gap: var(--space-2);
-
-	padding: calc(max(0vw, 4vw - 1rem));
-
 	max-width: 100vw;
 	min-height: 100vh;
 	font-family: var(--font-base);
@@ -303,7 +295,7 @@ body {
 }
 
 *:disabled {
-	color: var(--color-font-disabled);
+	color: var(--color-font-faded);
 }
 
 a {
@@ -311,16 +303,102 @@ a {
 	text-decoration: none;
 }
 
+span[contenteditable='true'] {
+	padding-inline: 1px;
+	margin-inline: -1px;
+	background: var(--color-hinted-45); /* TODO */
+	border-radius: 2px;
+	outline: dashed 1px var(--color-hinted-7); /* TODO */
+
+	&:hover {
+		outline: dashed 1px var(--color-hinted-9); /* TODO */
+		color: var(--color-font-2);
+	}
+	&:focus-visible {
+		outline: dashed 1px var(--color-hinted-14); /* TODO */
+		color: var(--color-font);
+	}
+}
+
+input,
+select,
+textarea {
+	padding-block: 1px;
+	padding-inline: 1px;
+	color: var(--color-font);
+}
+
+input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']),
+select,
+textarea {
+	color: var(--color-font);
+	background: var(--color-hinted-6); /* TODO */
+	border: solid 1px var(--color-hinted-12); /* TODO */
+}
+
+input[type='button'],
+input[type='reset'],
+input[type='submit'],
+input[type='image'],
+button {
+	background: var(--color-hinted-75); /* TODO */
+	border: solid var(--color-hinted-75); /* TODO */
+	border-radius: 3px;
+
+	&:hover {
+		background: var(--color-hinted-9); /* TODO */
+		border-color: var(--color-hinted-9); /* TODO */
+	}
+}
+
+input,
+textarea {
+	padding-inline: 4px;
+}
+
+.faded {
+	color: var(--color-font-faded);
+}
+
 a.active,
 a:hover {
 	color: var(--color-magenta-11);
 }
 
-.app {
-	padding: var(--space-2);
-	border-radius: 2rem;
-	border-color: var(--color-app-contrast);
-	border-style: solid;
+header {
+	display: flex;
+	gap: var(--space-1);
+	padding: var(--space-05);
+	border-bottom: solid var(--width-3) var(--color-app-accent);
+	background: var(--color-app);
+	position: sticky;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 999;
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: var(--space-2);
+	margin: var(--space-2);
+	flex: auto;
+}
+
+/* #app {
+	justify-content: flex-start;
+	flex-direction: row;
+	align-items: flex-start;
+} */
+
+section {
+	padding: var(--space-1);
+	border-radius: var(--width-8);
+	border: solid 2px var(--color-app-contrast);
 	width: -moz-available;
 	width: -webkit-fill-available;
 	min-width: min-content;
@@ -328,32 +406,14 @@ a:hover {
 	background: var(--color-app);
 }
 
+/* section {
+	width: min-content;
+} */
+
 #simulation {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-1);
-}
-
-#header {
-	display: flex;
-	gap: var(--space-1);
-	padding: var(--space-05);
-	border-bottom: solid var(--width-3) var(--color-app-accent);
-	background: var(--color-app);
-}
-
-.fixed-header {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-
-	background: var(--color-app);
-	z-index: 999;
-}
-
-.fixed-header + .content {
-	padding-top: 64px;
 }
 
 .option {
@@ -370,6 +430,7 @@ a:hover {
 	& label {
 		-webkit-user-select: none;
 		user-select: none;
+		text-align: right;
 		&:hover {
 			text-shadow: var(--color-font-shadow-highlight);
 		}
@@ -377,12 +438,13 @@ a:hover {
 }
 
 #bColorScheme {
-	width: 1rem;
-	height: 1rem;
+	width: 1em;
+	height: 1em;
+	min-width: 1em;
 	background: var(--color-app-contrast);
 
 	border: none;
-	border-radius: 0.25rem;
+	border-radius: var(--width-4);
 
 	&:hover {
 		box-shadow: 0px 0px 2px 0.5px var(--color-app-contrast), 0px 0px 4px var(--color-background-end);
@@ -394,6 +456,7 @@ a:hover {
 nav {
 	display: flex;
 	margin-left: auto;
+	align-items: center;
 
 	& > a {
 		padding-right: var(--space-05);
@@ -409,6 +472,7 @@ nav {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
+	gap: var(--space-2);
 }
 
 #enchantment_items {
@@ -454,7 +518,7 @@ nav {
 	align-items: flex-end;
 	justify-content: flex-start;
 	margin-left: 3px;
-	font-size: var(--font-size-9);
+	font-size: 0.7em;
 	min-width: 5ch;
 }
 
@@ -471,7 +535,6 @@ nav {
 	grid-template-columns: 1fr 0.5fr;
 	justify-items: center;
 	gap: var(--space-05) var(--space-0);
-	border-radius: 1rem 1rem 0 0;
 
 	& label {
 		text-align: left;
@@ -484,12 +547,15 @@ nav {
 
 #spCurrentTargetFS {
 	position: absolute;
-	top: 1.5rem;
-	font-size: var(--font-size-8);
+	top: calc(var(--font-size-base) + var(--width-2));
+	font-size: 0.7em;
+}
+
+.current_target_fs_reached {
+	color: var(--color-combined-value);
 }
 
 #enchantment_steps {
-	border-radius: 0 0 1rem 1rem;
 	text-align: center;
 
 	& th {
@@ -547,17 +613,13 @@ nav {
 	}
 }
 
-input,
-select,
-textarea {
-	padding-block: 1px;
-	padding-inline: 1px;
-	color: var(--color-font);
+#evaluation,
+#failstacks {
+	--colums: 4;
 }
 
-input,
-textarea {
-	padding-inline: 4px;
+#prices {
+	--colums: 2;
 }
 
 .grid-list-wrapper {
@@ -567,7 +629,7 @@ textarea {
 
 .grid-list {
 	display: grid;
-	grid-template-columns: repeat(4, min-content);
+	grid-template-columns: repeat(var(--colums, 4), min-content);
 	justify-content: center;
 	overflow: hidden;
 	padding: var(--space-05);
@@ -587,17 +649,9 @@ textarea {
 	color: var(--color-font-2);
 }
 
-#evaluation {
-	grid-template-columns: repeat(4, min-content);
-}
-
-#failstacks {
-	grid-template-columns: repeat(4, min-content);
-}
-
 .grid-header {
 	color: var(--color-font);
-	font-size: var(--font-size-5);
+	font-size: 1.2em;
 	text-align: center;
 }
 
@@ -628,6 +682,12 @@ textarea {
 	font-style: italic;
 }
 
+.formatted {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.25em;
+}
+
 .grid-item {
 	position: relative;
 }
@@ -655,6 +715,17 @@ textarea {
 	background-color: var(--line-color-y);
 }
 
-.faded {
-	color: var(--color-font-faded);
+.autowidth[autowidth='general'] {
+	width: 6ch !important;
+	transition-duration: var(--timing-long);
+}
+
+.autowidth[autowidth='enchantment_step'] {
+	width: 6ch !important;
+	transition-duration: var(--timing-long);
+}
+
+.autowidth[autowidth='iteration'] {
+	width: 8ch !important;
+	transition-duration: var(--timing-long);
 }

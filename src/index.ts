@@ -69,8 +69,6 @@ function initAutoWidth() {
 		elt.oninput = () => checkAutoWidth(type);
 	});
 
-	for (const type of autoWidthRulesTypes) sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: var(--timing-long) } `);
-
 	if (!rules) return;
 	for (const type of autoWidthRulesTypes) {
 		for (const rule of rules) if (rule instanceof CSSStyleRule && rule.selectorText === `.autowidth[autowidth="${type}"]`) autoWidthRules.set(type, rule);
@@ -83,27 +81,7 @@ function initAutoWidth() {
 		});
 		const rule = autoWidthRules.get(type);
 		if (!rule) return;
-		rule.style.width = Math.max(2, maxWidth) + 5 + 'ch';
+		rule.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
 	}
 }
 initAutoWidth();
-
-function initStickyHeader() {
-	const header = document.getElementById('header');
-	if (!header) return;
-
-	let sticky: number;
-	let isSticky = false;
-
-	window.onscroll = () => {
-		if (!isSticky) sticky = header.offsetTop;
-		if (window.scrollY > sticky) {
-			header.classList.add('fixed-header');
-			isSticky = true;
-		} else {
-			header.classList.remove('fixed-header');
-			isSticky = false;
-		}
-	};
-}
-initStickyHeader();
