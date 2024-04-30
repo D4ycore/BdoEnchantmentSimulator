@@ -1,4 +1,3 @@
 # BdoEnchantmentSimulator
 
-abc
-a sd
+[Website](https://d4ycore.github.io/BdoEnchantmentSimulator/)
