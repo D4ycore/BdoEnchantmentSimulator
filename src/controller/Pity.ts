@@ -7,7 +7,7 @@ export default class Pity {
 	max: Setter<number>;
 
 	constructor(index: number, view: View, logic: Logic) {
-		this.current = new Setter<number>(newPityCurrent => view.enchantmentItem_Pity_Current_Set(index, newPityCurrent));
-		this.max = new Setter<number>(newPityMax => view.enchantmentItem_Pity_Max_Set(index, newPityMax));
+		this.current = new Setter<number>(0, (oldPityCurrent, newPityCurrent) => view.enchantmentItem_Pity_Current_Set(index, oldPityCurrent, newPityCurrent));
+		this.max = new Setter<number>(0, (oldPityMax, newPityMax) => view.enchantmentItem_Pity_Max_Set(index, oldPityMax, newPityMax));
 	}
 }

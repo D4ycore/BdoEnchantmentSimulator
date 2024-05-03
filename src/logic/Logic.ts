@@ -2,9 +2,9 @@ import Controller from '../controller/Controller.js';
 import Logger from '../util/Logger.js';
 import { TEST_RNG } from '../util/TestRng.js';
 import { nf, nf_commas, nf_fixed } from '../util/util.js';
-import { Evaluation } from '../view/View.js';
-import EnchantmentItem from './EnchantmentItem.js';
-import EnchantmentMaterial, { EnchantmentMaterialShadowed } from './EnchantmentMaterial.js';
+import { SimulatorState, enchantment_item, enchantment_mat, enchantment_step } from '../view/View.js';
+import EnchantmentItem, { ENCHANTMENT_ITEMS } from './EnchantmentItem.js';
+import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from './EnchantmentMaterial.js';
 import { FailStack } from './FailStack.js';
 
 export default class Logic {
@@ -17,7 +17,7 @@ export default class Logic {
 		value: 0,
 		amount: 0
 	};
-	private failstacks = new Map<number, FailStack>();
+	private failstacks: FailStack[] = [];
 
 	private rand: TEST_RNG = new TEST_RNG(0);
 	private upgrading: boolean = false;
@@ -25,7 +25,7 @@ export default class Logic {
 	private clicks: number = 0;
 
 	constructor() {
-		for (let i = 1; i <= 500; i++) this.failstacks.set(i, new FailStack(i));
+		for (let i = 0; i <= 500; i++) this.failstacks.push(new FailStack(i));
 	}
 
 	link(controller: Controller) {
@@ -35,7 +35,7 @@ export default class Logic {
 	init() {
 		this.setupDemo();
 		this.initialized = true;
-		this.refresh();
+		this.refresh(false);
 	}
 
 	private setupDemo() {
@@ -102,9 +102,11 @@ export default class Logic {
 		}
 	}
 
-	private refresh() {
+	private refresh(saveState = true) {
 		Logger.debug('refresh', this.initialized);
 		if (!this.initialized) return;
+
+		this.controller.getClicks().value(this.clicks);
 
 		const monReblathText = this.controller.getEnchantmentItem(0)!;
 		const duoReblathText = this.controller.getEnchantmentItem(1)!;
@@ -113,17 +115,17 @@ export default class Logic {
 		const penReblathText = this.controller.getEnchantmentItem(4)!;
 
 		const monReblathPity = this.controller.getEnchantmentItem(0)!.pity;
-		monReblathPity.current.set(EnchantmentItem.Reblath_Mon.pity.current);
-		monReblathPity.max.set(EnchantmentItem.Reblath_Mon.pity.max);
+		monReblathPity.current.value(EnchantmentItem.Reblath_Mon.pity.current);
+		monReblathPity.max.value(EnchantmentItem.Reblath_Mon.pity.max);
 		const duoReblathPity = this.controller.getEnchantmentItem(1)!.pity;
-		duoReblathPity.current.set(EnchantmentItem.Reblath_Duo.pity.current);
-		duoReblathPity.max.set(EnchantmentItem.Reblath_Duo.pity.max);
+		duoReblathPity.current.value(EnchantmentItem.Reblath_Duo.pity.current);
+		duoReblathPity.max.value(EnchantmentItem.Reblath_Duo.pity.max);
 		const triReblathPity = this.controller.getEnchantmentItem(2)!.pity;
-		triReblathPity.current.set(EnchantmentItem.Reblath_Tri.pity.current);
-		triReblathPity.max.set(EnchantmentItem.Reblath_Tri.pity.max);
+		triReblathPity.current.value(EnchantmentItem.Reblath_Tri.pity.current);
+		triReblathPity.max.value(EnchantmentItem.Reblath_Tri.pity.max);
 		const tetReblathPity = this.controller.getEnchantmentItem(3)!.pity;
-		tetReblathPity.current.set(EnchantmentItem.Reblath_Tet.pity.current);
-		tetReblathPity.max.set(EnchantmentItem.Reblath_Tet.pity.max);
+		tetReblathPity.current.value(EnchantmentItem.Reblath_Tet.pity.current);
+		tetReblathPity.max.value(EnchantmentItem.Reblath_Tet.pity.max);
 
 		monReblathText.amount.value(EnchantmentItem.Reblath_Mon.amount);
 		duoReblathText.amount.value(EnchantmentItem.Reblath_Duo.amount);
@@ -133,19 +135,23 @@ export default class Logic {
 
 		if (EnchantmentItem.Reblath_Duo.total_value)
 			duoReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1_000_000.0, 3));
+		else duoReblathText.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Tri.total_value)
 			triReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1_000_000.0, 3));
+		else triReblathText.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Tet.total_value)
 			tetReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount / 1_000_000.0, 3));
+		else tetReblathText.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Pen.total_value)
 			penReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Pen.total_value / EnchantmentItem.Reblath_Pen.total_amount / 1_000_000.0, 3));
+		else penReblathText.worthEach.value(0);
 
 		const scaleOutput = this.controller.getScaleOutput().value();
 		const scalarr = this.controller.getTargetAmount().value();
 
 		let text = '';
-		for (let i = 1; i < this.failstacks.size; i++) {
-			const fs = this.failstacks.get(i)!;
+		for (let i = 1; i < this.failstacks.length; i++) {
+			const fs = this.failstacks[i]!;
 			if (fs.amount > 0) {
 				const fsAmountPerTarget = scaleOutput ? nf_commas(fs.amount / scalarr, 2) : nf_commas(fs.amount);
 				const fsValuePer = nf_commas(fs.value / fs.amount / 1_000_000, 3);
@@ -155,47 +161,26 @@ export default class Logic {
 		const clicks = nf_commas(this.clicks);
 		const costs = scaleOutput ? nf_commas(EnchantmentMaterial.total_cost() / 1_000_000 / scalarr, 3) : nf_commas(EnchantmentMaterial.total_cost() / 1_000_000);
 
-		this.controller.getStacksCrafted().set(`clicks: ${clicks} | costs: ${costs} m | ` + text);
+		this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m | ` + text);
 
-		const failstacks = Array.from(this.failstacks)
-			.filter(fs => fs[1].amount > 0)
-			.map(fs => fs[1]);
-		const evaluation = new Evaluation(failstacks, this.findFS75Value());
-		this.controller.getEvaluation().set(evaluation);
-
-		this.controller.getFailstacks().set(
-			Array.from(this.failstacks)
-				.filter(fs => fs[1].total_amount > 0)
-				.map(fs => fs[1])
-		);
+		// const evaluation = new Evaluation(this.failstacks.filter(fs => fs.amount > 0));
+		// this.controller.getEvaluation().value(this.failstacks);
+		// this.controller.getFailstacks().value(this.failstacks.filter(fs => fs.total_amount > 0));
+		this.controller.getFailstacks().value(this.failstacks);
 
 		const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1)!.endFS.value() - this.controller.getFamilyFS().value();
 		let currentTargetFS = 0;
-		for (let i = endFS_min; i < this.failstacks.size; i++) {
-			const fs = this.failstacks.get(i)!;
+		for (let i = endFS_min; i < this.failstacks.length; i++) {
+			const fs = this.failstacks[i]!;
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
-		this.controller.getCurrentTargetFS().set({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-	}
-
-	private findFS75Value() {
-		const fs75 = this.failstacks.get(75)!;
-		if (fs75.total_amount > 10) return fs75.total_value / fs75.total_amount;
-		let total_value = 0;
-		let total_amount = 0;
-		for (let index = 70; index < 80; index++) {
-			const fs = this.failstacks.get(index)!;
-			if (fs.total_amount < 1) continue;
-			total_amount++;
-			total_value += fs.total_value / fs.total_amount;
-		}
-		if (total_amount > 0) total_value /= total_amount;
-		return total_value;
+		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
+		if (saveState) this.saveState();
 	}
 
 	private takeFs(x: number) {
 		Logger.debug('takeFs', x);
-		const matchingFS = this.failstacks.get(x)!;
+		const matchingFS = this.failstacks[x]!;
 		Logger.debug('targetFS-b', matchingFS);
 
 		this.currentFailstack.tier = x;
@@ -208,7 +193,7 @@ export default class Logic {
 
 	private insertFs(pitySuccess: boolean) {
 		Logger.debug('insertFs', this.currentFailstack);
-		const matchingFS = this.failstacks.get(this.currentFailstack.tier)!;
+		const matchingFS = this.failstacks[this.currentFailstack.tier]!;
 		matchingFS.amount++;
 		matchingFS.value += this.currentFailstack.value;
 		if (!pitySuccess) {
@@ -414,7 +399,6 @@ export default class Logic {
 			} else {
 				message += `Failed with a Failstack of ${this.currentFailstack.tier}`;
 				message += `, because ${nf_fixed(roll, 2)} > ${nf_fixed(uppChance, 2)}`;
-				// message += `. Pity-Stacks ${pity.current}/${pity.max}`;
 				this.increaseFs(esItem);
 				this.decreaseItem(esItem);
 				this.insertFs(false);
@@ -423,14 +407,14 @@ export default class Logic {
 			}
 		}
 
-		this.controller.getLastClick().set(message);
+		this.controller.getLastClick().value(message);
 
 		const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1)!.endFS.value() - this.controller.getFamilyFS().value();
 		const targetAmount = this.controller.getTargetAmount().value();
 
 		let currentTargetFS = 0;
-		for (let i = endFS_min; i < this.failstacks.size; i++) {
-			const fs = this.failstacks.get(i)!;
+		for (let i = endFS_min; i < this.failstacks.length; i++) {
+			const fs = this.failstacks[i]!;
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
 
@@ -460,7 +444,7 @@ export default class Logic {
 				(esItem == EnchantmentItem.Blackstar_Duo && EnchantmentItem.Blackstar_Duo.amount > 0)
 			) {
 				for (let j = esEndFS - 1; j >= esStartFS; j--) {
-					if (this.failstacks.get(j)!.amount > 0) {
+					if (this.failstacks[j]!.amount > 0) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
@@ -468,14 +452,14 @@ export default class Logic {
 				}
 			} else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0) {
 				for (let j = esEndFS - 1; j >= esStartFS; j--) {
-					if (j == esStartFS && this.failstacks.get(j)!.amount == 0 && esStartFS <= 30) {
-						this.failstacks.get(30)!.amount++;
-						this.failstacks.get(30)!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
-						this.failstacks.get(30)!.total_amount++;
-						this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+					if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS <= 30) {
+						this.failstacks[30]!.amount++;
+						this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
+						this.failstacks[30]!.total_amount++;
+						this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
 						j = 30;
 					}
-					if (j >= esStartFS && this.failstacks.get(j)!.amount > 0) {
+					if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
@@ -486,52 +470,52 @@ export default class Logic {
 				(esItem == EnchantmentItem.Blackstar_Mon && EnchantmentItem.Blackstar_Mon.amount > 0)
 			) {
 				for (let j = esEndFS - 1; j >= esStartFS; j--) {
-					if (j == esStartFS && this.failstacks.get(j)!.amount == 0) {
+					if (j == esStartFS && this.failstacks[j]!.amount == 0) {
 						if (esStartFS == 5) {
-							this.failstacks.get(5)!.amount++;
-							this.failstacks.get(5)!.value += EnchantmentMaterialShadowed.BUY_FS_5.use();
-							this.failstacks.get(5)!.total_amount++;
-							this.failstacks.get(5)!.total_value += EnchantmentMaterialShadowed.BUY_FS_5.price;
+							this.failstacks[5]!.amount++;
+							this.failstacks[5]!.value += EnchantmentMaterialShadowed.BUY_FS_5.use();
+							this.failstacks[5]!.total_amount++;
+							this.failstacks[5]!.total_value += EnchantmentMaterialShadowed.BUY_FS_5.price;
 						}
 						if (esStartFS == 10) {
-							this.failstacks.get(10)!.amount++;
-							this.failstacks.get(10)!.value += EnchantmentMaterialShadowed.BUY_FS_10.use();
-							this.failstacks.get(10)!.total_amount++;
-							this.failstacks.get(10)!.total_value += EnchantmentMaterialShadowed.BUY_FS_10.price;
+							this.failstacks[10]!.amount++;
+							this.failstacks[10]!.value += EnchantmentMaterialShadowed.BUY_FS_10.use();
+							this.failstacks[10]!.total_amount++;
+							this.failstacks[10]!.total_value += EnchantmentMaterialShadowed.BUY_FS_10.price;
 						}
 						if (esStartFS == 15) {
-							this.failstacks.get(15)!.amount++;
-							this.failstacks.get(15)!.value += EnchantmentMaterialShadowed.BUY_FS_15.use();
-							this.failstacks.get(15)!.total_amount++;
-							this.failstacks.get(15)!.total_value += EnchantmentMaterialShadowed.BUY_FS_15.price;
+							this.failstacks[15]!.amount++;
+							this.failstacks[15]!.value += EnchantmentMaterialShadowed.BUY_FS_15.use();
+							this.failstacks[15]!.total_amount++;
+							this.failstacks[15]!.total_value += EnchantmentMaterialShadowed.BUY_FS_15.price;
 						}
 						if (esStartFS == 20) {
-							this.failstacks.get(20)!.amount++;
-							this.failstacks.get(20)!.value += EnchantmentMaterialShadowed.BUY_FS_20.use();
-							this.failstacks.get(20)!.total_amount++;
-							this.failstacks.get(20)!.total_value += EnchantmentMaterialShadowed.BUY_FS_20.price;
+							this.failstacks[20]!.amount++;
+							this.failstacks[20]!.value += EnchantmentMaterialShadowed.BUY_FS_20.use();
+							this.failstacks[20]!.total_amount++;
+							this.failstacks[20]!.total_value += EnchantmentMaterialShadowed.BUY_FS_20.price;
 						}
 						if (esStartFS == 25) {
-							this.failstacks.get(25)!.amount++;
-							this.failstacks.get(25)!.value += EnchantmentMaterialShadowed.BUY_FS_25.use();
-							this.failstacks.get(25)!.total_amount++;
-							this.failstacks.get(25)!.total_value += EnchantmentMaterialShadowed.BUY_FS_25.price;
+							this.failstacks[25]!.amount++;
+							this.failstacks[25]!.value += EnchantmentMaterialShadowed.BUY_FS_25.use();
+							this.failstacks[25]!.total_amount++;
+							this.failstacks[25]!.total_value += EnchantmentMaterialShadowed.BUY_FS_25.price;
 						}
 						if (esStartFS == 30) {
-							this.failstacks.get(30)!.amount++;
-							this.failstacks.get(30)!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
-							this.failstacks.get(30)!.total_amount++;
-							this.failstacks.get(30)!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+							this.failstacks[30]!.amount++;
+							this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
+							this.failstacks[30]!.total_amount++;
+							this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
 						}
 					}
-					if (j >= esStartFS && this.failstacks.get(j)!.amount > 0) {
+					if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
 					}
 				}
 			} else if (esItem == EnchantmentItem.Reblath_Mon && EnchantmentItem.Reblath_Mon.amount == 0) {
-				this.controller.getLastClick().set('keine mons');
+				this.controller.getLastClick().value('keine mons');
 				this.upgrading = false;
 				fsFound = true;
 			}
@@ -695,5 +679,78 @@ export default class Logic {
 		Logger.debug('Single Click');
 		this.Enchantment();
 		this.refresh();
+	}
+
+	saveState() {
+		const enchantment_steps: enchantment_step[] = [];
+		const stepsSize = this.controller.getEnchantmentStepsSize();
+		for (let es_index = 0; es_index < stepsSize; es_index++) {
+			const enchantment_step = this.controller.getEnchantmentStep(es_index)!;
+			enchantment_steps.push({ index: es_index, item_name: enchantment_step.item.value().name, clicks: enchantment_step.clicks.value() });
+		}
+		const enchantment_items: enchantment_item[] = [];
+		for (const [, enchantment_item] of ENCHANTMENT_ITEMS) {
+			enchantment_items.push({
+				name: enchantment_item.name,
+				amount: enchantment_item.amount,
+				value: enchantment_item.value,
+				total_amount: enchantment_item.total_amount,
+				total_value: enchantment_item.total_value,
+				pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max }
+			});
+		}
+		const enchantment_mats: enchantment_mat[] = ENCHANTMENT_MATERIALS.map(material => {
+			return { name: material.name, used: material.used, price: material.price };
+		});
+		const state = new SimulatorState(
+			this.controller.getFamilyFS().value(),
+			this.controller.getBuyFS().value(),
+			this.controller.getTargetAmount().value(),
+			this.controller.getClicksPerIteration().value(),
+			this.controller.getIterationsPerSecond().value(),
+			enchantment_steps,
+			enchantment_items,
+			this.clicks,
+			this.failstacks,
+			enchantment_mats
+		);
+		this.controller.saveState(state);
+	}
+
+	loadState(state: SimulatorState) {
+		this.upgrading = false;
+		this.initialized = false;
+
+		this.controller.getFamilyFS().value(state.familyFS);
+		this.controller.getBuyFS().value(state.buyFS);
+		this.controller.getTargetAmount().value(state.targetAmount);
+		this.controller.getClicksPerIteration().value(state.clicksPerIteration);
+		this.controller.getIterationsPerSecond().value(state.iterationsPerSecond);
+		for (const enchantment_step of state.enchantment_steps) {
+			this.controller.getEnchantmentStep(enchantment_step.index)?.item.value(ENCHANTMENT_ITEMS.get(enchantment_step.item_name));
+			this.controller.getEnchantmentStep(enchantment_step.index)?.clicks.value(enchantment_step.clicks);
+		}
+		EnchantmentItem.Reblath_Mon.amount = EnchantmentItem.Reblath_Mon.amount + 10;
+		for (const enchantment_item of state.enchantment_items) {
+			const item = ENCHANTMENT_ITEMS.get(enchantment_item.name);
+			if (!item) continue;
+			item.amount = enchantment_item.amount;
+			item.value = enchantment_item.value;
+			item.total_amount = enchantment_item.total_amount;
+			item.total_value = enchantment_item.total_value;
+			item.pity.current = enchantment_item.pity.current;
+		}
+		this.clicks = state.clicks;
+		this.failstacks = state.failstacks;
+		for (const enchantment_mat of state.materials) {
+			const material = ENCHANTMENT_MATERIALS.find(material => material.name == enchantment_mat.name);
+			if (!material) continue;
+			material.price = enchantment_mat.price;
+			material.used = enchantment_mat.used;
+		}
+		console.log('loaded');
+
+		this.initialized = true;
+		this.refresh(false);
 	}
 }

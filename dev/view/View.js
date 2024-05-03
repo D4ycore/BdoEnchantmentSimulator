@@ -528,8 +528,7 @@ export default class View {
         saveStates.states = SaveStates.stringifyStates(states);
         const newJsonStates = JSON.stringify(saveStates);
         localStorage.setItem('bdo-enchantment-simulator', newJsonStates);
-        console.log('saved');
-        console.log(state.failstacks);
+        console.trace('saved');
     }
     loadState() {
         const profile = this.sProfile.value || 'default';

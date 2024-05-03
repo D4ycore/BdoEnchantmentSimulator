@@ -33,10 +33,11 @@ export default class Controller {
     }
     saveState(state) {
         console.log('save state');
+        this.view.saveState(state);
     }
     loadState(state) {
         console.log('load state');
-        this.logic.loadSaveState(state);
+        this.logic.loadState(state);
     }
     getScaleOutput() {
         return this.scaleOutput;

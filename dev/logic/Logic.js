@@ -26,7 +26,7 @@ export default class Logic {
     init() {
         this.setupDemo();
         this.initialized = true;
-        this.refresh();
+        this.refresh(false);
     }
     setupDemo() {
         this.controller.getFamilyFS().value(2);
@@ -120,12 +120,20 @@ export default class Logic {
         penReblathText.amount.value(EnchantmentItem.Reblath_Pen.amount);
         if (EnchantmentItem.Reblath_Duo.total_value)
             duoReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1000000, 3));
+        else
+            duoReblathText.worthEach.value(NaN);
         if (EnchantmentItem.Reblath_Tri.total_value)
             triReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1000000, 3));
+        else
+            triReblathText.worthEach.value(0);
         if (EnchantmentItem.Reblath_Tet.total_value)
             tetReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount / 1000000, 3));
+        else
+            tetReblathText.worthEach.value(0);
         if (EnchantmentItem.Reblath_Pen.total_value)
             penReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Pen.total_value / EnchantmentItem.Reblath_Pen.total_amount / 1000000, 3));
+        else
+            penReblathText.worthEach.value(0);
         const scaleOutput = this.controller.getScaleOutput().value();
         const scalarr = this.controller.getTargetAmount().value();
         let text = '';
@@ -650,8 +658,9 @@ export default class Logic {
         const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.clicks, this.failstacks, enchantment_mats);
         this.controller.saveState(state);
     }
-    loadSaveState(state) {
+    loadState(state) {
         this.upgrading = false;
+        this.initialized = false;
         this.controller.getFamilyFS().value(state.familyFS);
         this.controller.getBuyFS().value(state.buyFS);
         this.controller.getTargetAmount().value(state.targetAmount);
@@ -682,7 +691,7 @@ export default class Logic {
             material.used = enchantment_mat.used;
         }
         console.log('loaded');
-        console.log(this.failstacks);
+        this.initialized = true;
         this.refresh(false);
     }
 }

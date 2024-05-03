@@ -223,12 +223,14 @@
 	--font-mono: monospace;
 	scroll-behavior: smooth;
 	scroll-padding-top: 70px;
+
+	--color-link-hover: var(--color-magenta-11);
 }
 
 :root {
 	color-scheme: light;
 	--color-font: var(--color-hinted-1);
-	--color-font-2: var(--color-hinted-3);
+	--color-font-2: var(--color-hinted-5);
 	--color-font-faded: var(--color-hinted-7);
 
 	--color-font-shadow: color-mix(in srgb, var(--color-hinted-15), transparent 100%);
@@ -248,6 +250,16 @@
 	--color-combined-value: var(--color-green-9);
 	--color-pen-renblath-total-value: var(--color-orange-11);
 	--color-shadowed: var(--color-hinted-8);
+
+	--color-field: var(--color-hinted-15);
+	--color-field-border: var(--color-hinted-9);
+	--color-button: var(--color-hinted-10);
+	--color-button-hover: var(--color-hinted-9);
+
+	--color-editable: var(--color-hinted-14);
+	--color-editable-outline: var(--color-hinted-9);
+	--color-editable-hover: var(--color-hinted-8);
+	--color-editable-focus: var(--color-hinted-5);
 }
 
 [data-theme='dark'] {
@@ -274,6 +286,16 @@
 	--color-combined-value: var(--color-green-13);
 	--color-pen-renblath-total-value: var(--color-orange-11);
 	--color-shadowed: var(--color-hinted-8);
+
+	--color-field: var(--color-hinted-6);
+	--color-field-border: var(--color-hinted-12);
+	--color-button: var(--color-hinted-75);
+	--color-button-hover: var(--color-hinted-9);
+
+	--color-editable: var(--color-hinted-45);
+	--color-editable-outline: var(--color-hinted-7);
+	--color-editable-hover: var(--color-hinted-9);
+	--color-editable-focus: var(--color-hinted-14);
 }
 
 * {
@@ -294,10 +316,6 @@ body {
 	text-shadow: 0 0 3px var(--color-font-shadow);
 }
 
-*:disabled {
-	color: var(--color-font-faded);
-}
-
 a {
 	color: inherit;
 	text-decoration: none;
@@ -306,16 +324,16 @@ a {
 span[contenteditable='true'] {
 	padding-inline: 1px;
 	margin-inline: -1px;
-	background: var(--color-hinted-45); /* TODO */
+	background: var(--color-editable);
 	border-radius: 2px;
-	outline: dashed 1px var(--color-hinted-7); /* TODO */
+	outline: dashed 1px var(--color-editable-outline);
 
 	&:hover {
-		outline: dashed 1px var(--color-hinted-9); /* TODO */
+		outline: dashed 1px var(--color-editable-hover);
 		color: var(--color-font-2);
 	}
 	&:focus-visible {
-		outline: dashed 1px var(--color-hinted-14); /* TODO */
+		outline: dashed 1px var(--color-editable-focus);
 		color: var(--color-font);
 	}
 }
@@ -332,8 +350,8 @@ input:not([type='button']):not([type='reset']):not([type='submit']):not([type='i
 select,
 textarea {
 	color: var(--color-font);
-	background: var(--color-hinted-6); /* TODO */
-	border: solid 1px var(--color-hinted-12); /* TODO */
+	background: var(--color-field);
+	border: solid 1px var(--color-field-border);
 }
 
 input[type='button'],
@@ -341,28 +359,37 @@ input[type='reset'],
 input[type='submit'],
 input[type='image'],
 button {
-	background: var(--color-hinted-75); /* TODO */
-	border: solid var(--color-hinted-75); /* TODO */
+	background: var(--color-button);
+	border: solid var(--color-button);
 	border-radius: 3px;
 
 	&:hover {
-		background: var(--color-hinted-9); /* TODO */
-		border-color: var(--color-hinted-9); /* TODO */
+		background: var(--color-button-hover);
+		border-color: var(--color-button-hover);
 	}
 }
 
 input,
 textarea {
+	padding-block: 2px;
 	padding-inline: 4px;
 }
 
+*:disabled {
+	color: var(--color-font-faded) !important;
+}
+
 .faded {
+	color: var(--color-font-faded) !important;
+}
+
+::placeholder {
 	color: var(--color-font-faded);
 }
 
 a.active,
 a:hover {
-	color: var(--color-magenta-11);
+	color: var(--color-link-hover);
 }
 
 header {
@@ -430,7 +457,6 @@ section {
 	& label {
 		-webkit-user-select: none;
 		user-select: none;
-		text-align: right;
 		&:hover {
 			text-shadow: var(--color-font-shadow-highlight);
 		}
@@ -728,4 +754,33 @@ nav {
 .autowidth[autowidth='iteration'] {
 	width: 8ch !important;
 	transition-duration: var(--timing-long);
+}
+
+.select-editable {
+	position: relative;
+	width: 100px;
+	height: 21px;
+}
+.select-editable:has(*:focus-visible) {
+	outline: -webkit-focus-ring-color auto 1px;
+}
+
+.select-editable select:focus,
+.select-editable input:focus {
+	outline: none;
+}
+.select-editable select {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.select-editable input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: calc(100% - 16px);
+	height: 100%;
+	border-right: none !important;
 }

@@ -24,6 +24,9 @@ export default class Pity {
 	public get current(): number {
 		return this._current;
 	}
+	public set current(newCurrent: number) {
+		this._current = Math.min(newCurrent, this._max);
+	}
 
 	increase() {
 		this._current++;

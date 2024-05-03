@@ -1,3 +1,4 @@
+import Pity from '../logic/Pity.js';
 import Controller from '../controller/Controller.js';
 import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js';
 import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
@@ -10,6 +11,11 @@ export default class View {
 
 	private cbScaleOutput;
 	private cbShowDebug;
+
+	private sProfile;
+	private sPreset;
+	private bSaveState;
+	private bLoadState;
 
 	private lEnchantmentItems;
 	private bAddReblath;
@@ -36,6 +42,47 @@ export default class View {
 	constructor() {
 		this.cbScaleOutput = nonNullElement(document.querySelector<HTMLInputElement>('#cbScaleOutput'), 'Scale Output');
 		this.cbShowDebug = nonNullElement(document.querySelector<HTMLInputElement>('#cbShowDebug'), 'Show Debug');
+
+		this.sProfile = nonNullElement(document.querySelector<HTMLSelectElement>('#sProfile'), 'Profile');
+		this.sPreset = nonNullElement(document.querySelector<HTMLSelectElement>('#sPreset'), 'Preset');
+		this.bSaveState = nonNullElement(document.querySelector<HTMLButtonElement>('#bSaveState'), 'Save State');
+		this.bLoadState = nonNullElement(document.querySelector<HTMLButtonElement>('#bLoadState'), 'Load State');
+		this.bSaveState.onclick = evt => {
+			const enchantment_steps: enchantment_step[] = [];
+			const stepsSize = this.controller.getEnchantmentStepsSize();
+			for (let es_index = 0; es_index < stepsSize; es_index++) {
+				const enchantment_step = this.controller.getEnchantmentStep(es_index)!;
+				enchantment_steps.push({ index: es_index, item_name: enchantment_step.item.value().name, clicks: enchantment_step.clicks.value() });
+			}
+			const enchantment_items: enchantment_item[] = [];
+			for (const [, enchantment_item] of ENCHANTMENT_ITEMS) {
+				enchantment_items.push({
+					name: enchantment_item.name,
+					amount: enchantment_item.amount,
+					value: enchantment_item.value,
+					total_amount: enchantment_item.total_amount,
+					total_value: enchantment_item.total_value,
+					pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max }
+				});
+			}
+			const enchantment_mats: enchantment_mat[] = ENCHANTMENT_MATERIALS.map(material => {
+				return { name: material.name, used: material.used, price: material.price };
+			});
+			const state = new SimulatorState(
+				this.controller.getFamilyFS().value(),
+				this.controller.getBuyFS().value(),
+				this.controller.getTargetAmount().value(),
+				this.controller.getClicksPerIteration().value(),
+				this.controller.getIterationsPerSecond().value(),
+				enchantment_steps,
+				enchantment_items,
+				this.controller.getClicks().value(),
+				this.controller.getFailstacks().value(),
+				enchantment_mats
+			);
+			this.saveState(state);
+		};
+		this.bLoadState.onclick = evt => this.loadState();
 
 		this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_item'), 'Enchantment Items');
 		this.bAddReblath = nonNullElement(document.querySelector<HTMLButtonElement>('#bAddReblath'), 'Add Reblath');
@@ -121,6 +168,7 @@ export default class View {
 			const sItem = enchantment_step.querySelector<HTMLSelectElement>('.es_item');
 			if (!sItem) continue;
 			for (const item of ENCHANTMENT_ITEMS) {
+				if (item[1].pity == Pity.NULL) continue;
 				const option = document.createElement('option');
 				option.text = item[1].name;
 				sItem.append(option);
@@ -227,7 +275,7 @@ export default class View {
 		this.cbShowDebug.dispatchEvent(new Event('change'));
 	}
 
-	enchantmentItem_Pity_Current_Set(ei_index: number, newPityCurrent: number) {
+	enchantmentItem_Pity_Current_Set(ei_index: number, oldPityCurrent: number, newPityCurrent: number) {
 		Logger.debug('enchantment-item-pity-current set', ei_index, newPityCurrent);
 		const sPity = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity');
 		if (!sPity) return Logger.warn(`Enchantment Item(${ei_index}) has no Pity Element`);
@@ -241,7 +289,7 @@ export default class View {
 		if (newPityCurrent > 0 && parseInt(sPityCurrent.innerText) >= parseInt(sPityMax.innerText)) sPity.classList.add('pity_ready');
 		else sPity.classList.remove('pity_ready');
 	}
-	enchantmentItem_Pity_Max_Set(ei_index: number, newPityMax: number) {
+	enchantmentItem_Pity_Max_Set(ei_index: number, oldityMax: number, newPityMax: number) {
 		Logger.debug('enchantment-item-pity-max set', ei_index, newPityMax);
 		const sPityMax = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity .max');
 		if (!sPityMax) return Logger.warn(`Enchantment Item(${ei_index}) has no Pity Max Element`);
@@ -282,7 +330,7 @@ export default class View {
 		this.iTargetAmount.title = '' + newTargetAmount;
 		this.iTargetAmount.dispatchEvent(new Event('change'));
 	}
-	currentTargetFS_Set(newCurrentTargetFS: { current: number; max: number }) {
+	currentTargetFS_Set(oldCurrentTargetFS: { current: number; max: number }, newCurrentTargetFS: { current: number; max: number }) {
 		Logger.debug('current-target-fs set', newCurrentTargetFS);
 		this.spCurrentTargetFS.innerText = `(${newCurrentTargetFS.current}/${newCurrentTargetFS.max})`;
 		if (newCurrentTargetFS.current > 0 && newCurrentTargetFS.current >= newCurrentTargetFS.max) this.spCurrentTargetFS.classList.add('current_target_fs_reached');
@@ -338,25 +386,32 @@ export default class View {
 		this.iIterationsPerSecond.dispatchEvent(new Event('change'));
 	}
 
-	lastClick_Set(newLastClick: string) {
+	lastClick_Set(oldLastCicks: string, newLastClick: string) {
 		Logger.debug('last-click set', newLastClick);
 		this.iLastClick.value = newLastClick;
 	}
-	stacksCrafted_Set(newStacksCrafted: string) {
+	stacksCrafted_Set(oldStacksCrafted: string, newStacksCrafted: string) {
 		Logger.debug('stacks-crafted set', newStacksCrafted);
 		this.iStacksCrafted.value = newStacksCrafted;
 	}
 
-	showEvaluation(evaluation: Evaluation) {
+	showStats(oldFailstacks: FailStack[], failstacks: FailStack[]) {
+		this.showEvaluation(failstacks);
+		this.showFailstacks(failstacks);
+	}
+
+	showEvaluation(failstacks: FailStack[]) {
 		Logger.debug('show-evaluation');
 		// console.log(this.controller.getScaleOutput().value());
 
+		const failstacks_75_value = this.findFS75Value(failstacks);
+		failstacks = failstacks.filter(fs => fs.amount > 0);
 		const materials: EnchantmentMaterial[] = ENCHANTMENT_MATERIALS.filter(material => material.used > 0);
 		const items = [EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri, EnchantmentItem.Reblath_Tet].filter(item => item.amount > 0);
 		const combined_cost = EnchantmentMaterial.total_cost() / 1_000_000;
 		const combined_item_value = items.map(item => item.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
-		const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * evaluation.failstacks_75_value) / 1_000_000;
-		const combined_fs_value = evaluation.failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
+		const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * failstacks_75_value) / 1_000_000;
+		const combined_fs_value = failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1_000_000;
 		const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
 		const combined_sum = combined_value - combined_cost;
 
@@ -391,7 +446,7 @@ export default class View {
 		<span class="grid-header">Value</span>
 		<span class="grid-header">Total Value</span>
 		${items.map(item => this.addItem(item)).join('')}
-		${this.addPenReblath(evaluation.failstacks_75_value)}
+		${this.addPenReblath(failstacks_75_value)}
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
@@ -400,8 +455,23 @@ export default class View {
 		<span class="grid-header">Amount</span>
 		<span class="grid-header">Value</span>
 		<span class="grid-header">Total Value</span>
-		${evaluation.failstacks.map(failstack => this.addFailstack(failstack)).join('')}
+		${failstacks.map(failstack => this.addFailstack(failstack)).join('')}
 		`;
+	}
+
+	private findFS75Value(failstacks: FailStack[]) {
+		const fs75 = failstacks[75]!;
+		if (fs75.total_amount > 10) return fs75.total_value / fs75.total_amount;
+		let total_value = 0;
+		let total_amount = 0;
+		for (let index = 70; index < 80; index++) {
+			const fs = failstacks[index]!;
+			if (fs.total_amount < 1) continue;
+			total_amount++;
+			total_value += fs.total_value / fs.total_amount;
+		}
+		if (total_amount > 0) total_value /= total_amount;
+		return total_value;
 	}
 
 	addMaterial(material: EnchantmentMaterial) {
@@ -449,6 +519,7 @@ export default class View {
 
 	showFailstacks(failstacks: FailStack[]) {
 		Logger.debug('show-failstacks');
+		failstacks = failstacks.filter(fs => fs.total_amount > 0);
 		this.dFailstacks.innerHTML = `
 		<span class="grid-header">FS</span>
 		<span class="grid-header">Amount</span>
@@ -504,13 +575,122 @@ export default class View {
 		material.price = Number.parseInt(newValue);
 		this.showPrices();
 	}
+
+	saveState(state: SimulatorState) {
+		const jsonState = new SaveState(state);
+
+		const profile = this.sProfile.value || 'default';
+		const oldJsonStates = localStorage.getItem('bdo-enchantment-simulator');
+
+		let states: Map<string, SaveState>;
+		let saveStates: SaveStates<SaveState>;
+		if (oldJsonStates) {
+			saveStates = JSON.parse(oldJsonStates);
+			states = SaveStates.parseStates<SaveState>(saveStates.states);
+			states.set(profile, jsonState);
+		} else {
+			saveStates = new SaveStates<SaveState>();
+			states = new Map<string, SaveState>();
+			states.set(profile, jsonState);
+		}
+		saveStates.states = SaveStates.stringifyStates(states);
+		const newJsonStates = JSON.stringify(saveStates);
+		localStorage.setItem('bdo-enchantment-simulator', newJsonStates);
+
+		console.trace('saved');
+	}
+
+	loadState() {
+		const profile = this.sProfile.value || 'default';
+		const jsonStates = localStorage.getItem('bdo-enchantment-simulator');
+		if (!jsonStates) return Logger.error('No SaveStates found');
+
+		const currentSaveStates: SaveStates<SaveState> = JSON.parse(jsonStates);
+		const states = SaveStates.parseStates<SaveState>(currentSaveStates.states);
+		const state = states.get(profile);
+		if (!state) return Logger.error('No SaveState found for Profile', profile);
+		// const first_item = ENCHANTMENT_ITEMS.get(state.state.enchantment_steps[0]!.item_name);
+		this.controller.loadState(state.state);
+	}
 }
 
-export class Evaluation {
-	readonly failstacks: FailStack[];
-	readonly failstacks_75_value: number;
-	constructor(failstacks: FailStack[], failstacks_75_value: number) {
+class SaveStates<T> {
+	readonly version: string = 'vG.0.0.1';
+	date: string;
+	date_time: number;
+	states: string;
+
+	constructor() {
+		const date = new Date();
+		this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
+		this.date_time = date.getTime();
+		this.states = '';
+	}
+
+	static parseStates<T>(states: string) {
+		const parsed = JSON.parse(states);
+		const obj: [string, T][] = Object.entries(parsed);
+		const map = new Map<string, T>(obj);
+		return map;
+	}
+	static stringifyStates<T>(states: Map<string, T>) {
+		const obj = Object.fromEntries(states);
+		const serialized = JSON.stringify(obj);
+		return serialized;
+	}
+}
+
+class SaveState {
+	version: string = 'vS.0.0.1';
+	date: string;
+	date_time: number;
+	state: SimulatorState;
+
+	constructor(state: SimulatorState) {
+		const date = new Date();
+		this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
+		this.date_time = date.getTime();
+		this.state = state;
+	}
+}
+
+export type enchantment_step = { index: number; item_name: string; clicks: number };
+export type enchantment_item = { name: string; amount: number; value: number; total_amount: number; total_value: number; pity: { current: number; max: number } };
+export type enchantment_mat = { name: string; used: number; price: number };
+
+export class SimulatorState {
+	familyFS: number;
+	buyFS: number;
+	targetAmount: number;
+	clicksPerIteration: number;
+	iterationsPerSecond: number;
+	enchantment_steps: enchantment_step[];
+	enchantment_items: enchantment_item[];
+	clicks: number;
+	failstacks: FailStack[];
+	materials: enchantment_mat[];
+
+	constructor(
+		familyFS: number,
+		buyFS: number,
+		targetAmount: number,
+		clicksPerIteration: number,
+		iterationsPerSecond: number,
+		enchantment_steps: enchantment_step[],
+		enchantment_items: enchantment_item[],
+		clicks: number,
+		failstacks: FailStack[],
+		materials: enchantment_mat[]
+	) {
+		this.familyFS = familyFS;
+		this.buyFS = buyFS;
+		this.targetAmount = targetAmount;
+		this.clicksPerIteration = clicksPerIteration;
+		this.iterationsPerSecond = iterationsPerSecond;
+		this.enchantment_steps = enchantment_steps;
+		this.enchantment_items = enchantment_items;
+		this.clicks = clicks;
 		this.failstacks = failstacks;
-		this.failstacks_75_value = failstacks_75_value;
+		this.materials = materials;
 	}
 }

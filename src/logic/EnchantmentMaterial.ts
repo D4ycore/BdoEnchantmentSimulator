@@ -71,9 +71,13 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
 	}
 
 	public get price(): number {
-		let total = 0;
+		let total = super.price;
 		for (const parent of this.parents) total += parent.material.price * parent.amount;
 		return total;
+	}
+
+	public set price(newPrice: number) {
+		super.price = newPrice;
 	}
 
 	public use(amount: number = 1): number {

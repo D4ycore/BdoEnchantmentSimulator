@@ -1,9 +1,10 @@
 import { FailStack } from '../logic/FailStack.js';
 import Logic from '../logic/Logic.js';
-import View, { Evaluation } from '../view/View.js';
+import View, { SimulatorState } from '../view/View.js';
 import Button from './Button.js';
 import EnchantmentItem from './EnchantmentItem.js';
 import EnchantmentStep from './EnchantmentStep.js';
+import Holder from './Holder.js';
 import Setter from './Setter.js';
 import Value from './Value.js';
 
@@ -29,8 +30,9 @@ export default class Controller {
 	private lastClick: Setter<string>;
 	private stacksCrafted: Setter<string>;
 
-	private evaluation: Setter<Evaluation>;
 	private failstacks: Setter<FailStack[]>;
+
+	private clicks: Holder<number>;
 
 	private view: View;
 	private logic: Logic;
@@ -69,7 +71,9 @@ export default class Controller {
 			(oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount),
 			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount)
 		);
-		this.currentTargetFS = new Setter<{ current: number; max: number }>(newCurrentTargetFS => view.currentTargetFS_Set(newCurrentTargetFS));
+		this.currentTargetFS = new Setter<{ current: number; max: number }>({ current: 0, max: 0 }, (oldCurrentTargetFS, newCurrentTargetFS) =>
+			view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS)
+		);
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
 		this.singleClick = new Button(() => logic.singleClick_OnClick());
@@ -88,11 +92,22 @@ export default class Controller {
 		this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
 		this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
 
-		this.lastClick = new Setter<string>(newLastClick => view.lastClick_Set(newLastClick));
-		this.stacksCrafted = new Setter<string>(newStacksCrafted => view.stacksCrafted_Set(newStacksCrafted));
+		this.lastClick = new Setter<string>('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick));
+		this.stacksCrafted = new Setter<string>('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted));
 
-		this.evaluation = new Setter<Evaluation>(newEvaluation => view.showEvaluation(newEvaluation));
-		this.failstacks = new Setter<FailStack[]>(newFailstacks => view.showFailstacks(newFailstacks));
+		this.failstacks = new Setter<FailStack[]>([], (oldFailstacks, newFailstacks) => view.showStats(oldFailstacks, newFailstacks));
+		this.clicks = new Holder<number>(0);
+	}
+
+	saveState(state: SimulatorState) {
+		console.log('save state');
+
+		this.view.saveState(state);
+	}
+	loadState(state: SimulatorState) {
+		console.log('load state');
+
+		this.logic.loadState(state);
 	}
 
 	getScaleOutput() {
@@ -158,10 +173,10 @@ export default class Controller {
 		this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
 	}
 
-	getEvaluation() {
-		return this.evaluation;
-	}
 	getFailstacks() {
 		return this.failstacks;
+	}
+	getClicks() {
+		return this.clicks;
 	}
 }

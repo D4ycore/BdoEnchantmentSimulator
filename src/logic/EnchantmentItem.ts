@@ -30,7 +30,7 @@ export default class EnchantmentItem {
 		this._base_chance = base_chance;
 		this._failstack_increase = failstack_increase;
 		this._pity = pity;
-		if (pity != Pity.NULL) ENCHANTMENT_ITEMS.set(name, this);
+		ENCHANTMENT_ITEMS.set(name, this);
 	}
 
 	public get name(): string {

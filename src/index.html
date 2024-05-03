@@ -10,17 +10,43 @@
 	<body>
 		<header>
 			<div class="option">
-				<label for="bColorScheme">Switch Color Scheme</label>
 				<input type="button" id="bColorScheme" title="Switch Color Scheme" />
+				<label for="bColorScheme">Switch Color Scheme</label>
 			</div>
 			<div class="option">
-				<label for="cbScaleOutput">Scale Output</label>
 				<input type="checkbox" id="cbScaleOutput" title="Scale Output to match Target Amount" />
+				<label for="cbScaleOutput">Scale Output</label>
 			</div>
 			<div class="option">
-				<label for="cbShowDebug">Debug</label>
 				<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
+				<label for="cbShowDebug">Debug</label>
 			</div>
+			<div class="option">
+				<label for="sProfile">Profile</label>
+				<div class="select-editable" title="Profile">
+					<select id="sProfile" onchange="this.nextElementSibling.value=this.value">
+						<option></option>
+						<option value="profile-1">Profile 1</option>
+						<option value="profile-2">Profile 2</option>
+						<option value="profile-3">Profile 3</option>
+					</select>
+					<input type="text" placeholder="None" />
+				</div>
+			</div>
+			<div class="option">
+				<label for="sPreset">Preset</label>
+				<div class="select-editable" title="Preset">
+					<select id="sPreset" onchange="this.nextElementSibling.value=this.value">
+						<option></option>
+						<option value="preset-1">Preset 1</option>
+						<option value="preset-2">Preset 2</option>
+						<option value="preset-3">Preset 3</option>
+					</select>
+					<input type="text" placeholder="None" />
+				</div>
+			</div>
+			<input type="button" id="bSaveState" value="Save Current State" />
+			<input type="button" id="bLoadState" value="Load Current State" />
 			<nav>
 				<a href="#simulation">Simulation</a>
 				<a href="#evaluation">Evaluation</a>
@@ -196,6 +222,6 @@
 			</section>
 		</div>
 		<script type="module" src="index.js"></script>
-		<script type="module" src="../public/index.js"></script>
+		<script type="module" src="../dev/index.js"></script>
 	</body>
 </html>
