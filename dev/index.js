@@ -74,3 +74,26 @@ function initAutoWidth() {
     }
 }
 initAutoWidth();
+function initHeaderControl() {
+    const cbOptionsButton = document.querySelector('header .options-button>input');
+    const dOptionsWrapper = document.querySelector('header .options-wrapper');
+    const dOptions = document.querySelector('header .options');
+    if (!cbOptionsButton)
+        return Logger.error('No Options Button Element');
+    if (!dOptionsWrapper || !dOptions)
+        return Logger.error('No Options Element');
+    const updateOptions = () => {
+        if (cbOptionsButton.checked) {
+            console.log('show options');
+            dOptionsWrapper.style.removeProperty('height');
+        }
+        else {
+            console.log(dOptions.clientHeight);
+            console.log('hide options');
+            dOptionsWrapper.style.setProperty('height', '0');
+        }
+    };
+    cbOptionsButton.onchange = updateOptions;
+    updateOptions();
+}
+initHeaderControl();

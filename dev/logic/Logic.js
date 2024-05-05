@@ -121,7 +121,7 @@ export default class Logic {
         if (EnchantmentItem.Reblath_Duo.total_value)
             duoReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1000000, 3));
         else
-            duoReblathText.worthEach.value(NaN);
+            duoReblathText.worthEach.value(0);
         if (EnchantmentItem.Reblath_Tri.total_value)
             triReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1000000, 3));
         else
