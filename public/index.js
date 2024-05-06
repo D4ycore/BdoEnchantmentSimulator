@@ -54,6 +54,8 @@ function initAutoWidth() {
         autoWidthRulesTypes.add(type);
         elt.oninput = () => checkAutoWidth(type);
     });
+    for (const type of autoWidthRulesTypes)
+        sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: var(--timing-long) } `);
     if (!rules)
         return;
     for (const type of autoWidthRulesTypes) {
@@ -70,7 +72,7 @@ function initAutoWidth() {
         const rule = autoWidthRules.get(type);
         if (!rule)
             return;
-        rule.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
+        rule.style.width = Math.max(2, maxWidth) + 5 + 'ch';
     }
 }
 initAutoWidth();

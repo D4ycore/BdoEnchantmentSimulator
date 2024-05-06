@@ -1,8 +1,6 @@
 import Button from './Button.js';
 import EnchantmentItem from './EnchantmentItem.js';
-import EnchantmentStep from './EnchantmentStep.js';
-import Holder from './Holder.js';
-import Setter from './Setter.js';
+import { EnchantmentStep } from './EnchantmentStep.js';
 import Value from './Value.js';
 export default class Controller {
     constructor(view, logic) {
@@ -17,7 +15,7 @@ export default class Controller {
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
         this.targetAmount = new Value(0, (oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount), (oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount));
-        this.currentTargetFS = new Setter({ current: 0, max: 0 }, (oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS));
+        this.currentTargetFS = new Value(0, (oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS), (oldCurrentTargetFS, newCurrentTargetFS) => logic.currentTargetFS_OnChange(oldCurrentTargetFS, newCurrentTargetFS));
         this.enchantment_steps = [];
         for (let i = 0; i < 4; i++)
             this.addEnchantmentStep();
@@ -26,17 +24,10 @@ export default class Controller {
         this.iterationsPerSecond = new Value(0, (oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond), (oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond));
         this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
         this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
-        this.lastClick = new Setter('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick));
-        this.stacksCrafted = new Setter('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted));
-        this.failstacks = new Setter([], (oldFailstacks, newFailstacks) => view.showStats(oldFailstacks, newFailstacks));
-        this.clicks = new Holder(0);
-    }
-    saveState(state) {
-        console.log('save state');
-    }
-    loadState(state) {
-        console.log('load state');
-        this.logic.loadSaveState(state);
+        this.lastClick = new Value('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick), (oldLastClick, newLastClick) => logic.lastClick_OnChange(oldLastClick, newLastClick));
+        this.stacksCrafted = new Value('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted), (oldStacksCrafted, newStacksCrafted) => logic.stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted));
+        this.evaluation = new Setter(newEvaluation => view.showEvaluation(newEvaluation));
+        this.failstacks = new Setter(newFailstacks => view.showFailstacks(newFailstacks));
     }
     getScaleOutput() {
         return this.scaleOutput;
@@ -95,10 +86,18 @@ export default class Controller {
     removeStep() {
         this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
     }
+    getEvaluation() {
+        return this.evaluation;
+    }
     getFailstacks() {
         return this.failstacks;
     }
-    getClicks() {
-        return this.clicks;
+}
+class Setter {
+    constructor(set) {
+        this._set = set;
+    }
+    set(newValue) {
+        this._set(newValue);
     }
 }

@@ -200,6 +200,10 @@
 	--timing-medium: 150ms;
 	--timing-long: 200ms;
 
+	--transition-short: 250ms;
+	--transition-medium: 500ms;
+	--transition-long: 750ms;
+
 	--font-size-1: 5.4rem;
 	--font-size-2: 3.6rem;
 	--font-size-3: 2.4rem;
@@ -419,7 +423,6 @@ nav {
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: contain;
-	/* filter: brightness(calc(light-dark(100%, 10%))); */
 	filter: var(--filter-brightness);
 
 	& input {
@@ -448,19 +451,25 @@ nav {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--space-05) var(--space-1);
-	overflow: hidden;
 	padding-top: var(--space-05);
 	border-top: solid var(--width-2) var(--color-app-accent);
-
-	transition: height 500ms;
 }
+
 .options-wrapper {
+	transition: height var(--transition-short);
+	overflow: hidden;
 	height: 35px;
 }
 
 @media screen and (max-width: 971px) {
 	.options-wrapper {
 		height: 68px;
+	}
+}
+
+@media screen and (max-width: 522px) {
+	.options-wrapper {
+		height: auto;
 	}
 }
 
@@ -511,11 +520,11 @@ nav {
 	flex: auto;
 }
 
-/* #app {
+#app {
 	justify-content: flex-start;
 	flex-direction: row;
 	align-items: flex-start;
-} */
+}
 
 section {
 	padding: var(--space-1);
@@ -528,9 +537,9 @@ section {
 	background: var(--color-app);
 }
 
-/* section {
+section {
 	width: min-content;
-} */
+}
 
 #simulation {
 	display: flex;

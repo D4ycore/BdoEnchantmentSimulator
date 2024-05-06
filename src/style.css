@@ -520,11 +520,11 @@ nav {
 	flex: auto;
 }
 
-/* #app {
+#app {
 	justify-content: flex-start;
 	flex-direction: row;
 	align-items: flex-start;
-} */
+}
 
 section {
 	padding: var(--space-1);
@@ -537,9 +537,9 @@ section {
 	background: var(--color-app);
 }
 
-/* section {
+section {
 	width: min-content;
-} */
+}
 
 #simulation {
 	display: flex;

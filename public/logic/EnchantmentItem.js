@@ -10,7 +10,8 @@ class EnchantmentItem {
         this._base_chance = base_chance;
         this._failstack_increase = failstack_increase;
         this._pity = pity;
-        ENCHANTMENT_ITEMS.set(name, this);
+        if (pity != Pity.NULL)
+            ENCHANTMENT_ITEMS.set(name, this);
     }
     get name() {
         return this._name;

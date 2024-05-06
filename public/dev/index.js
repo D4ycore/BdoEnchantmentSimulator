@@ -83,15 +83,10 @@ function initHeaderControl() {
     if (!dOptionsWrapper || !dOptions)
         return Logger.error('No Options Element');
     const updateOptions = () => {
-        if (cbOptionsButton.checked) {
-            console.log('show options');
+        if (cbOptionsButton.checked)
             dOptionsWrapper.style.removeProperty('height');
-        }
-        else {
-            console.log(dOptions.clientHeight);
-            console.log('hide options');
+        else
             dOptionsWrapper.style.setProperty('height', '0');
-        }
     };
     cbOptionsButton.onchange = updateOptions;
     updateOptions();

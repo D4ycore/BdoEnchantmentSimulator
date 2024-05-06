@@ -1,6 +1,6 @@
 import EnchantmentItem from '../logic/EnchantmentItem.js';
 import Value from './Value.js';
-export default class EnchantmentStep {
+export class EnchantmentStep {
     constructor(index, view, logic) {
         this.item = new Value(EnchantmentItem.Reblath_Mon, (oldItem, newItem) => view.enchantmentStep_Item_Set(index, oldItem, newItem), (oldItem, newItem) => logic.enchantmentStep_Item_OnChange(index, oldItem, newItem));
         this.startFS = new Value(0, (oldStartFS, newStartFS) => view.enchantmentStep_StartFS_Set(index, oldStartFS, newStartFS), (oldStartFS, newStartFS) => logic.enchantmentStep_StartFS_OnChange(index, oldStartFS, newStartFS));

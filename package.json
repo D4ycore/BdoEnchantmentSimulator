@@ -11,8 +11,8 @@
 		"clean": "rimraf public/",
 		"copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.png public/",
 		"build": "yarn clean && tsc && yarn copy-files",
-		"clean-dev": "rimraf dev/",
-		"copy-files-dev": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.png dev/",
+		"clean-dev": "rimraf public/dev/",
+		"copy-files-dev": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.png public/dev/",
 		"build-dev": "yarn clean-dev && tsc --project tsconfig.dev.json && yarn copy-files-dev"
 	},
 	"keywords": [],
