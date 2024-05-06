@@ -47,7 +47,7 @@ export default class View {
 		this.sPreset = nonNullElement(document.querySelector<HTMLSelectElement>('#sPreset'), 'Preset');
 		this.bSaveState = nonNullElement(document.querySelector<HTMLButtonElement>('#bSaveState'), 'Save State');
 		this.bLoadState = nonNullElement(document.querySelector<HTMLButtonElement>('#bLoadState'), 'Load State');
-		this.bSaveState.onclick = evt => {
+		this.bSaveState.addEventListener('click', evt => {
 			const enchantment_steps: enchantment_step[] = [];
 			const stepsSize = this.controller.getEnchantmentStepsSize();
 			for (let es_index = 0; es_index < stepsSize; es_index++) {
@@ -81,8 +81,8 @@ export default class View {
 				enchantment_mats
 			);
 			this.saveState(state);
-		};
-		this.bLoadState.onclick = evt => this.loadState();
+		});
+		this.bLoadState.addEventListener('click', evt => this.loadState());
 
 		this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_item'), 'Enchantment Items');
 		this.bAddReblath = nonNullElement(document.querySelector<HTMLButtonElement>('#bAddReblath'), 'Add Reblath');
@@ -111,55 +111,55 @@ export default class View {
 	link(controller: Controller) {
 		this.controller = controller;
 
-		this.cbScaleOutput.onchange = evt => {
+		this.cbScaleOutput.addEventListener('change', evt => {
 			Logger.debug('scale-output onchange', this.cbScaleOutput.checked);
 			controller.getScaleOutput().changed(this.cbScaleOutput.checked);
-		};
-		this.cbShowDebug.onchange = evt => {
+		});
+		this.cbShowDebug.addEventListener('change', evt => {
 			Logger.debug('show-debug onchange', this.cbShowDebug.checked);
 			controller.getShowDebug().changed(this.cbShowDebug.checked);
-		};
+		});
 
 		for (let ei_index = 0; ei_index < this.lEnchantmentItems.length; ei_index++) {
 			const enchantment_items = this.lEnchantmentItems[ei_index];
 			if (!enchantment_items) continue;
 			const iAmount = enchantment_items?.querySelector<HTMLInputElement>('.ei_amount');
 			if (!iAmount) continue;
-			iAmount.onchange = evt => {
+			iAmount.addEventListener('change', evt => {
 				Logger.debug('enchantment-item-amount onchange', ei_index, iAmount.value);
 				const val = parseInt(iAmount.value);
 				controller.getEnchantmentItem(ei_index)?.amount.changed(val);
-			};
+			});
 			const iWorthEach = enchantment_items?.querySelector<HTMLInputElement>('.ei_worth');
 			if (!iWorthEach) continue;
-			iWorthEach.onchange = evt => {
+			iWorthEach.addEventListener('change', evt => {
 				Logger.debug('enchantment-item-worth-each onchange', ei_index, iWorthEach.value);
 				const val = parseInt(iWorthEach.value);
 				controller.getEnchantmentItem(ei_index)?.worthEach.changed(val);
-			};
+			});
 		}
-		this.bAddReblath.onclick = evt => {
+		this.bAddReblath.addEventListener('click', evt => {
 			Logger.debug('add-reblath click');
 			controller.getAddReblath().click();
-		};
+		});
 
-		this.sFamilyFS.onchange = evt => {
+		this.sFamilyFS.addEventListener('change', evt => {
 			Logger.debug('family-fs onchange', this.sFamilyFS.value);
 			const val = parseInt(this.sFamilyFS.value);
 			controller.getFamilyFS().changed(val);
-		};
+		});
 
-		this.sBuyFS.onchange = evt => {
+		this.sBuyFS.addEventListener('change', evt => {
 			Logger.debug('buy-fs onchange', this.sBuyFS.value);
 			const val = parseInt(this.sBuyFS.value);
 			controller.getBuyFS().changed(val);
-		};
+		});
 
-		this.iTargetAmount.onchange = evt => {
+		this.iTargetAmount.addEventListener('change', evt => {
 			Logger.debug('target-amount onchange', this.iTargetAmount.placeholder, this.iTargetAmount.value);
 			const val = parseInt(this.iTargetAmount.value) || parseInt(this.iTargetAmount.placeholder);
 			controller.getTargetAmount().changed(val);
-		};
+		});
 
 		for (let es_index = 0; es_index < this.lEnchantmentSteps.length; es_index++) {
 			const enchantment_step = this.lEnchantmentSteps[es_index];
@@ -174,60 +174,60 @@ export default class View {
 				sItem.append(option);
 			}
 
-			sItem.onchange = evt => {
+			sItem.addEventListener('change', evt => {
 				Logger.debug('enchantment-step-item onchange', es_index, sItem.value);
 				const item = ENCHANTMENT_ITEMS.get(sItem.value);
 				if (!item) return;
 				controller.getEnchantmentStep(es_index)?.item.changed(item);
-			};
+			});
 
 			const spStartFS = enchantment_step.querySelector<HTMLSpanElement>('.es_start');
 			if (!spStartFS) continue;
-			spStartFS.onchange = evt => {
+			spStartFS.addEventListener('change', evt => {
 				Logger.debug('enchantment-step-start-fs onchange', es_index, spStartFS.innerText);
 				const val = parseInt(spStartFS.innerText);
 				controller.getEnchantmentStep(es_index)?.startFS.changed(val);
-			};
+			});
 
 			const spEndFS = enchantment_step.querySelector<HTMLSpanElement>('.es_end');
 			if (!spEndFS) continue;
-			spEndFS.onchange = evt => {
+			spEndFS.addEventListener('change', evt => {
 				Logger.debug('enchantment-step-end-fs onchange', es_index, spEndFS.innerText);
 				const val = parseInt(spEndFS.innerText);
 				controller.getEnchantmentStep(es_index)?.endFS.changed(val);
-			};
+			});
 
 			const iClicks = enchantment_step.querySelector<HTMLInputElement>('.es_clicks');
 			if (!iClicks) continue;
-			iClicks.onchange = evt => {
+			iClicks.addEventListener('change', evt => {
 				Logger.debug('enchantment-step-clicks onchange', es_index, iClicks.value);
 				const val = parseInt(iClicks.value);
 				controller.getEnchantmentStep(es_index)?.clicks.changed(val);
-			};
+			});
 		}
 
-		this.iClicksPerIteration.onchange = evt => {
+		this.iClicksPerIteration.addEventListener('change', evt => {
 			Logger.debug('clicks-per-iteration onchange', this.iClicksPerIteration.value);
 			const val = parseInt(this.iClicksPerIteration.value);
 			controller.getClicksPerIteration().changed(val);
-		};
-		this.iIterationsPerSecond.onchange = evt => {
+		});
+		this.iIterationsPerSecond.addEventListener('change', evt => {
 			Logger.debug('iterations-per-second onchange', this.iIterationsPerSecond.value);
 			const val = parseInt(this.iIterationsPerSecond.value);
 			controller.getIterationsPerSecond().changed(val);
-		};
-		this.bUpgradeStart.onclick = evt => {
+		});
+		this.bUpgradeStart.addEventListener('click', evt => {
 			Logger.debug('upgrade-start click');
 			controller.getUpgradeStart().click();
-		};
-		this.bUpgradeStop.onclick = evt => {
+		});
+		this.bUpgradeStop.addEventListener('click', evt => {
 			Logger.debug('upgrade-stop click');
 			controller.getUpgradeStop().click();
-		};
-		this.bSingleClick.onclick = evt => {
+		});
+		this.bSingleClick.addEventListener('click', evt => {
 			Logger.debug('single-click click');
 			controller.getSingleClick().click();
-		};
+		});
 	}
 
 	init() {
@@ -323,6 +323,7 @@ export default class View {
 	}
 	targetAmount_Set(oldTargetAmount: number, newTargetAmount: number) {
 		Logger.debug('target-amount set', oldTargetAmount, newTargetAmount);
+
 		const min = this.iTargetAmount.getAttribute('min');
 		if (min && newTargetAmount < parseInt(min))
 			return Logger.warn(`Tried to set Target Amount(${this.iTargetAmount.value} => ${newTargetAmount}) below the allowed minimum(${min})`);
@@ -563,13 +564,13 @@ export default class View {
 		for (const material of materials) {
 			const matSpan = document.getElementById(material.name.replace(/&nbsp;/g, ''));
 			if (matSpan && matSpan instanceof HTMLSpanElement) {
-				matSpan.onbeforeinput = evt => {
+				matSpan.addEventListener('beforeinput', evt => {
 					if (evt instanceof InputEvent && evt.inputType == 'insertParagraph') {
 						evt.preventDefault();
 						this.materialPriceChanged(material, matSpan.innerText);
 					}
-				};
-				matSpan.onblur = evt => this.materialPriceChanged(material, matSpan.innerText);
+				});
+				matSpan.addEventListener('blur', evt => this.materialPriceChanged(material, matSpan.innerText));
 			}
 		}
 	}

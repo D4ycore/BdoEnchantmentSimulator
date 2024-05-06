@@ -18,7 +18,7 @@ init();
 function initColorSchemeButton() {
 	const color_scheme_button = document.querySelector<HTMLButtonElement>('#bColorScheme');
 	if (color_scheme_button)
-		color_scheme_button.onclick = evt => {
+		color_scheme_button.addEventListener('click', evt => {
 			const dataTheme = document.documentElement.getAttribute('data-theme');
 			const preferedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 			const currentTheme = dataTheme ?? preferedTheme;
@@ -26,7 +26,7 @@ function initColorSchemeButton() {
 
 			Logger.debug(dataTheme, preferedTheme, currentTheme, newTheme);
 			document.documentElement.setAttribute('data-theme', newTheme);
-		};
+		});
 }
 initColorSchemeButton();
 
@@ -66,7 +66,8 @@ function initAutoWidth() {
 	lAutoWidth.forEach(elt => {
 		const type = elt.getAttribute('autowidth') ?? '';
 		autoWidthRulesTypes.add(type);
-		elt.oninput = () => checkAutoWidth(type);
+		elt.addEventListener('input', () => checkAutoWidth(type));
+		elt.addEventListener('change', () => checkAutoWidth(type));
 	});
 
 	if (!rules) return;
@@ -96,7 +97,7 @@ function initHeaderControl() {
 		if (cbOptionsButton.checked) dOptionsWrapper.style.removeProperty('height');
 		else dOptionsWrapper.style.setProperty('height', '0');
 	};
-	cbOptionsButton.onchange = updateOptions;
+	cbOptionsButton.addEventListener('change', updateOptions);
 	updateOptions();
 }
 initHeaderControl();

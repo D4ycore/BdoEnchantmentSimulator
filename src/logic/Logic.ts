@@ -103,7 +103,7 @@ export default class Logic {
 	}
 
 	private refresh(saveState = true) {
-		Logger.debug('refresh', this.initialized);
+		Logger.log('refresh', this.initialized);
 		if (!this.initialized) return;
 
 		this.controller.getClicks().value(this.clicks);
@@ -163,9 +163,6 @@ export default class Logic {
 
 		this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m | ` + text);
 
-		// const evaluation = new Evaluation(this.failstacks.filter(fs => fs.amount > 0));
-		// this.controller.getEvaluation().value(this.failstacks);
-		// this.controller.getFailstacks().value(this.failstacks.filter(fs => fs.total_amount > 0));
 		this.controller.getFailstacks().value(this.failstacks);
 
 		const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1)!.endFS.value() - this.controller.getFamilyFS().value();
@@ -174,6 +171,7 @@ export default class Logic {
 			const fs = this.failstacks[i]!;
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
+		console.log('set-current-target-fs', currentTargetFS, this.controller.getTargetAmount().value());
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
 		if (saveState) this.saveState();
 	}
