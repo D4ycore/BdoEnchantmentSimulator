@@ -1,11 +1,13 @@
-import Pity from '../logic/Pity.js';
 import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js';
 import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
+import { ENCHANTMENT_PRESETS } from '../logic/EnchantmentPreset.js';
+import Pity from '../logic/Pity.js';
 import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
-import { ENCHANTMENT_PRESETS } from '../logic/EnchantmentPreset.js';
 export default class View {
     constructor() {
+        this.DEVELOPING = true;
+        this.LOCAL_STORAGE_KEY = `bdo-enchantment-simulator${this.DEVELOPING ? '-dev' : ''}`;
         this.cbScaleOutput = nonNullElement(document.querySelector('#cbScaleOutput'), 'Scale Output');
         this.cbShowDebug = nonNullElement(document.querySelector('#cbShowDebug'), 'Show Debug');
         this.sProfile = nonNullElement(document.querySelector('#sProfile'), 'Profile');
@@ -511,14 +513,14 @@ export default class View {
     }
     saveState(state) {
         const profile = this.sProfile.value || 'default';
-        const oldJson = localStorage.getItem('bdo-enchantment-simulator-dev');
+        const oldJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
         const newAppState = new AppState(profile, state, oldJson);
         const newJson = JSON.stringify(newAppState);
-        localStorage.setItem('bdo-enchantment-simulator', newJson);
+        localStorage.setItem(this.LOCAL_STORAGE_KEY, newJson);
     }
     loadState() {
         const profile = this.sProfile.value || 'default';
-        const appJson = localStorage.getItem('bdo-enchantment-simulator-dev');
+        const appJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
         if (!appJson)
             return Logger.error('No App-State found');
         const appState = JSON.parse(appJson);
