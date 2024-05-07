@@ -576,7 +576,7 @@ export default class View {
 		const oldJson = localStorage.getItem('bdo-enchantment-simulator-dev');
 		const newAppState = new AppState(profile, state, oldJson);
 		const newJson = JSON.stringify(newAppState);
-		localStorage.setItem('bdo-enchantment-simulator', newJson);
+		localStorage.setItem('bdo-enchantment-simulator-dev', newJson);
 		// console.log('saved', newAppState, newJson);
 	}
 
