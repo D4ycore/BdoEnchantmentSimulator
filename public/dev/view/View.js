@@ -101,7 +101,6 @@ export default class View {
             controller.getBuyFS().changed(val);
         });
         this.iTargetAmount.addEventListener('change', evt => {
-            console.log('target amoun oc');
             Logger.debug('target-amount onchange', this.iTargetAmount.placeholder, this.iTargetAmount.value);
             const val = parseInt(this.iTargetAmount.value) || parseInt(this.iTargetAmount.placeholder);
             controller.getTargetAmount().changed(val);
@@ -402,7 +401,6 @@ export default class View {
 		<span class="grid-header">Total Value</span>
 		${failstacks.map(failstack => this.addFailstack(failstack, scalar)).join('')}
 		`;
-        console.log('remove hidden');
         this.glEvaluation.parentElement?.parentElement?.removeAttribute('hidden');
     }
     findFS75Value(failstacks) {
@@ -546,6 +544,7 @@ export default class View {
         if (!jsonStates)
             return Logger.error('No SaveStates found');
         const currentSaveStates = JSON.parse(jsonStates);
+        console.log('currentSaveStates', currentSaveStates);
         const states = SaveStates.parseStates(currentSaveStates.states);
         const state = states.get(profile);
         if (!state)

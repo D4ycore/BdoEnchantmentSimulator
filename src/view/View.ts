@@ -461,8 +461,6 @@ export default class View {
 		<span class="grid-header">Total Value</span>
 		${failstacks.map(failstack => this.addFailstack(failstack, scalar)).join('')}
 		`;
-
-		console.log('remove hidden');
 		this.glEvaluation.parentElement?.parentElement?.removeAttribute('hidden');
 	}
 
@@ -592,63 +590,54 @@ export default class View {
 	}
 
 	saveState(state: SimulatorState) {
-		const jsonState = new SaveState(state);
-
 		const profile = this.sProfile.value || 'default';
-		const oldJsonStates = localStorage.getItem('bdo-enchantment-simulator');
-
-		let states: Map<string, SaveState>;
-		let saveStates: SaveStates<SaveState>;
-		if (oldJsonStates) {
-			saveStates = JSON.parse(oldJsonStates);
-			states = SaveStates.parseStates<SaveState>(saveStates.states);
-			states.set(profile, jsonState);
-		} else {
-			saveStates = new SaveStates<SaveState>();
-			states = new Map<string, SaveState>();
-			states.set(profile, jsonState);
-		}
-		saveStates.states = SaveStates.stringifyStates(states);
-		const newJsonStates = JSON.stringify(saveStates);
-		localStorage.setItem('bdo-enchantment-simulator', newJsonStates);
-
+		const oldJson = localStorage.getItem('bdo-enchantment-simulator');
+		const newAppState = new AppState(profile, state, oldJson);
+		const newJson = JSON.stringify(newAppState);
+		localStorage.setItem('bdo-enchantment-simulator', newJson);
 		console.trace('saved');
 	}
 
 	loadState() {
 		const profile = this.sProfile.value || 'default';
-		const jsonStates = localStorage.getItem('bdo-enchantment-simulator');
-		if (!jsonStates) return Logger.error('No SaveStates found');
+		const appJson = localStorage.getItem('bdo-enchantment-simulator');
+		if (!appJson) return Logger.error('No App-State found');
 
-		const currentSaveStates: SaveStates<SaveState> = JSON.parse(jsonStates);
-		const states = SaveStates.parseStates<SaveState>(currentSaveStates.states);
+		const appState: AppState = JSON.parse(appJson);
+		console.log('currentSaveStates', appState);
+
+		const states = AppState.parseStates(appState.statesJson);
 		const state = states.get(profile);
 		if (!state) return Logger.error('No SaveState found for Profile', profile);
-		// const first_item = ENCHANTMENT_ITEMS.get(state.state.enchantment_steps[0]!.item_name);
-		this.controller.loadState(state.state);
+		this.controller.loadState(state.simulatorState);
 	}
 }
 
-class SaveStates<T> {
+class AppState {
 	readonly version: string = 'vG.0.0.1';
 	date: string;
 	date_time: number;
-	states: string;
+	statesJson: string;
 
-	constructor() {
+	constructor(profile: string, state: SimulatorState, oldJson: string | null) {
 		const date = new Date();
 		this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
 		this.date_time = date.getTime();
-		this.states = '';
+
+		const stateJson = new SaveState(state);
+		const states = oldJson ? AppState.parseStates(oldJson) : new Map<string, SaveState>();
+		states.set(profile, stateJson);
+		this.statesJson = AppState.stringifyStates(states);
 	}
 
-	static parseStates<T>(states: string) {
-		const parsed = JSON.parse(states);
-		const obj: [string, T][] = Object.entries(parsed);
-		const map = new Map<string, T>(obj);
+	static parseStates(appJson: string) {
+		const appState: AppState = JSON.parse(appJson);
+		const parsed = JSON.parse(appState.statesJson);
+		const obj: [string, SaveState][] = Object.entries(parsed);
+		const map = new Map<string, SaveState>(obj);
 		return map;
 	}
-	static stringifyStates<T>(states: Map<string, T>) {
+	static stringifyStates(states: Map<string, SaveState>) {
 		const obj = Object.fromEntries(states);
 		const serialized = JSON.stringify(obj);
 		return serialized;
@@ -659,13 +648,13 @@ class SaveState {
 	version: string = 'vS.0.0.1';
 	date: string;
 	date_time: number;
-	state: SimulatorState;
+	simulatorState: SimulatorState;
 
-	constructor(state: SimulatorState) {
+	constructor(simulatorState: SimulatorState) {
 		const date = new Date();
 		this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
 		this.date_time = date.getTime();
-		this.state = state;
+		this.simulatorState = simulatorState;
 	}
 }
 

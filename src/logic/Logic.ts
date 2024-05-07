@@ -103,7 +103,7 @@ export default class Logic {
 	}
 
 	private refresh(saveState = true) {
-		Logger.log('refresh', this.initialized);
+		Logger.debug('refresh', this.initialized);
 		if (!this.initialized) return;
 
 		this.controller.getClicks().value(this.clicks);
@@ -171,7 +171,6 @@ export default class Logic {
 			const fs = this.failstacks[i]!;
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
-		console.log('set-current-target-fs', currentTargetFS, this.controller.getTargetAmount().value());
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
 		if (saveState) this.saveState();
 	}

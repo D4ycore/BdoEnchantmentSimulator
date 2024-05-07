@@ -52,8 +52,8 @@ function initAutoWidth() {
     lAutoWidth.forEach(elt => {
         const type = elt.getAttribute('autowidth') ?? '';
         autoWidthRulesTypes.add(type);
-        elt.addEventListener('input', () => checkAutoWidth(type));
-        elt.addEventListener('change', () => checkAutoWidth(type));
+        elt.addEventListener('input', () => checkAutoWidth(type, 'input'));
+        elt.addEventListener('change', () => checkAutoWidth(type, 'change'));
     });
     if (!rules)
         return;
@@ -62,7 +62,8 @@ function initAutoWidth() {
             if (rule instanceof CSSStyleRule && rule.selectorText === `.autowidth[autowidth="${type}"]`)
                 autoWidthRules.set(type, rule);
     }
-    function checkAutoWidth(type) {
+    function checkAutoWidth(type, name) {
+        console.log(name);
         let maxWidth = 0;
         lAutoWidth.forEach(elt => {
             if (elt.getAttribute('autowidth') === type && maxWidth < elt.value.length)
