@@ -56,33 +56,24 @@ detectColorScheme();
 
 // sets up elements which width should be adjusted automatically
 function initAutoWidth() {
-	const autoWidthRulesTypes: Set<string> = new Set();
-	const autoWidthRules: Map<string, CSSStyleRule> = new Map();
-
-	const sheet = document.styleSheets[0];
-	const rules = sheet?.cssRules;
+	const autoWidthElements: Map<string, HTMLInputElement[]> = new Map();
 
 	const lAutoWidth = document.querySelectorAll<HTMLInputElement>('.autowidth');
 	lAutoWidth.forEach(elt => {
 		const type = elt.getAttribute('autowidth') ?? '';
-		autoWidthRulesTypes.add(type);
-		elt.addEventListener('input', () => checkAutoWidth(type));
-		elt.addEventListener('change', () => checkAutoWidth(type));
+		let elements = autoWidthElements.get(type);
+		if (!elements) autoWidthElements.set(type, (elements = []));
+		elements.push(elt);
+		elt.addEventListener('input', checkAutoWidth);
+		elt.addEventListener('change', checkAutoWidth);
 	});
 
-	if (!rules) return;
-	for (const type of autoWidthRulesTypes) {
-		for (const rule of rules) if (rule instanceof CSSStyleRule && rule.selectorText === `.autowidth[autowidth="${type}"]`) autoWidthRules.set(type, rule);
-	}
-
-	function checkAutoWidth(type: string) {
-		let maxWidth = 0;
-		lAutoWidth.forEach(elt => {
-			if (elt.getAttribute('autowidth') === type && maxWidth < elt.value.length) maxWidth = elt.value.length;
-		});
-		const rule = autoWidthRules.get(type);
-		if (!rule) return;
-		rule.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
+	function checkAutoWidth() {
+		for (const [, elements] of autoWidthElements) {
+			let maxWidth = 0;
+			for (const elt of elements) if (maxWidth < elt.value.length) maxWidth = elt.value.length;
+			for (const elt of elements) elt.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
+		}
 	}
 }
 initAutoWidth();
