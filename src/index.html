@@ -35,19 +35,19 @@
 					<div class="option">
 						<label for="sPreset">Preset</label>
 						<select id="sPreset">
-							<option>Default</option>
+							<option value="default">Default</option>
 						</select>
 					</div>
 					<div class="option">
 						<label for="sProfile">Profile</label>
 						<div class="select-editable" title="Profile">
-							<select id="sProfile" onchange="this.nextElementSibling.value=this.value">
-								<option></option>
+							<select id="sProfile">
+								<option>Default</option>
 								<option value="profile-1">Profile 1</option>
 								<option value="profile-2">Profile 2</option>
 								<option value="profile-3">Profile 3</option>
 							</select>
-							<input type="text" placeholder="None" />
+							<input type="text" placeholder="Default" />
 						</div>
 					</div>
 					<input type="button" id="bSaveState" value="Save Current State" />

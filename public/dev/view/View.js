@@ -10,7 +10,7 @@ export default class View {
         this.LOCAL_STORAGE_KEY = `bdo-enchantment-simulator${this.DEVELOPING ? '-dev' : ''}`;
         this.cbScaleOutput = nonNullElement(document.querySelector('#cbScaleOutput'), 'Scale Output');
         this.cbShowDebug = nonNullElement(document.querySelector('#cbShowDebug'), 'Show Debug');
-        this.sProfile = nonNullElement(document.querySelector('#sProfile'), 'Profile');
+        this.sProfile = nonNullElement(document.querySelector('#sProfile'), 'Profile Select');
         this.sPreset = nonNullElement(document.querySelector('#sPreset'), 'Preset');
         this.bSaveState = nonNullElement(document.querySelector('#bSaveState'), 'Save State');
         this.bLoadState = nonNullElement(document.querySelector('#bLoadState'), 'Load State');
@@ -68,6 +68,17 @@ export default class View {
             option.text = preset[1].name;
             this.sPreset.append(option);
         }
+        const iProfile = nonNullElement(this.sProfile.nextElementSibling, 'Profile Input');
+        this.sProfile.addEventListener('change', evt => {
+            if (!(iProfile instanceof HTMLInputElement))
+                return;
+            iProfile.value = this.sProfile.value;
+            console.log(iProfile.value);
+            if (iProfile.value == 'Default')
+                iProfile.disabled = true;
+            else
+                iProfile.disabled = false;
+        });
         this.sPreset.addEventListener('change', evt => {
             Logger.debug('preset onchange', this.sPreset.value);
             const preset = ENCHANTMENT_PRESETS.get(this.sPreset.value);
@@ -75,7 +86,7 @@ export default class View {
         });
         this.bSaveState.addEventListener('click', evt => {
             Logger.debug('state-save click');
-            this.saveState(controller.getState().get());
+            this.saveState(controller.getState().get(), this.sProfile.value || 'default');
         });
         this.bLoadState.addEventListener('click', evt => {
             Logger.debug('state-load click');
@@ -192,6 +203,7 @@ export default class View {
             iStepClicks?.dispatchEvent(new Event('change'));
         }
         this.showPrices();
+        this.loadState();
     }
     scaleOutput_Set(oldScaleOutput, newScaleOutput) {
         Logger.debug('scale-output set', oldScaleOutput, newScaleOutput);
@@ -511,8 +523,7 @@ export default class View {
         material.price = Number.parseInt(newValue);
         this.showPrices();
     }
-    saveState(state) {
-        const profile = this.sProfile.value || 'default';
+    saveState(state, profile) {
         const oldJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
         const newAppState = new AppState(profile, state, oldJson);
         const newJson = JSON.stringify(newAppState);
@@ -522,14 +533,13 @@ export default class View {
         const profile = this.sProfile.value || 'default';
         const appJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
         if (!appJson)
-            return Logger.error('No App-State found');
+            return Logger.warn('No App-State found');
         const appState = JSON.parse(appJson);
         const state = appState.saveStates[profile];
         if (!state)
-            return Logger.error('No SaveState found for Profile', profile);
+            return Logger.warn('No SaveState found for Profile', profile);
         const preset = ENCHANTMENT_PRESETS.get(state.simulatorState.preset ?? '');
-        this.controller.getPreset().value(preset);
-        this.sPreset.value = preset?.name ?? 'Default';
+        this.sPreset.value = preset?.name ?? 'default';
         this.controller.getLoadState().consume(state.simulatorState);
     }
 }

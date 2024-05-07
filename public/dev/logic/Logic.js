@@ -9,7 +9,7 @@ import { FailStack } from './FailStack.js';
 export default class Logic {
     constructor() {
         this.loadingState = false;
-        this.skipRefresh = false;
+        this.skipRefresh = true;
         this.currentFailstack = {
             tier: 0,
             value: 0,
@@ -26,7 +26,7 @@ export default class Logic {
         this.controller = controller;
     }
     init() {
-        this.setupPreset(EnchantmentPreset.preset_10_199);
+        this.skipRefresh = false;
     }
     reset() {
         for (let i = 0; i <= 500; i++) {
@@ -38,6 +38,7 @@ export default class Logic {
         this.clicks = 0;
         this.controller.getLastClick().value('');
         this.setupPreset(this.controller.getPreset().value());
+        this.refresh();
     }
     setup_Default() {
         this.controller.getFamilyFS().value(0);
@@ -102,29 +103,26 @@ export default class Logic {
         this.controller.getIterationsPerSecond().value(30);
         EnchantmentItem.Reblath_Mon.amount = 100;
     }
-    setupPreset(preset) {
+    setupPreset(preset = EnchantmentPreset.preset_default) {
         if (this.loadingState)
             return;
         Logger.debug('setup preset', preset);
         this.skipRefresh = true;
-        switch (preset) {
-            case EnchantmentPreset.preset_10_199:
-                this.setup_19_199();
-                break;
-            case EnchantmentPreset.preset_20_201:
-                this.setup_20_201();
-                break;
-            case EnchantmentPreset.preset_Silver:
-                this.setup_Silver();
-                break;
-            default:
-                this.setup_Default();
-                break;
+        this.controller.getFamilyFS().value(preset.familyFS);
+        this.controller.getBuyFS().value(preset.buyFS);
+        this.controller.getTargetAmount().value(preset.targetAmount);
+        for (let index = 0; index < preset.enchantmentSteps.length; index++) {
+            const enchantment_step = preset.enchantmentSteps[index];
+            this.controller.getEnchantmentStep(index)?.item.value(enchantment_step.item);
+            this.controller.getEnchantmentStep(index)?.clicks.value(enchantment_step.clicks);
         }
+        this.controller.getClicksPerIteration().value(preset.clicksPerIteration);
+        this.controller.getIterationsPerSecond().value(preset.iterationsPerSecond);
+        EnchantmentItem.Reblath_Mon.amount = preset.reblaths;
         this.skipRefresh = false;
-        this.refresh(false);
+        this.refresh();
     }
-    refresh(saveState = true) {
+    refresh() {
         Logger.debug('refresh', this.skipRefresh);
         if (this.skipRefresh)
             return;
@@ -190,8 +188,7 @@ export default class Logic {
                 currentTargetFS += fs.amount;
         }
         this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-        if (saveState)
-            this.controller.getSaveState().consume(this.getState());
+        this.controller.getSaveState().consume(this.getState());
     }
     takeFs(x) {
         Logger.debug('takeFs', x);
@@ -542,7 +539,7 @@ export default class Logic {
             Logger.debug(`Now scales the Output`);
         else
             Logger.debug(`Now doesn't scale the Output`);
-        this.refresh(false);
+        this.refresh();
     }
     showDebug_OnChange(oldShowDebug, newShowDebug) {
         if (newShowDebug)
@@ -678,7 +675,7 @@ export default class Logic {
     reset_OnClick() {
         Logger.debug('Reset');
         this.reset();
-        this.refresh(false);
+        this.refresh();
     }
     getState() {
         const enchantment_steps = [];
@@ -740,6 +737,6 @@ export default class Logic {
         this.controller.getPreset().value(preset);
         this.loadingState = false;
         this.skipRefresh = false;
-        this.refresh(false);
+        this.refresh();
     }
 }

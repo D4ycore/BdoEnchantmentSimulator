@@ -3,6 +3,20 @@ import EnchantmentItem from './EnchantmentItem.js';
 export const ENCHANTMENT_PRESETS = new Map<string, EnchantmentPreset>();
 
 export default class EnchantmentPreset {
+	public static readonly preset_default = new EnchantmentPreset(
+		'',
+		0,
+		5,
+		1,
+		1,
+		1,
+		0,
+		{ item: EnchantmentItem.Reblath_Mon, clicks: 1 },
+		{ item: EnchantmentItem.Reblath_Duo, clicks: 1 },
+		{ item: EnchantmentItem.Reblath_Tri, clicks: 1 },
+		{ item: EnchantmentItem.Reblath_Tet, clicks: 1 }
+	);
+
 	public static readonly preset_10_199 = new EnchantmentPreset(
 		'10-199',
 		2,
@@ -70,7 +84,7 @@ export default class EnchantmentPreset {
 		this._iterationsPerSecond = iterationsPerSecond;
 		this._reblaths = reblaths;
 		this._enchantmentSteps = enchantmentSteps;
-		ENCHANTMENT_PRESETS.set(name, this);
+		if (name.length > 0) ENCHANTMENT_PRESETS.set(name, this);
 	}
 
 	public get name(): string {

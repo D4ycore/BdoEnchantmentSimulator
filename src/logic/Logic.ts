@@ -10,7 +10,7 @@ import { FailStack } from './FailStack.js';
 
 export default class Logic {
 	private loadingState = false;
-	private skipRefresh = false;
+	private skipRefresh = true;
 
 	private controller!: Controller;
 
@@ -35,7 +35,7 @@ export default class Logic {
 	}
 
 	public init() {
-		this.setupPreset(EnchantmentPreset.preset_10_199);
+		this.skipRefresh = false;
 	}
 
 	public reset() {
@@ -48,6 +48,7 @@ export default class Logic {
 		this.clicks = 0;
 		this.controller.getLastClick().value('');
 		this.setupPreset(this.controller.getPreset().value());
+		this.refresh();
 	}
 
 	public setup_Default() {
@@ -117,30 +118,29 @@ export default class Logic {
 		EnchantmentItem.Reblath_Mon.amount = 100;
 	}
 
-	public setupPreset(preset: EnchantmentPreset | undefined) {
+	public setupPreset(preset: EnchantmentPreset = EnchantmentPreset.preset_default) {
 		if (this.loadingState) return;
 
 		Logger.debug('setup preset', preset);
 		this.skipRefresh = true;
-		switch (preset) {
-			case EnchantmentPreset.preset_10_199:
-				this.setup_19_199();
-				break;
-			case EnchantmentPreset.preset_20_201:
-				this.setup_20_201();
-				break;
-			case EnchantmentPreset.preset_Silver:
-				this.setup_Silver();
-				break;
-			default:
-				this.setup_Default();
-				break;
+
+		this.controller.getFamilyFS().value(preset.familyFS);
+		this.controller.getBuyFS().value(preset.buyFS);
+		this.controller.getTargetAmount().value(preset.targetAmount);
+		for (let index = 0; index < preset.enchantmentSteps.length; index++) {
+			const enchantment_step = preset.enchantmentSteps[index]!;
+			this.controller.getEnchantmentStep(index)?.item.value(enchantment_step.item);
+			this.controller.getEnchantmentStep(index)?.clicks.value(enchantment_step.clicks);
 		}
+		this.controller.getClicksPerIteration().value(preset.clicksPerIteration);
+		this.controller.getIterationsPerSecond().value(preset.iterationsPerSecond);
+		EnchantmentItem.Reblath_Mon.amount = preset.reblaths;
+
 		this.skipRefresh = false;
-		this.refresh(false);
+		this.refresh();
 	}
 
-	private refresh(saveState = true) {
+	private refresh() {
 		Logger.debug('refresh', this.skipRefresh);
 		if (this.skipRefresh) return;
 
@@ -210,7 +210,7 @@ export default class Logic {
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-		if (saveState) this.controller.getSaveState().consume(this.getState());
+		this.controller.getSaveState().consume(this.getState());
 	}
 
 	private takeFs(x: number) {
@@ -571,7 +571,7 @@ export default class Logic {
 	scaleOutput_OnChange(oldScaleOutput: boolean, newScaleOutput: boolean): void {
 		if (newScaleOutput) Logger.debug(`Now scales the Output`);
 		else Logger.debug(`Now doesn't scale the Output`);
-		this.refresh(false);
+		this.refresh();
 	}
 
 	showDebug_OnChange(oldShowDebug: boolean, newShowDebug: boolean): void {
@@ -726,7 +726,7 @@ export default class Logic {
 	reset_OnClick() {
 		Logger.debug('Reset');
 		this.reset();
-		this.refresh(false);
+		this.refresh();
 	}
 
 	getState() {
@@ -803,8 +803,6 @@ export default class Logic {
 
 		this.loadingState = false;
 		this.skipRefresh = false;
-		this.refresh(false);
-
-		// console.log('loaded');
+		this.refresh();
 	}
 }
