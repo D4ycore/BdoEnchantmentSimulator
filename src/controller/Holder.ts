@@ -6,7 +6,7 @@ export default class Holder<T> {
 	}
 
 	value(newValue?: T) {
-		if (newValue != undefined) this._value = newValue;
+		if (arguments.length > 0) this._value = newValue!;
 		return this._value;
 	}
 }

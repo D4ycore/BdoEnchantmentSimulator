@@ -11,7 +11,7 @@ export default class Value<T> {
 
 	value(newValue?: T) {
 		const oldValue = this._value;
-		if (newValue != undefined) this.set(oldValue, newValue);
+		if (arguments.length > 0) this.set(oldValue, newValue!);
 		return this._value;
 	}
 

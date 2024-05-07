@@ -1,31 +1,40 @@
+import EnchantmentPreset from '../logic/EnchantmentPreset.js';
 import { FailStack } from '../logic/FailStack.js';
 import Logic from '../logic/Logic.js';
 import View, { SimulatorState } from '../view/View.js';
 import Button from './Button.js';
+import Consumer from './Consumer.js';
 import EnchantmentItem from './EnchantmentItem.js';
 import EnchantmentStep from './EnchantmentStep.js';
 import Holder from './Holder.js';
 import Setter from './Setter.js';
+import Supplier from './Supplier.js';
 import Value from './Value.js';
 
 export default class Controller {
 	private scaleOutput: Value<boolean>;
 	private showDebug: Value<boolean>;
 
+	private saveState: Consumer<SimulatorState>;
+	private supplyState: Supplier<SimulatorState>;
+	private loadState: Consumer<SimulatorState>;
+
+	private preset: Setter<EnchantmentPreset | undefined>;
+
 	private enchantment_items: EnchantmentItem[];
-	private addReblath: Button;
 
 	private familyFS: Value<number>;
 	private buyFS: Value<number>;
 	private targetAmount: Value<number>;
 	private currentTargetFS: Setter<{ current: number; max: number }>;
 	private enchantment_steps: EnchantmentStep[];
-	private singleClick: Button;
 
 	private clicksPerIteration: Value<number>;
 	private iterationsPerSecond: Value<number>;
 	private upgradeStart: Button;
 	private upgradeStop: Button;
+	private singleClick: Button;
+	private reset: Button;
 
 	private lastClick: Setter<string>;
 	private stacksCrafted: Setter<string>;
@@ -52,9 +61,13 @@ export default class Controller {
 			(oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug)
 		);
 
+		this.saveState = new Consumer(state => view.saveState(state));
+		this.supplyState = new Supplier(() => logic.getState());
+		this.loadState = new Consumer(state => logic.loadState(state));
+		this.preset = new Setter<EnchantmentPreset | undefined>(undefined, (oldPreset, newPreset) => logic.setupPreset(newPreset));
+
 		this.enchantment_items = [];
 		for (let i = 0; i < 5; i++) this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
-		this.addReblath = new Button(() => logic.addReblath_OnClick());
 
 		this.familyFS = new Value<number>(
 			0,
@@ -76,7 +89,6 @@ export default class Controller {
 		);
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
-		this.singleClick = new Button(() => logic.singleClick_OnClick());
 
 		this.clicksPerIteration = new Value<number>(
 			0,
@@ -91,6 +103,8 @@ export default class Controller {
 		);
 		this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
 		this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
+		this.singleClick = new Button(() => logic.singleClick_OnClick());
+		this.reset = new Button(() => logic.reset_OnClick());
 
 		this.lastClick = new Setter<string>('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick));
 		this.stacksCrafted = new Setter<string>('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted));
@@ -99,15 +113,17 @@ export default class Controller {
 		this.clicks = new Holder<number>(0);
 	}
 
-	saveState(state: SimulatorState) {
-		console.log('save state');
-
-		this.view.saveState(state);
+	getSaveState() {
+		return this.saveState;
 	}
-	loadState(state: SimulatorState) {
-		console.log('load state');
-
-		this.logic.loadState(state);
+	getState() {
+		return this.supplyState;
+	}
+	getLoadState() {
+		return this.loadState;
+	}
+	getPreset() {
+		return this.preset;
 	}
 
 	getScaleOutput() {
@@ -119,9 +135,6 @@ export default class Controller {
 
 	getEnchantmentItem(ei_index: number) {
 		return this.enchantment_items[ei_index];
-	}
-	getAddReblath() {
-		return this.addReblath;
 	}
 
 	getFamilyFS() {
@@ -144,6 +157,9 @@ export default class Controller {
 	}
 	getSingleClick() {
 		return this.singleClick;
+	}
+	getReset() {
+		return this.reset;
 	}
 
 	getClicksPerIteration() {

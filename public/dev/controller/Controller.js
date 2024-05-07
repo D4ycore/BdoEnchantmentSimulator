@@ -1,8 +1,10 @@
 import Button from './Button.js';
+import Consumer from './Consumer.js';
 import EnchantmentItem from './EnchantmentItem.js';
 import EnchantmentStep from './EnchantmentStep.js';
 import Holder from './Holder.js';
 import Setter from './Setter.js';
+import Supplier from './Supplier.js';
 import Value from './Value.js';
 export default class Controller {
     constructor(view, logic) {
@@ -10,10 +12,13 @@ export default class Controller {
         this.logic = logic;
         this.scaleOutput = new Value(false, (oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput), (oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput));
         this.showDebug = new Value(false, (oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug), (oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug));
+        this.saveState = new Consumer(state => view.saveState(state));
+        this.supplyState = new Supplier(() => logic.getState());
+        this.loadState = new Consumer(state => logic.loadState(state));
+        this.preset = new Setter(undefined, (oldPreset, newPreset) => logic.setupPreset(newPreset));
         this.enchantment_items = [];
         for (let i = 0; i < 5; i++)
             this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
-        this.addReblath = new Button(() => logic.addReblath_OnClick());
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
         this.targetAmount = new Value(0, (oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount), (oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount));
@@ -21,23 +26,28 @@ export default class Controller {
         this.enchantment_steps = [];
         for (let i = 0; i < 4; i++)
             this.addEnchantmentStep();
-        this.singleClick = new Button(() => logic.singleClick_OnClick());
         this.clicksPerIteration = new Value(0, (oldClicksPerIteration, newClicksPerIteration) => view.clicksPerIteration_Set(oldClicksPerIteration, newClicksPerIteration), (oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration));
         this.iterationsPerSecond = new Value(0, (oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond), (oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond));
         this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
         this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
+        this.singleClick = new Button(() => logic.singleClick_OnClick());
+        this.reset = new Button(() => logic.reset_OnClick());
         this.lastClick = new Setter('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick));
         this.stacksCrafted = new Setter('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted));
         this.failstacks = new Setter([], (oldFailstacks, newFailstacks) => view.showStats(oldFailstacks, newFailstacks));
         this.clicks = new Holder(0);
     }
-    saveState(state) {
-        console.log('save state');
-        this.view.saveState(state);
+    getSaveState() {
+        return this.saveState;
     }
-    loadState(state) {
-        console.log('load state');
-        this.logic.loadState(state);
+    getState() {
+        return this.supplyState;
+    }
+    getLoadState() {
+        return this.loadState;
+    }
+    getPreset() {
+        return this.preset;
     }
     getScaleOutput() {
         return this.scaleOutput;
@@ -47,9 +57,6 @@ export default class Controller {
     }
     getEnchantmentItem(ei_index) {
         return this.enchantment_items[ei_index];
-    }
-    getAddReblath() {
-        return this.addReblath;
     }
     getFamilyFS() {
         return this.familyFS;
@@ -71,6 +78,9 @@ export default class Controller {
     }
     getSingleClick() {
         return this.singleClick;
+    }
+    getReset() {
+        return this.reset;
     }
     getClicksPerIteration() {
         return this.clicksPerIteration;

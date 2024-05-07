@@ -12,6 +12,10 @@ class EnchantmentItem {
         this._pity = pity;
         ENCHANTMENT_ITEMS.set(name, this);
     }
+    reset() {
+        this.amount = this.value = this.total_amount = this.total_value = 0;
+        this.pity.reset();
+    }
     get name() {
         return this._name;
     }

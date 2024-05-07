@@ -33,6 +33,11 @@ export default class EnchantmentItem {
 		ENCHANTMENT_ITEMS.set(name, this);
 	}
 
+	public reset() {
+		this.amount = this.value = this.total_amount = this.total_value = 0;
+		this.pity.reset();
+	}
+
 	public get name(): string {
 		return this._name;
 	}

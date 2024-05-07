@@ -3,6 +3,7 @@ import EnchantmentItem, { ENCHANTMENT_ITEMS } from '../logic/EnchantmentItem.js'
 import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from '../logic/EnchantmentMaterial.js';
 import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
+import { ENCHANTMENT_PRESETS } from '../logic/EnchantmentPreset.js';
 export default class View {
     constructor() {
         this.cbScaleOutput = nonNullElement(document.querySelector('#cbScaleOutput'), 'Scale Output');
@@ -11,49 +12,23 @@ export default class View {
         this.sPreset = nonNullElement(document.querySelector('#sPreset'), 'Preset');
         this.bSaveState = nonNullElement(document.querySelector('#bSaveState'), 'Save State');
         this.bLoadState = nonNullElement(document.querySelector('#bLoadState'), 'Load State');
-        this.bSaveState.addEventListener('click', evt => {
-            const enchantment_steps = [];
-            const stepsSize = this.controller.getEnchantmentStepsSize();
-            for (let es_index = 0; es_index < stepsSize; es_index++) {
-                const enchantment_step = this.controller.getEnchantmentStep(es_index);
-                enchantment_steps.push({ index: es_index, item_name: enchantment_step.item.value().name, clicks: enchantment_step.clicks.value() });
-            }
-            const enchantment_items = [];
-            for (const [, enchantment_item] of ENCHANTMENT_ITEMS) {
-                enchantment_items.push({
-                    name: enchantment_item.name,
-                    amount: enchantment_item.amount,
-                    value: enchantment_item.value,
-                    total_amount: enchantment_item.total_amount,
-                    total_value: enchantment_item.total_value,
-                    pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max }
-                });
-            }
-            const enchantment_mats = ENCHANTMENT_MATERIALS.map(material => {
-                return { name: material.name, used: material.used, price: material.price };
-            });
-            const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.controller.getClicks().value(), this.controller.getFailstacks().value(), enchantment_mats);
-            this.saveState(state);
-        });
-        this.bLoadState.addEventListener('click', evt => this.loadState());
         this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll('.enchantment_item'), 'Enchantment Items');
-        this.bAddReblath = nonNullElement(document.querySelector('#bAddReblath'), 'Add Reblath');
         this.sFamilyFS = nonNullElement(document.querySelector('#ffs'), 'Familystack');
         this.sBuyFS = nonNullElement(document.querySelector('#sBuyFS'), 'Failstack to Buy');
         this.iTargetAmount = nonNullElement(document.querySelector('#iTargetAmount'), 'How many Failstacks');
         this.spCurrentTargetFS = nonNullElement(document.querySelector('#spCurrentTargetFS'), 'Current Target Failstacks');
         this.lEnchantmentSteps = nonNullElementAll(document.querySelectorAll('.enchantment_step'), 'Enchantment Steps');
-        this.bSingleClick = nonNullElement(document.querySelector('#bSingleClick'), 'Single Click');
         this.iClicksPerIteration = nonNullElement(document.querySelector('#iClicksPerIteration'), 'Clicks per Iterations');
         this.iIterationsPerSecond = nonNullElement(document.querySelector('#iIterationsPerSecond'), 'Iterations per Second');
         this.bUpgradeStart = nonNullElement(document.querySelector('#bUpgradeStart'), 'Upgrade Start');
         this.bUpgradeStop = nonNullElement(document.querySelector('#bUpgradeStop'), 'Upgrade Stop');
+        this.bSingleClick = nonNullElement(document.querySelector('#bSingleClick'), 'Single Click');
+        this.bReset = nonNullElement(document.querySelector('#bReset'), 'Reset');
         this.iLastClick = nonNullElement(document.querySelector('#iLastClick'), 'Last Click');
         this.iStacksCrafted = nonNullElement(document.querySelector('#iStacksCrafted'), 'Stacks Crafted');
         this.glEvaluation = nonNullElement(document.querySelector('#evaluation .grid-list'), 'Evaluation');
         this.glFailstacks = nonNullElement(document.querySelector('#failstacks .grid-list'), 'Failstacks');
         this.glPrices = nonNullElement(document.querySelector('#prices .grid-list'), 'Prices');
-        this.showPrices();
     }
     link(controller) {
         this.controller = controller;
@@ -86,9 +61,23 @@ export default class View {
                 controller.getEnchantmentItem(ei_index)?.worthEach.changed(val);
             });
         }
-        this.bAddReblath.addEventListener('click', evt => {
-            Logger.debug('add-reblath click');
-            controller.getAddReblath().click();
+        for (const preset of ENCHANTMENT_PRESETS) {
+            const option = document.createElement('option');
+            option.text = preset[1].name;
+            this.sPreset.append(option);
+        }
+        this.sPreset.addEventListener('change', evt => {
+            Logger.debug('preset onchange', this.sPreset.value);
+            const preset = ENCHANTMENT_PRESETS.get(this.sPreset.value);
+            this.controller.getPreset().value(preset);
+        });
+        this.bSaveState.addEventListener('click', evt => {
+            Logger.debug('state-save click');
+            this.saveState(controller.getState().get());
+        });
+        this.bLoadState.addEventListener('click', evt => {
+            Logger.debug('state-load click');
+            this.loadState();
         });
         this.sFamilyFS.addEventListener('change', evt => {
             Logger.debug('family-fs onchange', this.sFamilyFS.value);
@@ -173,6 +162,10 @@ export default class View {
             Logger.debug('single-click click');
             controller.getSingleClick().click();
         });
+        this.bReset.addEventListener('click', evt => {
+            Logger.debug('reset click');
+            controller.getReset().click();
+        });
     }
     init() {
         this.cbScaleOutput.dispatchEvent(new Event('change'));
@@ -183,7 +176,6 @@ export default class View {
             const iWorthEach = enchantment_item.querySelector('.ei_worth');
             iWorthEach?.dispatchEvent(new Event('change'));
         }
-        this.bAddReblath.dispatchEvent(new Event('change'));
         this.sFamilyFS.dispatchEvent(new Event('change'));
         this.sBuyFS.dispatchEvent(new Event('change'));
         this.iTargetAmount.dispatchEvent(new Event('change'));
@@ -197,9 +189,7 @@ export default class View {
             const iStepClicks = step.querySelector('.es_clicks');
             iStepClicks?.dispatchEvent(new Event('change'));
         }
-        this.bSingleClick.dispatchEvent(new Event('change'));
-        this.bUpgradeStart.dispatchEvent(new Event('change'));
-        this.bUpgradeStop.dispatchEvent(new Event('change'));
+        this.showPrices();
     }
     scaleOutput_Set(oldScaleOutput, newScaleOutput) {
         Logger.debug('scale-output set', oldScaleOutput, newScaleOutput);
@@ -349,11 +339,11 @@ export default class View {
         Logger.debug('show-evaluation');
         const materials = ENCHANTMENT_MATERIALS.filter(material => material.used > 0);
         if (materials.length < 1)
-            return;
+            return this.glEvaluation.parentElement?.parentElement?.setAttribute('hidden', '');
         const failstacks_75_value = this.findFS75Value(failstacks);
         failstacks = failstacks.filter(fs => fs.amount > 0);
         const items = [EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri, EnchantmentItem.Reblath_Tet].filter(item => item.amount > 0);
-        const combined_item_value = items.map(item => item.value).reduce((prev, current) => prev + current, 0) / 1000000;
+        const combined_item_value = items.map(item => (item.total_value / item.total_amount) * item.amount).reduce((prev, current) => prev + current, 0) / 1000000;
         const combined_fs_value = failstacks.map(failstack => failstack.value).reduce((prev, current) => prev + current, 0) / 1000000;
         const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * failstacks_75_value) / 1000000;
         const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
@@ -430,22 +420,24 @@ export default class View {
 		`;
     }
     addItem(item, scalar) {
+        const value = item.total_value / item.total_amount;
         return `
 		<span class="">${item.name}</span>
 		<span class="grid-item">${nf_commas(item.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(item.value / item.amount / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted total_value"><span>${nf_commas((item.value * scalar) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item formatted faded"><span>${nf_commas(value / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item formatted total_value"><span>${nf_commas((value * item.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
 		`;
     }
     addPenReblath(failstacks_75_value, scalar) {
         const penReblath = EnchantmentItem.Reblath_Pen;
+        const value = penReblath.total_value / penReblath.total_amount;
         if (penReblath.amount < 1)
             return ``;
         return `
 		<span class="">${penReblath.name}</span>
 		<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(penReblath.value / penReblath.amount / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted pen_reblath_total_value"><span>${nf_commas((penReblath.value * scalar) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item formatted faded"><span>${nf_commas((value * penReblath.amount) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item formatted pen_reblath_total_value"><span>${nf_commas((value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
 		<span class="">(FS 75)</span>
 		<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
 		<div class="grid-item formatted faded"><span>${nf_commas(failstacks_75_value / 1000000, 3)}</span><span>m</span></div>
@@ -464,7 +456,7 @@ export default class View {
         Logger.debug('show-failstacks');
         failstacks = failstacks.filter(fs => fs.total_amount > 0);
         if (failstacks.length < 1)
-            return;
+            return this.glFailstacks.parentElement?.parentElement?.setAttribute('hidden', '');
         this.glFailstacks.innerHTML = `
 		<span class="grid-header">FS</span>
 		<span class="grid-header">Amount</span>
@@ -518,71 +510,50 @@ export default class View {
         this.showPrices();
     }
     saveState(state) {
-        const jsonState = new SaveState(state);
         const profile = this.sProfile.value || 'default';
-        const oldJsonStates = localStorage.getItem('bdo-enchantment-simulator');
-        let states;
-        let saveStates;
-        if (oldJsonStates) {
-            saveStates = JSON.parse(oldJsonStates);
-            states = SaveStates.parseStates(saveStates.states);
-            states.set(profile, jsonState);
-        }
-        else {
-            saveStates = new SaveStates();
-            states = new Map();
-            states.set(profile, jsonState);
-        }
-        saveStates.states = SaveStates.stringifyStates(states);
-        const newJsonStates = JSON.stringify(saveStates);
-        localStorage.setItem('bdo-enchantment-simulator', newJsonStates);
-        console.trace('saved');
+        const oldJson = localStorage.getItem('bdo-enchantment-simulator');
+        const newAppState = new AppState(profile, state, oldJson);
+        const newJson = JSON.stringify(newAppState);
+        localStorage.setItem('bdo-enchantment-simulator', newJson);
     }
     loadState() {
         const profile = this.sProfile.value || 'default';
-        const jsonStates = localStorage.getItem('bdo-enchantment-simulator');
-        if (!jsonStates)
-            return Logger.error('No SaveStates found');
-        const currentSaveStates = JSON.parse(jsonStates);
-        console.log('currentSaveStates', currentSaveStates);
-        const states = SaveStates.parseStates(currentSaveStates.states);
-        const state = states.get(profile);
+        const appJson = localStorage.getItem('bdo-enchantment-simulator');
+        if (!appJson)
+            return Logger.error('No App-State found');
+        const appState = JSON.parse(appJson);
+        const state = appState.saveStates[profile];
         if (!state)
             return Logger.error('No SaveState found for Profile', profile);
-        this.controller.loadState(state.state);
+        const preset = ENCHANTMENT_PRESETS.get(state.simulatorState.preset ?? '');
+        this.controller.getPreset().value(preset);
+        this.sPreset.value = preset?.name ?? 'Default';
+        this.controller.getLoadState().consume(state.simulatorState);
     }
 }
-class SaveStates {
-    constructor() {
+class AppState {
+    constructor(profile, state, oldJson) {
         this.version = 'vG.0.0.1';
         const date = new Date();
         this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
         this.date_time = date.getTime();
-        this.states = '';
-    }
-    static parseStates(states) {
-        const parsed = JSON.parse(states);
-        const obj = Object.entries(parsed);
-        const map = new Map(obj);
-        return map;
-    }
-    static stringifyStates(states) {
-        const obj = Object.fromEntries(states);
-        const serialized = JSON.stringify(obj);
-        return serialized;
+        const newSaveState = new SaveState(state);
+        const newSaveStates = oldJson ? JSON.parse(oldJson).saveStates : {};
+        newSaveStates[profile] = newSaveState;
+        this.saveStates = newSaveStates;
     }
 }
 class SaveState {
-    constructor(state) {
+    constructor(simulatorState) {
         this.version = 'vS.0.0.1';
         const date = new Date();
         this.date = date.toDateString() + ' ' + date.toLocaleTimeString();
         this.date_time = date.getTime();
-        this.state = state;
+        this.simulatorState = simulatorState;
     }
 }
 export class SimulatorState {
-    constructor(familyFS, buyFS, targetAmount, clicksPerIteration, iterationsPerSecond, enchantment_steps, enchantment_items, clicks, failstacks, materials) {
+    constructor(familyFS, buyFS, targetAmount, clicksPerIteration, iterationsPerSecond, enchantment_steps, enchantment_items, clicks, failstacks, materials, preset) {
         this.familyFS = familyFS;
         this.buyFS = buyFS;
         this.targetAmount = targetAmount;
@@ -593,5 +564,6 @@ export class SimulatorState {
         this.clicks = clicks;
         this.failstacks = failstacks;
         this.materials = materials;
+        this.preset = preset;
     }
 }

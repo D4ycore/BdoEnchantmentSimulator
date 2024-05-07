@@ -13,6 +13,9 @@ class EnchantmentMaterial {
         this._price = cost;
         ENCHANTMENT_MATERIALS.push(this);
     }
+    reset() {
+        this.used = 0;
+    }
     get name() {
         return this._name;
     }

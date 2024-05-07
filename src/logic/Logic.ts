@@ -5,10 +5,12 @@ import { nf, nf_commas, nf_fixed } from '../util/util.js';
 import { SimulatorState, enchantment_item, enchantment_mat, enchantment_step } from '../view/View.js';
 import EnchantmentItem, { ENCHANTMENT_ITEMS } from './EnchantmentItem.js';
 import EnchantmentMaterial, { ENCHANTMENT_MATERIALS, EnchantmentMaterialShadowed } from './EnchantmentMaterial.js';
+import EnchantmentPreset, { ENCHANTMENT_PRESETS } from './EnchantmentPreset.js';
 import { FailStack } from './FailStack.js';
 
 export default class Logic {
-	private initialized = false;
+	private loadingState = false;
+	private skipRefresh = false;
 
 	private controller!: Controller;
 
@@ -28,17 +30,43 @@ export default class Logic {
 		for (let i = 0; i <= 500; i++) this.failstacks.push(new FailStack(i));
 	}
 
-	link(controller: Controller) {
+	public link(controller: Controller) {
 		this.controller = controller;
 	}
 
-	init() {
-		this.setupDemo();
-		this.initialized = true;
-		this.refresh(false);
+	public init() {
+		this.setupPreset(EnchantmentPreset.preset_10_199);
 	}
 
-	private setupDemo() {
+	public reset() {
+		for (let i = 0; i <= 500; i++) {
+			const failstack = this.failstacks[i]!;
+			failstack.amount = failstack.value = failstack.total_amount = failstack.total_value = 0;
+		}
+		ENCHANTMENT_ITEMS.forEach(item => item.reset());
+		ENCHANTMENT_MATERIALS.forEach(material => material.reset());
+		this.clicks = 0;
+		this.controller.getLastClick().value('');
+		this.setupPreset(this.controller.getPreset().value());
+	}
+
+	public setup_Default() {
+		this.controller.getFamilyFS().value(0);
+		this.controller.getBuyFS().value(5);
+		this.controller.getTargetAmount().value(1);
+		this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
+		this.controller.getEnchantmentStep(0)?.clicks.value(1);
+		this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
+		this.controller.getEnchantmentStep(1)?.clicks.value(1);
+		this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
+		this.controller.getEnchantmentStep(2)?.clicks.value(1);
+		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
+		this.controller.getEnchantmentStep(3)?.clicks.value(1);
+		this.controller.getClicksPerIteration().value(1);
+		this.controller.getIterationsPerSecond().value(1);
+	}
+
+	private setup_19_199() {
 		this.controller.getFamilyFS().value(2);
 		this.controller.getBuyFS().value(15);
 		this.controller.getTargetAmount().value(10);
@@ -50,12 +78,29 @@ export default class Logic {
 		this.controller.getEnchantmentStep(2)?.clicks.value(9);
 		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
 		this.controller.getEnchantmentStep(3)?.clicks.value(18);
-		this.controller.getClicksPerIteration().value(1);
-		this.controller.getIterationsPerSecond().value(1000);
-		for (let n = 0; n < 10; n++) this.addItem('Reblath');
+		this.controller.getClicksPerIteration().value(1000);
+		this.controller.getIterationsPerSecond().value(30);
+		EnchantmentItem.Reblath_Mon.amount = 100;
 	}
 
-	private setupSilver() {
+	private setup_20_201() {
+		this.controller.getFamilyFS().value(2);
+		this.controller.getBuyFS().value(20);
+		this.controller.getTargetAmount().value(10);
+		this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
+		this.controller.getEnchantmentStep(0)?.clicks.value(3);
+		this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
+		this.controller.getEnchantmentStep(1)?.clicks.value(4);
+		this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
+		this.controller.getEnchantmentStep(2)?.clicks.value(6);
+		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
+		this.controller.getEnchantmentStep(3)?.clicks.value(21);
+		this.controller.getClicksPerIteration().value(1000);
+		this.controller.getIterationsPerSecond().value(30);
+		EnchantmentItem.Reblath_Mon.amount = 100;
+	}
+
+	private setup_Silver() {
 		this.controller.getFamilyFS().value(2);
 		this.controller.getBuyFS().value(15);
 		this.controller.getTargetAmount().value(1000);
@@ -67,52 +112,45 @@ export default class Logic {
 		this.controller.getEnchantmentStep(2)?.clicks.value(3);
 		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
 		this.controller.getEnchantmentStep(3)?.clicks.value(23);
-		this.controller.getClicksPerIteration().value(10000);
-		this.controller.getIterationsPerSecond().value(100);
-		for (let n = 0; n < 1000; n++) this.addItem('Reblath');
+		this.controller.getClicksPerIteration().value(1000);
+		this.controller.getIterationsPerSecond().value(30);
+		EnchantmentItem.Reblath_Mon.amount = 100;
 	}
 
-	private setupOld() {
-		this.controller.getFamilyFS().value(2);
-		this.controller.getBuyFS().value(20);
-		this.controller.getTargetAmount().value(1000);
-		this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
-		this.controller.getEnchantmentStep(0)?.clicks.value(3);
-		this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
-		this.controller.getEnchantmentStep(1)?.clicks.value(4);
-		this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
-		this.controller.getEnchantmentStep(2)?.clicks.value(6);
-		this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
-		this.controller.getEnchantmentStep(3)?.clicks.value(21);
-		this.controller.getClicksPerIteration().value(10000);
-		this.controller.getIterationsPerSecond().value(100);
-		for (let n = 0; n < 1000; n++) this.addItem('Reblath');
-	}
+	public setupPreset(preset: EnchantmentPreset | undefined) {
+		if (this.loadingState) return;
 
-	private addItem(item: string) {
-		Logger.debug('addItem', item);
-		switch (item) {
-			case 'Reblath':
-				EnchantmentItem.Reblath_Mon.amount = EnchantmentItem.Reblath_Mon.amount + 10;
+		Logger.debug('setup preset', preset);
+		this.skipRefresh = true;
+		switch (preset) {
+			case EnchantmentPreset.preset_10_199:
+				this.setup_19_199();
 				break;
-			case 'Blackstar':
-				EnchantmentItem.Blackstar_Mon.amount++;
-				EnchantmentItem.Blackstar_Mon.value += EnchantmentMaterial.BLACKSTAR_MON.use();
+			case EnchantmentPreset.preset_20_201:
+				this.setup_20_201();
+				break;
+			case EnchantmentPreset.preset_Silver:
+				this.setup_Silver();
+				break;
+			default:
+				this.setup_Default();
 				break;
 		}
+		this.skipRefresh = false;
+		this.refresh(false);
 	}
 
 	private refresh(saveState = true) {
-		Logger.debug('refresh', this.initialized);
-		if (!this.initialized) return;
+		Logger.debug('refresh', this.skipRefresh);
+		if (this.skipRefresh) return;
 
 		this.controller.getClicks().value(this.clicks);
 
-		const monReblathText = this.controller.getEnchantmentItem(0)!;
-		const duoReblathText = this.controller.getEnchantmentItem(1)!;
-		const triReblathText = this.controller.getEnchantmentItem(2)!;
-		const tetReblathText = this.controller.getEnchantmentItem(3)!;
-		const penReblathText = this.controller.getEnchantmentItem(4)!;
+		const monReblath = this.controller.getEnchantmentItem(0)!;
+		const duoReblath = this.controller.getEnchantmentItem(1)!;
+		const triReblath = this.controller.getEnchantmentItem(2)!;
+		const tetReblath = this.controller.getEnchantmentItem(3)!;
+		const penReblath = this.controller.getEnchantmentItem(4)!;
 
 		const monReblathPity = this.controller.getEnchantmentItem(0)!.pity;
 		monReblathPity.current.value(EnchantmentItem.Reblath_Mon.pity.current);
@@ -127,39 +165,39 @@ export default class Logic {
 		tetReblathPity.current.value(EnchantmentItem.Reblath_Tet.pity.current);
 		tetReblathPity.max.value(EnchantmentItem.Reblath_Tet.pity.max);
 
-		monReblathText.amount.value(EnchantmentItem.Reblath_Mon.amount);
-		duoReblathText.amount.value(EnchantmentItem.Reblath_Duo.amount);
-		triReblathText.amount.value(EnchantmentItem.Reblath_Tri.amount);
-		tetReblathText.amount.value(EnchantmentItem.Reblath_Tet.amount);
-		penReblathText.amount.value(EnchantmentItem.Reblath_Pen.amount);
+		monReblath.amount.value(EnchantmentItem.Reblath_Mon.amount);
+		duoReblath.amount.value(EnchantmentItem.Reblath_Duo.amount);
+		triReblath.amount.value(EnchantmentItem.Reblath_Tri.amount);
+		tetReblath.amount.value(EnchantmentItem.Reblath_Tet.amount);
+		penReblath.amount.value(EnchantmentItem.Reblath_Pen.amount);
 
 		if (EnchantmentItem.Reblath_Duo.total_value)
-			duoReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1_000_000.0, 3));
-		else duoReblathText.worthEach.value(0);
+			duoReblath.worthEach.value(nf(EnchantmentItem.Reblath_Duo.total_value / EnchantmentItem.Reblath_Duo.total_amount / 1_000_000.0, 3));
+		else duoReblath.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Tri.total_value)
-			triReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1_000_000.0, 3));
-		else triReblathText.worthEach.value(0);
+			triReblath.worthEach.value(nf(EnchantmentItem.Reblath_Tri.total_value / EnchantmentItem.Reblath_Tri.total_amount / 1_000_000.0, 3));
+		else triReblath.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Tet.total_value)
-			tetReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount / 1_000_000.0, 3));
-		else tetReblathText.worthEach.value(0);
+			tetReblath.worthEach.value(nf(EnchantmentItem.Reblath_Tet.total_value / EnchantmentItem.Reblath_Tet.total_amount / 1_000_000.0, 3));
+		else tetReblath.worthEach.value(0);
 		if (EnchantmentItem.Reblath_Pen.total_value)
-			penReblathText.worthEach.value(nf(EnchantmentItem.Reblath_Pen.total_value / EnchantmentItem.Reblath_Pen.total_amount / 1_000_000.0, 3));
-		else penReblathText.worthEach.value(0);
+			penReblath.worthEach.value(nf(EnchantmentItem.Reblath_Pen.total_value / EnchantmentItem.Reblath_Pen.total_amount / 1_000_000.0, 3));
+		else penReblath.worthEach.value(0);
 
 		const scaleOutput = this.controller.getScaleOutput().value();
-		const scalarr = this.controller.getTargetAmount().value();
+		const scalar = 1 / this.controller.getTargetAmount().value();
 
 		let text = '';
 		for (let i = 1; i < this.failstacks.length; i++) {
 			const fs = this.failstacks[i]!;
 			if (fs.amount > 0) {
-				const fsAmountPerTarget = scaleOutput ? nf_commas(fs.amount / scalarr, 2) : nf_commas(fs.amount);
+				const fsAmountPerTarget = scaleOutput ? nf_commas(fs.amount * scalar, 2) : nf_commas(fs.amount);
 				const fsValuePer = nf_commas(fs.value / fs.amount / 1_000_000, 3);
 				text += ' fs:' + fs.tier + ' ' + fsAmountPerTarget + 'x each(' + fsValuePer + 'm) // ';
 			}
 		}
-		const clicks = nf_commas(this.clicks);
-		const costs = scaleOutput ? nf_commas(EnchantmentMaterial.total_cost() / 1_000_000 / scalarr, 3) : nf_commas(EnchantmentMaterial.total_cost() / 1_000_000);
+		const clicks = scaleOutput ? nf_commas(this.clicks * scalar) : nf_commas(this.clicks);
+		const costs = scaleOutput ? nf_commas((EnchantmentMaterial.total_cost() / 1_000_000) * scalar, 3) : nf_commas(EnchantmentMaterial.total_cost() / 1_000_000);
 
 		this.controller.getStacksCrafted().value(`clicks: ${clicks} | costs: ${costs} m | ` + text);
 
@@ -172,7 +210,7 @@ export default class Logic {
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-		if (saveState) this.saveState();
+		if (saveState) this.controller.getSaveState().consume(this.getState());
 	}
 
 	private takeFs(x: number) {
@@ -533,7 +571,7 @@ export default class Logic {
 	scaleOutput_OnChange(oldScaleOutput: boolean, newScaleOutput: boolean): void {
 		if (newScaleOutput) Logger.debug(`Now scales the Output`);
 		else Logger.debug(`Now doesn't scale the Output`);
-		this.refresh();
+		this.refresh(false);
 	}
 
 	showDebug_OnChange(oldShowDebug: boolean, newShowDebug: boolean): void {
@@ -548,6 +586,24 @@ export default class Logic {
 		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
 		Logger.debug(`The Amount of Enchantment Item (${ei_index}) has changed(${oldAmount} => ${newAmount})`);
+		switch (ei_index) {
+			case 0:
+				EnchantmentItem.Reblath_Mon.amount = enchantment_item.amount.value();
+				break;
+			case 1:
+				EnchantmentItem.Reblath_Duo.amount = enchantment_item.amount.value();
+				break;
+			case 2:
+				EnchantmentItem.Reblath_Tri.amount = enchantment_item.amount.value();
+				break;
+			case 3:
+				EnchantmentItem.Reblath_Tet.amount = enchantment_item.amount.value();
+				break;
+			case 4:
+				EnchantmentItem.Reblath_Pen.amount = enchantment_item.amount.value();
+				break;
+		}
+		this.controller.getFailstacks().value(this.failstacks);
 	}
 	/* Unused */
 	enchantmentItem_WorthEach_OnChange(ei_index: number, oldWorthEach: number, newWorthEach: number) {
@@ -555,17 +611,6 @@ export default class Logic {
 		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
 		Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
-	}
-	addReblath_OnClick() {
-		Logger.debug('Add new Reblath');
-		this.addItem('Reblath');
-		this.refresh();
-	}
-	/* Not Connected */
-	addBlackStar_OnClick() {
-		Logger.debug('Add new Blackstar');
-		this.addItem('Blackstar');
-		this.refresh();
 	}
 
 	familyFS_OnChange(oldFamilyFS: number, newFamilyFS: number) {
@@ -618,10 +663,11 @@ export default class Logic {
 
 		Logger.debug(`The End FS of Step(${es_index}) has changed(${oldEndFS} => ${newEndFS})`);
 
-		if (es_index == this.controller.getEnchantmentStepsSize() - 1) this.refresh();
-
 		const nextIndex = es_index + 1;
-		if (nextIndex >= this.controller.getEnchantmentStepsSize()) return;
+		if (nextIndex >= this.controller.getEnchantmentStepsSize()) {
+			this.refresh();
+			return;
+		}
 
 		const es_next = this.controller.getEnchantmentStep(nextIndex);
 		if (!es_next) return Logger.warn(`There are no ${nextIndex + 1} Enchantment Steps`);
@@ -677,8 +723,13 @@ export default class Logic {
 		this.Enchantment();
 		this.refresh();
 	}
+	reset_OnClick() {
+		Logger.debug('Reset');
+		this.reset();
+		this.refresh(false);
+	}
 
-	saveState() {
+	getState() {
 		const enchantment_steps: enchantment_step[] = [];
 		const stepsSize = this.controller.getEnchantmentStepsSize();
 		for (let es_index = 0; es_index < stepsSize; es_index++) {
@@ -709,14 +760,17 @@ export default class Logic {
 			enchantment_items,
 			this.clicks,
 			this.failstacks,
-			enchantment_mats
+			enchantment_mats,
+			this.controller.getPreset().value()?.name
 		);
-		this.controller.saveState(state);
+		return state;
 	}
 
 	loadState(state: SimulatorState) {
 		this.upgrading = false;
-		this.initialized = false;
+
+		this.loadingState = true;
+		this.skipRefresh = true;
 
 		this.controller.getFamilyFS().value(state.familyFS);
 		this.controller.getBuyFS().value(state.buyFS);
@@ -727,7 +781,6 @@ export default class Logic {
 			this.controller.getEnchantmentStep(enchantment_step.index)?.item.value(ENCHANTMENT_ITEMS.get(enchantment_step.item_name));
 			this.controller.getEnchantmentStep(enchantment_step.index)?.clicks.value(enchantment_step.clicks);
 		}
-		EnchantmentItem.Reblath_Mon.amount = EnchantmentItem.Reblath_Mon.amount + 10;
 		for (const enchantment_item of state.enchantment_items) {
 			const item = ENCHANTMENT_ITEMS.get(enchantment_item.name);
 			if (!item) continue;
@@ -745,9 +798,13 @@ export default class Logic {
 			material.price = enchantment_mat.price;
 			material.used = enchantment_mat.used;
 		}
-		console.log('loaded');
+		const preset = ENCHANTMENT_PRESETS.get(state.preset ?? '');
+		this.controller.getPreset().value(preset);
 
-		this.initialized = true;
+		this.loadingState = false;
+		this.skipRefresh = false;
 		this.refresh(false);
+
+		// console.log('loaded');
 	}
 }

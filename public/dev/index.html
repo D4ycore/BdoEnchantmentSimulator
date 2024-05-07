@@ -33,6 +33,12 @@
 						<label for="cbShowDebug">Debug</label>
 					</div>
 					<div class="option">
+						<label for="sPreset">Preset</label>
+						<select id="sPreset">
+							<option>Default</option>
+						</select>
+					</div>
+					<div class="option">
 						<label for="sProfile">Profile</label>
 						<div class="select-editable" title="Profile">
 							<select id="sProfile" onchange="this.nextElementSibling.value=this.value">
@@ -40,18 +46,6 @@
 								<option value="profile-1">Profile 1</option>
 								<option value="profile-2">Profile 2</option>
 								<option value="profile-3">Profile 3</option>
-							</select>
-							<input type="text" placeholder="None" />
-						</div>
-					</div>
-					<div class="option">
-						<label for="sPreset">Preset</label>
-						<div class="select-editable" title="Preset">
-							<select id="sPreset" onchange="this.nextElementSibling.value=this.value">
-								<option></option>
-								<option value="preset-1">Preset 1</option>
-								<option value="preset-2">Preset 2</option>
-								<option value="preset-3">Preset 3</option>
 							</select>
 							<input type="text" placeholder="None" />
 						</div>
@@ -80,7 +74,7 @@
 										<span class="max">0</span>
 									</span>
 								</th>
-								<td><input disabled type="text" title="Reblath Mon Amount" class="ei_amount" value="0" placeholder="0" /></td>
+								<td><input type="number" title="Reblath Mon Amount" class="ei_amount" value="0" placeholder="0" /></td>
 							</tr>
 							<tr class="enchantment_item duo">
 								<th class="ei_wrapper" scope="row">
@@ -91,8 +85,8 @@
 										<span class="max">0</span>
 									</span>
 								</th>
-								<td><input disabled type="text" title="Reblath Duo Amount" class="ei_amount" value="0" placeholder="0" /></td>
-								<td><input disabled type="text" title="Reblath Duo Worth" class="ei_worth" placeholder="0" /></td>
+								<td><input type="number" title="Reblath Duo Amount" class="ei_amount" value="0" placeholder="0" /></td>
+								<td><input disabled type="number" title="Reblath Duo Worth" class="ei_worth" placeholder="0" /></td>
 							</tr>
 							<tr class="enchantment_item tri">
 								<th class="ei_wrapper" scope="row">
@@ -103,8 +97,8 @@
 										<span class="max">0</span>
 									</span>
 								</th>
-								<td><input disabled type="text" title="Reblath Tri Amount" class="ei_amount" value="0" placeholder="0" /></td>
-								<td><input disabled type="text" title="Reblath Tri Worth" class="ei_worth" placeholder="0" /></td>
+								<td><input type="number" title="Reblath Tri Amount" class="ei_amount" value="0" placeholder="0" /></td>
+								<td><input disabled type="number" title="Reblath Tri Worth" class="ei_worth" placeholder="0" /></td>
 							</tr>
 							<tr class="enchantment_item tet">
 								<th class="ei_wrapper" scope="row">
@@ -115,22 +109,17 @@
 										<span class="max">0</span>
 									</span>
 								</th>
-								<td><input disabled type="text" title="Reblath Tet Amount" class="ei_amount" value="0" placeholder="0" /></td>
-								<td><input disabled type="text" title="Reblath Tet Worth" class="ei_worth" placeholder="0" /></td>
+								<td><input type="number" title="Reblath Tet Amount" class="ei_amount" value="0" placeholder="0" /></td>
+								<td><input disabled type="number" title="Reblath Tet Worth" class="ei_worth" placeholder="0" /></td>
 							</tr>
 							<tr class="enchantment_item pen">
 								<th class="ei_wrapper" scope="row">
 									<img src="img/Pen.png" class="ei_image" alt="V" />
 								</th>
-								<td><input disabled type="text" title="Reblath Pen Amount" class="ei_amount" value="0" placeholder="0" /></td>
+								<td><input type="number" title="Reblath Pen Amount" class="ei_amount" value="0" placeholder="0" /></td>
 								<td><input disabled type="text" title="Reblath Pen Worth" class="ei_worth" placeholder="0" /></td>
 							</tr>
 						</tbody>
-						<tfoot>
-							<tr>
-								<td colspan="3"><input type="button" id="bAddReblath" value="Add Reblath" /></td>
-							</tr>
-						</tfoot>
 					</table>
 					<div id="settings">
 						<div id="general">
@@ -202,6 +191,7 @@
 							<input type="button" id="bUpgradeStart" value="Upgrade Start" />
 							<input type="button" id="bUpgradeStop" value="Upgrade Stop" />
 							<input type="button" id="bSingleClick" value="Single Click" />
+							<input type="button" id="bReset" value="Reset" />
 						</div>
 					</div>
 				</div>

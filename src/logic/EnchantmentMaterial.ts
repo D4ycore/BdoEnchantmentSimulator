@@ -30,6 +30,10 @@ export default class EnchantmentMaterial {
 		ENCHANTMENT_MATERIALS.push(this);
 	}
 
+	public reset() {
+		this.used = 0;
+	}
+
 	public get name(): string {
 		return this._name;
 	}

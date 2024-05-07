@@ -4,7 +4,7 @@ export default class Setter {
         this._set = set;
     }
     value(newValue) {
-        if (newValue != undefined) {
+        if (arguments.length > 0) {
             const oldValue = this._value;
             this._value = newValue;
             this._set(oldValue, newValue);

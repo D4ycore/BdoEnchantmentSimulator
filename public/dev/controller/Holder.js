@@ -3,7 +3,7 @@ export default class Holder {
         this._value = initialValue;
     }
     value(newValue) {
-        if (newValue != undefined)
+        if (arguments.length > 0)
             this._value = newValue;
         return this._value;
     }
