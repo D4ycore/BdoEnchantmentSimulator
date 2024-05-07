@@ -573,7 +573,7 @@ export default class View {
 
 	saveState(state: SimulatorState) {
 		const profile = this.sProfile.value || 'default';
-		const oldJson = localStorage.getItem('bdo-enchantment-simulator');
+		const oldJson = localStorage.getItem('bdo-enchantment-simulator-dev');
 		const newAppState = new AppState(profile, state, oldJson);
 		const newJson = JSON.stringify(newAppState);
 		localStorage.setItem('bdo-enchantment-simulator', newJson);
@@ -582,7 +582,7 @@ export default class View {
 
 	loadState() {
 		const profile = this.sProfile.value || 'default';
-		const appJson = localStorage.getItem('bdo-enchantment-simulator');
+		const appJson = localStorage.getItem('bdo-enchantment-simulator-dev');
 		if (!appJson) return Logger.error('No App-State found');
 		const appState: AppState = JSON.parse(appJson);
 		// console.log('loaded', appState);
