@@ -282,12 +282,19 @@ export default class View {
 		if (newPityCurrent > 0 && parseInt(sPityCurrent.innerText) >= parseInt(sPityMax.innerText)) sPity.classList.add('pity_ready');
 		else sPity.classList.remove('pity_ready');
 	}
-	enchantmentItem_Pity_Max_Set(ei_index: number, oldityMax: number, newPityMax: number) {
+	enchantmentItem_Pity_Max_Set(ei_index: number, oldPityMax: number, newPityMax: number) {
 		Logger.debug('enchantment-item-pity-max set', ei_index, newPityMax);
-		const sPityMax = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity .max');
+		const sPity = this.lEnchantmentItems[ei_index]?.querySelector<HTMLSpanElement>('.ei_pity');
+		if (!sPity) return Logger.warn(`Enchantment Item(${ei_index}) has no Pity Element`);
+		const sPityMax = sPity.querySelector<HTMLSpanElement>('.max');
 		if (!sPityMax) return Logger.warn(`Enchantment Item(${ei_index}) has no Pity Max Element`);
 		sPityMax.innerText = '' + newPityMax;
 		sPityMax.dispatchEvent(new Event('change'));
+
+		const sPityCurrent = sPity.querySelector<HTMLSpanElement>('.current');
+		if (!sPityCurrent) return Logger.warn(`Enchantment Item(${ei_index}) has no Pity Current Element`);
+		if (parseInt(sPityCurrent.innerText) > 0 && parseInt(sPityCurrent.innerText) >= parseInt(sPityMax.innerText)) sPity.classList.add('pity_ready');
+		else sPity.classList.remove('pity_ready');
 	}
 	enchantmentItem_Amount_Set(ei_index: number, oldAmount: number, newAmount: number) {
 		Logger.debug('enchantment-item-amount set', ei_index, oldAmount, newAmount);
