@@ -423,6 +423,7 @@ nav {
 
 .options-button {
 	background: url('img/icons8-menu-64.png');
+	min-width: 24px;
 	width: 32px;
 	height: 32px;
 	background-repeat: no-repeat;
@@ -467,7 +468,7 @@ nav {
 	height: 35px;
 }
 
-@media screen and (max-width: 971px) {
+@media screen and (max-width: 923px) {
 	.options-wrapper {
 		height: 68px;
 	}
@@ -526,12 +527,6 @@ nav {
 	flex: auto;
 }
 
-#app {
-	justify-content: flex-start;
-	flex-direction: row;
-	align-items: flex-start;
-}
-
 section {
 	padding: var(--space-1);
 	border-radius: var(--width-8);
@@ -541,10 +536,6 @@ section {
 	min-width: min-content;
 	max-width: 1000px;
 	background: var(--color-app);
-}
-
-section {
-	width: min-content;
 }
 
 #simulation {
@@ -843,4 +834,52 @@ section {
 	height: 100%;
 	border-right: none !important;
 	cursor: revert;
+}
+
+/*
+	x x
+	x x
+*/
+
+/* #app {
+	justify-content: flex-start;
+	flex-direction: row;
+	align-items: flex-start;
+}
+
+section {
+	width: min-content;
+} */
+
+/*
+	x x x x
+*/
+
+html {
+	height: 100%;
+	height: -moz-available;
+	height: -webkit-fill-available;
+}
+
+body {
+	height: 100%;
+	height: -moz-available;
+	height: -webkit-fill-available;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+header {
+	position: static;
+}
+
+#app {
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	align-items: flex-start;
+	overflow: auto;
+	margin: 0;
+	padding: var(--space-2);
 }
