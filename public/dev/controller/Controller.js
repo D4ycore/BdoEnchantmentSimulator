@@ -12,7 +12,7 @@ export default class Controller {
         this.logic = logic;
         this.scaleOutput = new Value(false, (oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput), (oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput));
         this.showDebug = new Value(false, (oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug), (oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug));
-        this.saveState = new Consumer(state => view.saveState(state, 'default'));
+        this.saveState = new Consumer(state => view.saveState(state));
         this.supplyState = new Supplier(() => logic.getState());
         this.loadState = new Consumer(state => logic.loadState(state));
         this.preset = new Setter(undefined, (oldPreset, newPreset) => logic.setupPreset(newPreset));

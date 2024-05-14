@@ -127,7 +127,7 @@ export default class View {
 		});
 		this.bSaveState.addEventListener('click', evt => {
 			Logger.debug('state-save click');
-			this.saveState(controller.getState().get(), this.sProfile.value || 'default');
+			this.saveState(controller.getState().get(), this.sProfile.value || 'Default');
 		});
 		this.bLoadState.addEventListener('click', evt => {
 			Logger.debug('state-load click');
@@ -584,7 +584,7 @@ export default class View {
 		this.showPrices();
 	}
 
-	saveState(state: SimulatorState, profile: string) {
+	saveState(state: SimulatorState, profile: string = 'Default') {
 		const oldJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
 		const newAppState = new AppState(profile, state, oldJson);
 		const newJson = JSON.stringify(newAppState);
@@ -592,14 +592,14 @@ export default class View {
 	}
 
 	loadState() {
-		const profile = this.sProfile.value || 'default';
+		const profile = this.sProfile.value || 'Default';
 		const appJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
 		if (!appJson) return Logger.warn('No App-State found');
 		const appState: AppState = JSON.parse(appJson);
 		const state = appState.saveStates[profile];
 		if (!state) return Logger.warn('No SaveState found for Profile', profile);
 		const preset = ENCHANTMENT_PRESETS.get(state.simulatorState.preset ?? '');
-		this.sPreset.value = preset?.name ?? 'default';
+		this.sPreset.value = preset?.name ?? 'Default';
 		this.controller.getLoadState().consume(state.simulatorState);
 	}
 }
