@@ -40,69 +40,6 @@ export default class Logic {
         this.setupPreset(this.controller.getPreset().value());
         this.refresh();
     }
-    setup_Default() {
-        this.controller.getFamilyFS().value(0);
-        this.controller.getBuyFS().value(5);
-        this.controller.getTargetAmount().value(1);
-        this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
-        this.controller.getEnchantmentStep(0)?.clicks.value(1);
-        this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
-        this.controller.getEnchantmentStep(1)?.clicks.value(1);
-        this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
-        this.controller.getEnchantmentStep(2)?.clicks.value(1);
-        this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
-        this.controller.getEnchantmentStep(3)?.clicks.value(1);
-        this.controller.getClicksPerIteration().value(1);
-        this.controller.getIterationsPerSecond().value(1);
-    }
-    setup_19_199() {
-        this.controller.getFamilyFS().value(2);
-        this.controller.getBuyFS().value(15);
-        this.controller.getTargetAmount().value(10);
-        this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
-        this.controller.getEnchantmentStep(0)?.clicks.value(5);
-        this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
-        this.controller.getEnchantmentStep(1)?.clicks.value(4);
-        this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
-        this.controller.getEnchantmentStep(2)?.clicks.value(9);
-        this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
-        this.controller.getEnchantmentStep(3)?.clicks.value(18);
-        this.controller.getClicksPerIteration().value(1000);
-        this.controller.getIterationsPerSecond().value(30);
-        EnchantmentItem.Reblath_Mon.amount = 100;
-    }
-    setup_20_201() {
-        this.controller.getFamilyFS().value(2);
-        this.controller.getBuyFS().value(20);
-        this.controller.getTargetAmount().value(10);
-        this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
-        this.controller.getEnchantmentStep(0)?.clicks.value(3);
-        this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
-        this.controller.getEnchantmentStep(1)?.clicks.value(4);
-        this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
-        this.controller.getEnchantmentStep(2)?.clicks.value(6);
-        this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
-        this.controller.getEnchantmentStep(3)?.clicks.value(21);
-        this.controller.getClicksPerIteration().value(1000);
-        this.controller.getIterationsPerSecond().value(30);
-        EnchantmentItem.Reblath_Mon.amount = 100;
-    }
-    setup_Silver() {
-        this.controller.getFamilyFS().value(2);
-        this.controller.getBuyFS().value(15);
-        this.controller.getTargetAmount().value(1000);
-        this.controller.getEnchantmentStep(0)?.item.value(EnchantmentItem.Reblath_Mon);
-        this.controller.getEnchantmentStep(0)?.clicks.value(5);
-        this.controller.getEnchantmentStep(1)?.item.value(EnchantmentItem.Reblath_Duo);
-        this.controller.getEnchantmentStep(1)?.clicks.value(4);
-        this.controller.getEnchantmentStep(2)?.item.value(EnchantmentItem.Reblath_Tri);
-        this.controller.getEnchantmentStep(2)?.clicks.value(3);
-        this.controller.getEnchantmentStep(3)?.item.value(EnchantmentItem.Reblath_Tet);
-        this.controller.getEnchantmentStep(3)?.clicks.value(23);
-        this.controller.getClicksPerIteration().value(1000);
-        this.controller.getIterationsPerSecond().value(30);
-        EnchantmentItem.Reblath_Mon.amount = 100;
-    }
     setupPreset(preset = EnchantmentPreset.preset_default) {
         if (this.loadingState)
             return;
