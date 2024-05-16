@@ -698,7 +698,7 @@ section {
 
 .grid-list-wrapper {
 	display: grid;
-	row-gap: var(--space-2);
+	gap: calc(var(--gap-y) * 2) var(--gap-x);
 	overflow: hidden;
 	padding: var(--space-05);
 
@@ -716,31 +716,21 @@ section {
 	--line-color-y: var(--color-app-accent);
 	--line-thickness-x: 1px;
 	--line-thickness-y: 2px;
-
-	gap: calc(var(--gap-y) * 2) var(--gap-x);
 }
 
 .grid-list {
 	display: grid;
+	gap: var(--gap-y) var(--gap-x);
 	grid-column: 1 / calc(var(--colums, 4) + 1);
 	grid-template-columns: subgrid;
 
 	/* overflow: hidden; */
-
-	gap: var(--gap-y) var(--gap-x);
-}
-
-.grid-item-wrapper span {
-	width: max-content;
-	text-align: center;
 }
 
 .grid-item-wrapper {
 	display: grid;
 	grid-column: 1 / calc(var(--colums, 4) + 1);
 	grid-template-columns: subgrid;
-
-	gap: 1rem 3rem;
 }
 
 .gc-se-35 {

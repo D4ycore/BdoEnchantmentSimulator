@@ -47,13 +47,9 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
         this.parents = parents;
     }
     get price() {
-        let total = super.price;
-        for (const parent of this.parents)
-            total += parent.material.price * parent.amount;
-        return total;
+        return this.parents.map(parent => parent.material.price * parent.amount).reduce((prev, current) => prev + current, 0);
     }
     set price(newPrice) {
-        super.price = newPrice;
     }
     use(amount = 1) {
         this.used += amount;
