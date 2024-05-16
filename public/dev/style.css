@@ -707,14 +707,6 @@ section {
 	text-wrap: nowrap;
 
 	color: var(--color-font-2);
-}
-
-.grid-list {
-	display: grid;
-	grid-column: 1 / calc(var(--colums, 4) + 1);
-	grid-template-columns: subgrid;
-
-	/* overflow: hidden; */
 
 	--gap-y: var(--space-1);
 	--gap-x: var(--space-3);
@@ -725,13 +717,30 @@ section {
 	--line-thickness-x: 1px;
 	--line-thickness-y: 2px;
 
+	gap: calc(var(--gap-y) * 2) var(--gap-x);
+}
+
+.grid-list {
+	display: grid;
+	grid-column: 1 / calc(var(--colums, 4) + 1);
+	grid-template-columns: subgrid;
+
+	/* overflow: hidden; */
+
 	gap: var(--gap-y) var(--gap-x);
+}
+
+.grid-item-wrapper span {
+	width: max-content;
+	text-align: center;
 }
 
 .grid-item-wrapper {
 	display: grid;
 	grid-column: 1 / calc(var(--colums, 4) + 1);
 	grid-template-columns: subgrid;
+
+	gap: 1rem 3rem;
 }
 
 .gc-se-35 {
