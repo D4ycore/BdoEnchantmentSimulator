@@ -28,9 +28,9 @@ export default class View {
         this.bReset = nonNullElement(document.querySelector('#bReset'), 'Reset');
         this.iLastClick = nonNullElement(document.querySelector('#iLastClick'), 'Last Click');
         this.iStacksCrafted = nonNullElement(document.querySelector('#iStacksCrafted'), 'Stacks Crafted');
-        this.glEvaluation = nonNullElement(document.querySelector('#evaluation .grid-list'), 'Evaluation');
-        this.glFailstacks = nonNullElement(document.querySelector('#failstacks .grid-list'), 'Failstacks');
-        this.glPrices = nonNullElement(document.querySelector('#prices .grid-list'), 'Prices');
+        this.glEvaluation = nonNullElement(document.querySelector('#evaluation .grid-list-wrapper'), 'Evaluation');
+        this.glFailstacks = nonNullElement(document.querySelector('#failstacks .grid-list-wrapper'), 'Failstacks');
+        this.glPrices = nonNullElement(document.querySelector('#prices .grid-list-wrapper'), 'Prices');
     }
     link(controller) {
         this.controller = controller;
@@ -363,7 +363,7 @@ export default class View {
         Logger.debug('show-evaluation');
         const materials = ENCHANTMENT_MATERIALS.filter(material => material.used > 0);
         if (materials.length < 1)
-            return this.glEvaluation.parentElement?.parentElement?.setAttribute('hidden', '');
+            return this.glEvaluation.parentElement?.setAttribute('hidden', '');
         const failstacks_75_value = this.findFS75Value(failstacks);
         failstacks = failstacks.filter(fs => fs.amount > 0);
         const items = [EnchantmentItem.Reblath_Duo, EnchantmentItem.Reblath_Tri, EnchantmentItem.Reblath_Tet].filter(item => item.amount > 0);
@@ -374,48 +374,50 @@ export default class View {
         const combined_cost = EnchantmentMaterial.total_cost() / 1000000;
         const combined_sum = combined_value - combined_cost;
         this.glEvaluation.innerHTML = `
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space">Combined Sum</span>
-		<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space">Combined Cost</span>
-		<div class="grid-item combined_cost formatted"><span>${nf_commas(combined_cost * scalar, 3)}</span><span>m</span></div>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space">Combined Value</span>
-		<div class="grid-item combined_value formatted"><span>${nf_commas(combined_value * scalar, 3)}</span><span>m</span></div>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="grid-header">Material</span>
-		<span class="grid-header">Used</span>
-		<span class="grid-header">Price</span>
-		<span class="grid-header">Total Cost</span>
-		${materials.map(material => this.addMaterial(material, scalar)).join('')}
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="grid-header">Item</span>
-		<span class="grid-header">Amount</span>
-		<span class="grid-header">Value</span>
-		<span class="grid-header">Total Value</span>
-		${items.map(item => this.addItem(item, scalar)).join('')}
-		${this.addPenReblath(failstacks_75_value, scalar)}
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="eval_space"></span>
-		<span class="grid-header">FS</span>
-		<span class="grid-header">Amount</span>
-		<span class="grid-header">Value</span>
-		<span class="grid-header">Total Value</span>
-		${failstacks.map(failstack => this.addFailstack(failstack, scalar)).join('')}
+		<div class="grid-list">
+			<div class="grid-item-wrapper gc-se-35">
+				<span>Combined Sum</span>
+				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
+			</div>
+			<div class="grid-item-wrapper gc-se-35">
+				<span>Combined Cost</span>
+				<div class="grid-item combined_cost formatted"><span>${nf_commas(combined_cost * scalar, 3)}</span><span>m</span></div>
+			</div>
+			<div class="grid-item-wrapper gc-se-35">
+				<span>Combined Value</span>
+				<div class="grid-item combined_value formatted"><span>${nf_commas(combined_value * scalar, 3)}</span><span>m</span></div>
+			</div>
+		</div>
+		<div class="grid-list">
+			<div class="grid-item-wrapper grid-header">
+				<span>Material</span>
+				<span>Used</span>
+				<span>Price</span>
+				<span>Total Cost</span>
+			</div>
+			${materials.map(material => this.addMaterial(material, scalar)).join('')}
+		</div>
+		<div class="grid-list">
+			<div class="grid-item-wrapper grid-header">
+				<span>Item</span>
+				<span>Amount</span>
+				<span>Value</span>
+				<span>Total Value</span>
+			</div>
+			${items.map(item => this.addItem(item, scalar)).join('\n')}
+			${this.addPenReblath(failstacks_75_value, scalar)}
+		</div>
+		<div class="grid-list">
+			<div class="grid-item-wrapper grid-header">
+				<span>FS</span>
+				<span>Amount</span>
+				<span>Value</span>
+				<span>Total Value</span>
+			</div>
+			${failstacks.map(failstack => this.addFailstack(failstack, scalar)).join('')}
+		</div>
 		`;
-        this.glEvaluation.parentElement?.parentElement?.removeAttribute('hidden');
+        this.glEvaluation.parentElement?.removeAttribute('hidden');
     }
     findFS75Value(failstacks) {
         const fs75 = failstacks[75];
@@ -437,19 +439,23 @@ export default class View {
     addMaterial(material, scalar) {
         const isShadowed = material instanceof EnchantmentMaterialShadowed;
         return `
-		<span class="${isShadowed ? 'shadowed' : ''}">${material.name}</span>
-		<span class="grid-item ${isShadowed ? 'shadowed' : ''}">${nf_commas(material.used * scalar)}</span>
-		<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'faded'}"><span>${nf_commas(material.price / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'total_cost'}"><span>${nf_commas((material.price * material.used * scalar) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item-wrapper">
+			<span${isShadowed ? ' class="shadowed"' : ''}>${material.name}</span>
+			<span class="grid-item${isShadowed ? ' shadowed' : ''}">${nf_commas(material.used * scalar)}</span>
+			<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'faded'}"><span>${nf_commas(material.price / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'total_cost'}"><span>${nf_commas((material.price * material.used * scalar) / 1000000, 3)}</span><span>m</span></div>
+		</div>
 		`;
     }
     addItem(item, scalar) {
         const value = item.total_value / item.total_amount;
         return `
-		<span class="">${item.name}</span>
-		<span class="grid-item">${nf_commas(item.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(value / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted total_value"><span>${nf_commas((value * item.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item-wrapper">
+			<span>${item.name}</span>
+			<span class="grid-item">${nf_commas(item.amount * scalar)}</span>
+			<div class="grid-item formatted faded"><span>${nf_commas(value / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted total_value"><span>${nf_commas((value * item.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
+		</div>
 		`;
     }
     addPenReblath(failstacks_75_value, scalar) {
@@ -458,53 +464,69 @@ export default class View {
         if (penReblath.amount < 1)
             return ``;
         return `
-		<span class="">${penReblath.name}</span>
-		<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas((value * penReblath.amount) / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted pen_reblath_total_value"><span>${nf_commas((value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
-		<span class="">(FS 75)</span>
-		<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(failstacks_75_value / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted total_value"><span>${nf_commas((failstacks_75_value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
+		<div class="grid-item-wrapper">
+			<span>${penReblath.name}</span>
+			<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
+			<div class="grid-item formatted faded"><span>${nf_commas((value * penReblath.amount) / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted pen_reblath_total_value"><span>${nf_commas((value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
+		</div>
+		<div class="grid-item-wrapper">
+			<span>(FS 75)</span>
+			<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
+			<div class="grid-item formatted faded"><span>${nf_commas(failstacks_75_value / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted total_value"><span>${nf_commas((failstacks_75_value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
+		</div>
 		`;
     }
     addFailstack(failstack, scalar) {
         return `
-		<span class="">${failstack.tier}</span>
-		<span class="grid-item">${nf_commas(failstack.amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(failstack.value / failstack.amount / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted total_value"><span>${nf_commas((failstack.value * scalar) / 1000000, 3)}</span><span>m</span></div> 
+		<div class="grid-item-wrapper">
+			<span>${failstack.tier}</span>
+			<span class="grid-item">${nf_commas(failstack.amount * scalar)}</span>
+			<div class="grid-item formatted faded"><span>${nf_commas(failstack.value / failstack.amount / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted total_value"><span>${nf_commas((failstack.value * scalar) / 1000000, 3)}</span><span>m</span></div> 
+		</div>
 		`;
     }
     showFailstacks(failstacks, scalar) {
         Logger.debug('show-failstacks');
         failstacks = failstacks.filter(fs => fs.total_amount > 0);
         if (failstacks.length < 1)
-            return this.glFailstacks.parentElement?.parentElement?.setAttribute('hidden', '');
+            return this.glFailstacks.parentElement?.setAttribute('hidden', '');
         this.glFailstacks.innerHTML = `
-		<span class="grid-header">FS</span>
-		<span class="grid-header">Amount</span>
-		<span class="grid-header">Value</span>
-		<span class="grid-header">Total Value</span>
-		${failstacks.map(failstack => this.addFailstackTotal(failstack, scalar)).join('')}
+		<div class="grid-list">
+			<div class="grid-item-wrapper grid-header">
+				<span>FS</span>
+				<span>Amount</span>
+				<span>Value</span>
+				<span>Total Value</span>
+			</div>
+			${failstacks.map(failstack => this.addFailstackTotal(failstack, scalar)).join('')}
+		</div>
 		`;
-        this.glFailstacks.parentElement?.parentElement?.removeAttribute('hidden');
+        this.glFailstacks.parentElement?.removeAttribute('hidden');
     }
     addFailstackTotal(failstack, scalar) {
         return `
-		<span class="">${failstack.tier}</span>
-		<span class="grid-item">${nf_commas(failstack.total_amount * scalar)}</span>
-		<div class="grid-item formatted faded"><span>${nf_commas(failstack.total_value / failstack.total_amount / 1000000, 3)}</span><span>m</span></div>
-		<div class="grid-item formatted"><span>${nf_commas((failstack.total_value * scalar) / 1000000, 3)}</span><span>m</span></div> 
+		<div class="grid-item-wrapper">
+			<span>${failstack.tier}</span>
+			<span class="grid-item">${nf_commas(failstack.total_amount * scalar)}</span>
+			<div class="grid-item formatted faded"><span>${nf_commas(failstack.total_value / failstack.total_amount / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted"><span>${nf_commas((failstack.total_value * scalar) / 1000000, 3)}</span><span>m</span></div> 
+		</div>
 		`;
     }
     showPrices() {
         Logger.debug('show-prices');
         const materials = ENCHANTMENT_MATERIALS;
         this.glPrices.innerHTML = `
-		<span class="grid-header">Material</span>
-		<span class="grid-header">Price</span>
-		${materials.map(material => this.addPrice(material)).join('')}
+		<div class="grid-list">
+			<div class="grid-item-wrapper grid-header">
+				<span>Material</span>
+				<span>Price</span>
+			</div>
+			${materials.map(material => this.addPrice(material)).join('')}
+		</div>
 		`;
         for (const material of materials) {
             const matSpan = document.getElementById(material.name.replace(/&nbsp;/g, ''));
@@ -523,8 +545,10 @@ export default class View {
         const isShadowed = material instanceof EnchantmentMaterialShadowed;
         const formattedPrice = `<span id="${material.name.replace(/&nbsp;/g, '')}" contenteditable="${isShadowed ? 'false' : 'true'}">${nf_commas(material.price)}</span>`;
         return `
-		<span class="${isShadowed ? 'shadowed' : ''}">${material.name}</span>
-		<div class="grid-item ${isShadowed ? 'shadowed' : 'faded'}">${formattedPrice}</div>
+		<div class="grid-item-wrapper">
+			<span${isShadowed ? ' class="shadowed"' : ''}>${material.name}</span>
+			<div class="grid-item ${isShadowed ? 'shadowed' : 'faded'}">${formattedPrice}</div>
+		</div>
 		`;
     }
     materialPriceChanged(material, newValue) {

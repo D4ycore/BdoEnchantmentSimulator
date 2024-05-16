@@ -697,14 +697,8 @@ section {
 }
 
 .grid-list-wrapper {
-	display: flex;
-	justify-content: center;
-}
-
-.grid-list {
 	display: grid;
-	grid-template-columns: repeat(var(--colums, 4), min-content);
-	justify-content: center;
+	row-gap: var(--space-2);
 	overflow: hidden;
 	padding: var(--space-05);
 
@@ -712,15 +706,37 @@ section {
 	white-space: nowrap;
 	text-wrap: nowrap;
 
-	gap: var(--space-1) var(--space-3);
-	--line-offset-y: calc(var(--space-1) / 2);
-	--line-offset-x: calc(var(--space-3) / 2);
+	color: var(--color-font-2);
+}
+
+.grid-list {
+	display: grid;
+	grid-column: 1 / calc(var(--colums, 4) + 1);
+	grid-template-columns: subgrid;
+
+	/* overflow: hidden; */
+
+	--gap-y: var(--space-1);
+	--gap-x: var(--space-3);
+	--line-offset-y: calc(var(--gap-y) / 2);
+	--line-offset-x: calc(var(--gap-x) / 2);
 	--line-color-x: var(--color-app-accent);
 	--line-color-y: var(--color-app-accent);
 	--line-thickness-x: 1px;
 	--line-thickness-y: 2px;
 
-	color: var(--color-font-2);
+	gap: var(--gap-y) var(--gap-x);
+}
+
+.grid-item-wrapper {
+	display: grid;
+	grid-column: 1 / calc(var(--colums, 4) + 1);
+	grid-template-columns: subgrid;
+}
+
+.gc-se-35 {
+	grid-column-start: 3;
+	grid-column-end: 5;
 }
 
 .grid-header {
@@ -835,6 +851,7 @@ section {
 }
 
 /*
+	Layout
 	x x
 	x x
 */
@@ -850,6 +867,7 @@ section {
 } */
 
 /*
+	Layout
 	x x x x
 */
 
@@ -876,4 +894,8 @@ header {
 	overflow: auto;
 	margin: 0;
 	padding: var(--space-2);
+}
+
+section {
+	width: min-content;
 }

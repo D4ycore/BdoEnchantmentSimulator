@@ -26,7 +26,7 @@ export default class Logic {
 
 	private clicks: number = 0;
 
-	constructor() {
+	public constructor() {
 		for (let i = 0; i <= 500; i++) this.failstacks.push(new FailStack(i));
 	}
 
@@ -501,20 +501,20 @@ export default class Logic {
 		Handlers
 	*/
 
-	scaleOutput_OnChange(oldScaleOutput: boolean, newScaleOutput: boolean): void {
+	public scaleOutput_OnChange(oldScaleOutput: boolean, newScaleOutput: boolean): void {
 		if (newScaleOutput) Logger.debug(`Now scales the Output`);
 		else Logger.debug(`Now doesn't scale the Output`);
 		this.refresh();
 	}
 
-	showDebug_OnChange(oldShowDebug: boolean, newShowDebug: boolean): void {
+	public showDebug_OnChange(oldShowDebug: boolean, newShowDebug: boolean): void {
 		if (newShowDebug) Logger.debug(`Now shows debugging logs`);
 		else Logger.debug(`Now hides debugging logs`);
 		Logger.showDebugs = newShowDebug;
 	}
 
 	/* Unused */
-	enchantmentItem_Amount_OnChange(ei_index: number, oldAmount: number, newAmount: number) {
+	public enchantmentItem_Amount_OnChange(ei_index: number, oldAmount: number, newAmount: number) {
 		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
 		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
@@ -539,14 +539,14 @@ export default class Logic {
 		this.controller.getFailstacks().value(this.failstacks);
 	}
 	/* Unused */
-	enchantmentItem_WorthEach_OnChange(ei_index: number, oldWorthEach: number, newWorthEach: number) {
+	public enchantmentItem_WorthEach_OnChange(ei_index: number, oldWorthEach: number, newWorthEach: number) {
 		const enchantment_item = this.controller.getEnchantmentItem(ei_index);
 		if (!enchantment_item) return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
 
 		Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
 	}
 
-	familyFS_OnChange(oldFamilyFS: number, newFamilyFS: number) {
+	public familyFS_OnChange(oldFamilyFS: number, newFamilyFS: number) {
 		Logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
 
 		const enchantment_step = this.controller.getEnchantmentStep(0);
@@ -554,7 +554,7 @@ export default class Logic {
 
 		enchantment_step.startFS.value(newFamilyFS + this.controller.getBuyFS().value());
 	}
-	buyFS_OnChange(oldBuyFS: number, newBuyFS: number) {
+	public buyFS_OnChange(oldBuyFS: number, newBuyFS: number) {
 		Logger.debug(`The Buy FS has changed(${oldBuyFS} => ${newBuyFS})`);
 
 		const enchantment_step = this.controller.getEnchantmentStep(0);
@@ -563,12 +563,12 @@ export default class Logic {
 		enchantment_step.startFS.value(this.controller.getFamilyFS().value() + newBuyFS);
 	}
 
-	targetAmount_OnChange(oldTargetAmount: number, newTargetAmount: number) {
+	public targetAmount_OnChange(oldTargetAmount: number, newTargetAmount: number) {
 		Logger.debug(`The Target Amount has changed(${oldTargetAmount} => ${newTargetAmount})`);
 		this.refresh();
 	}
 
-	enchantmentStep_Item_OnChange(es_index: number, oldItem: EnchantmentItem, newItem: EnchantmentItem) {
+	public enchantmentStep_Item_OnChange(es_index: number, oldItem: EnchantmentItem, newItem: EnchantmentItem) {
 		const enchantment_step = this.controller.getEnchantmentStep(es_index);
 		if (!enchantment_step) return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
 
@@ -579,7 +579,7 @@ export default class Logic {
 		const endFS: number = startFS + newItem.failstack_increase * clicks;
 		enchantment_step.endFS.value(endFS);
 	}
-	enchantmentStep_StartFS_OnChange(es_index: number, oldStartFS: number, newStartFS: number) {
+	public enchantmentStep_StartFS_OnChange(es_index: number, oldStartFS: number, newStartFS: number) {
 		const enchantment_step = this.controller.getEnchantmentStep(es_index);
 		if (!enchantment_step) return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
 
@@ -590,7 +590,7 @@ export default class Logic {
 		const endFS: number = newStartFS + inc_per_clicks * clicks;
 		enchantment_step.endFS.value(endFS);
 	}
-	enchantmentStep_EndFS_OnChange(es_index: number, oldEndFS: number, newEndFS: number) {
+	public enchantmentStep_EndFS_OnChange(es_index: number, oldEndFS: number, newEndFS: number) {
 		const enchantment_step = this.controller.getEnchantmentStep(es_index);
 		if (!enchantment_step) return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
 
@@ -606,7 +606,7 @@ export default class Logic {
 		if (!es_next) return Logger.warn(`There are no ${nextIndex + 1} Enchantment Steps`);
 		es_next.startFS.value(newEndFS);
 	}
-	enchantmentStep_Clicks_OnChange(es_index: number, oldClicks: number, newClicks: number) {
+	public enchantmentStep_Clicks_OnChange(es_index: number, oldClicks: number, newClicks: number) {
 		const enchantment_step = this.controller.getEnchantmentStep(es_index);
 		if (!enchantment_step) return Logger.warn(`There are no ${es_index + 1} Enchantment Steps`);
 
@@ -619,14 +619,14 @@ export default class Logic {
 	}
 
 	/* Unused */
-	clicksPerIteration_OnChange(oldClicksPerIteration: number, newClicksPerIteration: number) {
+	public clicksPerIteration_OnChange(oldClicksPerIteration: number, newClicksPerIteration: number) {
 		Logger.debug(`The Clicks per Iterations has changed(${oldClicksPerIteration} => ${newClicksPerIteration})`);
 	}
 	/* Unused */
-	iterationsPerSecond_OnChange(oldIterationsPerSecond: number, newIterationsPerSecond: number) {
+	public iterationsPerSecond_OnChange(oldIterationsPerSecond: number, newIterationsPerSecond: number) {
 		Logger.debug(`The Iterations per Second has changed(${oldIterationsPerSecond} => ${newIterationsPerSecond})`);
 	}
-	async upgradeStartOnClick() {
+	public async upgradeStartOnClick() {
 		Logger.debug('Upgrade Start');
 		this.upgrading = true;
 		let iteration = 0;
@@ -646,23 +646,23 @@ export default class Logic {
 			iteration++;
 		}
 	}
-	upgradeStop_OnClick() {
+	public upgradeStop_OnClick() {
 		Logger.debug('Upgrade Stop');
 		this.upgrading = false;
 	}
 
-	singleClick_OnClick() {
+	public singleClick_OnClick() {
 		Logger.debug('Single Click');
 		this.Enchantment();
 		this.refresh();
 	}
-	reset_OnClick() {
+	public reset_OnClick() {
 		Logger.debug('Reset');
 		this.reset();
 		this.refresh();
 	}
 
-	getState() {
+	public getState() {
 		const enchantment_steps: enchantment_step[] = [];
 		const stepsSize = this.controller.getEnchantmentStepsSize();
 		for (let es_index = 0; es_index < stepsSize; es_index++) {
@@ -699,7 +699,7 @@ export default class Logic {
 		return state;
 	}
 
-	loadState(state: SimulatorState) {
+	public loadState(state: SimulatorState) {
 		this.upgrading = false;
 
 		this.loadingState = true;

@@ -46,7 +46,7 @@ export default class Controller {
 	private view: View;
 	private logic: Logic;
 
-	constructor(view: View, logic: Logic) {
+	public constructor(view: View, logic: Logic) {
 		this.view = view;
 		this.logic = logic;
 
@@ -113,86 +113,86 @@ export default class Controller {
 		this.clicks = new Holder<number>(0);
 	}
 
-	getSaveState() {
+	public getSaveState() {
 		return this.saveState;
 	}
-	getState() {
+	public getState() {
 		return this.supplyState;
 	}
-	getLoadState() {
+	public getLoadState() {
 		return this.loadState;
 	}
-	getPreset() {
+	public getPreset() {
 		return this.preset;
 	}
 
-	getScaleOutput() {
+	public getScaleOutput() {
 		return this.scaleOutput;
 	}
-	getShowDebug() {
+	public getShowDebug() {
 		return this.showDebug;
 	}
 
-	getEnchantmentItem(ei_index: number) {
+	public getEnchantmentItem(ei_index: number) {
 		return this.enchantment_items[ei_index];
 	}
 
-	getFamilyFS() {
+	public getFamilyFS() {
 		return this.familyFS;
 	}
-	getBuyFS() {
+	public getBuyFS() {
 		return this.buyFS;
 	}
-	getTargetAmount() {
+	public getTargetAmount() {
 		return this.targetAmount;
 	}
-	getCurrentTargetFS() {
+	public getCurrentTargetFS() {
 		return this.currentTargetFS;
 	}
-	getEnchantmentStep(es_index: number) {
+	public getEnchantmentStep(es_index: number) {
 		return this.enchantment_steps[es_index];
 	}
-	getEnchantmentStepsSize() {
+	public getEnchantmentStepsSize() {
 		return this.enchantment_steps.length;
 	}
-	getSingleClick() {
+	public getSingleClick() {
 		return this.singleClick;
 	}
-	getReset() {
+	public getReset() {
 		return this.reset;
 	}
 
-	getClicksPerIteration() {
+	public getClicksPerIteration() {
 		return this.clicksPerIteration;
 	}
-	getIterationsPerSecond() {
+	public getIterationsPerSecond() {
 		return this.iterationsPerSecond;
 	}
-	getUpgradeStart() {
+	public getUpgradeStart() {
 		return this.upgradeStart;
 	}
-	getUpgradeStop() {
+	public getUpgradeStop() {
 		return this.upgradeStop;
 	}
 
-	getLastClick() {
+	public getLastClick() {
 		return this.lastClick;
 	}
-	getStacksCrafted() {
+	public getStacksCrafted() {
 		return this.stacksCrafted;
 	}
 
-	addEnchantmentStep() {
+	public addEnchantmentStep() {
 		this.enchantment_steps.push(new EnchantmentStep(this.enchantment_steps.length, this.view, this.logic));
 	}
-	removeStep() {
+	public removeStep() {
 		this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
 	}
 
-	getFailstacks() {
+	public getFailstacks() {
 		return this.failstacks;
 	}
-	getClicks() {
+	public getClicks() {
 		return this.clicks;
 	}
 }
