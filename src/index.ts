@@ -72,9 +72,10 @@ function initAutoWidth() {
 		for (const [, elements] of autoWidthElements) {
 			let maxWidth = 0;
 			for (const elt of elements) if (maxWidth < elt.value.length) maxWidth = elt.value.length;
-			for (const elt of elements) elt.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
+			for (const elt of elements) elt.style.setProperty('width', Math.max(2, maxWidth) + 5 + 'ch', 'important');
 		}
 	}
+	checkAutoWidth();
 }
 initAutoWidth();
 

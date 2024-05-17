@@ -17,11 +17,16 @@ export default class View {
 	private cbShowDebug;
 
 	private sProfile;
+	private iProfile;
+	private profile_default;
 	private sPreset;
 	private bSaveState;
 	private bLoadState;
 
 	private lEnchantmentItems;
+
+	private iClicksPerSecond;
+	private iDuration;
 
 	private sFamilyFS;
 	private sBuyFS;
@@ -48,11 +53,16 @@ export default class View {
 		this.cbShowDebug = nonNullElement(document.querySelector<HTMLInputElement>('#cbShowDebug'), 'Show Debug');
 
 		this.sProfile = nonNullElement(document.querySelector<HTMLSelectElement>('#sProfile'), 'Profile Select');
+		this.iProfile = nonNullElement(this.sProfile.nextElementSibling, 'Profile Input');
+		this.profile_default = 'placeholder' in this.iProfile && typeof this.iProfile.placeholder == 'string' ? this.iProfile.placeholder : 'Default';
 		this.sPreset = nonNullElement(document.querySelector<HTMLSelectElement>('#sPreset'), 'Preset');
 		this.bSaveState = nonNullElement(document.querySelector<HTMLButtonElement>('#bSaveState'), 'Save State');
 		this.bLoadState = nonNullElement(document.querySelector<HTMLButtonElement>('#bLoadState'), 'Load State');
 
 		this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_item'), 'Enchantment Items');
+
+		this.iClicksPerSecond = nonNullElement(document.querySelector<HTMLInputElement>('#iClicksPerSecond'), 'Clicks per Second');
+		this.iDuration = nonNullElement(document.querySelector<HTMLInputElement>('#iDuration'), 'Duration');
 
 		this.sFamilyFS = nonNullElement(document.querySelector<HTMLSelectElement>('#ffs'), 'Familystack');
 		this.sBuyFS = nonNullElement(document.querySelector<HTMLSelectElement>('#sBuyFS'), 'Failstack to Buy');
@@ -87,14 +97,40 @@ export default class View {
 			controller.getShowDebug().changed(this.cbShowDebug.checked);
 		});
 
+		for (const preset of ENCHANTMENT_PRESETS) {
+			const option = document.createElement('option');
+			option.text = preset[1].name;
+			this.sPreset.append(option);
+		}
+		this.sProfile.addEventListener('change', evt => {
+			if (!(this.iProfile instanceof HTMLInputElement)) return;
+			this.iProfile.value = this.sProfile.value || this.iProfile.placeholder;
+			console.log(this.iProfile.value);
+			if (this.iProfile.value == this.iProfile.placeholder) this.iProfile.disabled = true;
+			else this.iProfile.disabled = false;
+		});
+		this.sPreset.addEventListener('change', evt => {
+			Logger.debug('preset onchange', this.sPreset.value);
+			const preset = ENCHANTMENT_PRESETS.get(this.sPreset.value);
+			this.controller.getPreset().value(preset);
+		});
+		this.bSaveState.addEventListener('click', evt => {
+			Logger.debug('state-save click');
+			this.saveState(controller.getState().get(), this.sProfile.value || this.profile_default);
+		});
+		this.bLoadState.addEventListener('click', evt => {
+			Logger.debug('state-load click');
+			this.loadState();
+		});
+
 		for (let ei_index = 0; ei_index < this.lEnchantmentItems.length; ei_index++) {
 			const enchantment_items = this.lEnchantmentItems[ei_index];
 			if (!enchantment_items) continue;
 			const iAmount = enchantment_items?.querySelector<HTMLInputElement>('.ei_amount');
 			if (!iAmount) continue;
 			iAmount.addEventListener('change', evt => {
-				Logger.debug('enchantment-item-amount onchange', ei_index, iAmount.value);
-				const val = parseInt(iAmount.value);
+				Logger.debug('enchantment-item-amount onchange', ei_index, iAmount.placeholder, iAmount.value);
+				const val = parseInt(iAmount.value) || parseInt(iAmount.placeholder);
 				controller.getEnchantmentItem(ei_index)?.amount.changed(val);
 			});
 			const iWorthEach = enchantment_items?.querySelector<HTMLInputElement>('.ei_worth');
@@ -106,32 +142,10 @@ export default class View {
 			});
 		}
 
-		for (const preset of ENCHANTMENT_PRESETS) {
-			const option = document.createElement('option');
-			option.text = preset[1].name;
-			this.sPreset.append(option);
-		}
-		// <select id="sProfile" onchange="this.nextElementSibling.value=this.value">
-		const iProfile = nonNullElement(this.sProfile.nextElementSibling, 'Profile Input');
-		this.sProfile.addEventListener('change', evt => {
-			if (!(iProfile instanceof HTMLInputElement)) return;
-			iProfile.value = this.sProfile.value;
-			console.log(iProfile.value);
-			if (iProfile.value == 'Default') iProfile.disabled = true;
-			else iProfile.disabled = false;
-		});
-		this.sPreset.addEventListener('change', evt => {
-			Logger.debug('preset onchange', this.sPreset.value);
-			const preset = ENCHANTMENT_PRESETS.get(this.sPreset.value);
-			this.controller.getPreset().value(preset);
-		});
-		this.bSaveState.addEventListener('click', evt => {
-			Logger.debug('state-save click');
-			this.saveState(controller.getState().get(), this.sProfile.value || 'Default');
-		});
-		this.bLoadState.addEventListener('click', evt => {
-			Logger.debug('state-load click');
-			this.loadState();
+		this.iClicksPerSecond.addEventListener('change', evt => {
+			Logger.debug('clicks-per-second onchange', this.iClicksPerSecond.placeholder, this.iClicksPerSecond.value);
+			const val = parseFloat(this.iClicksPerSecond.value) || parseFloat(this.iClicksPerSecond.placeholder);
+			controller.getClicksPerSecond().changed(val);
 		});
 
 		this.sFamilyFS.addEventListener('change', evt => {
@@ -147,8 +161,8 @@ export default class View {
 		});
 
 		this.iTargetAmount.addEventListener('change', evt => {
-			Logger.debug('target-amount onchange', this.iTargetAmount.placeholder, this.iTargetAmount.value);
-			const val = parseInt(this.iTargetAmount.value) || parseInt(this.iTargetAmount.placeholder);
+			Logger.debug('target-amount onchange', this.iTargetAmount.value);
+			const val = parseInt(this.iTargetAmount.value);
 			controller.getTargetAmount().changed(val);
 		});
 
@@ -191,20 +205,20 @@ export default class View {
 			const iClicks = enchantment_step.querySelector<HTMLInputElement>('.es_clicks');
 			if (!iClicks) continue;
 			iClicks.addEventListener('change', evt => {
-				Logger.debug('enchantment-step-clicks onchange', es_index, iClicks.value);
-				const val = parseInt(iClicks.value);
+				Logger.debug('enchantment-step-clicks onchange', es_index, iClicks.placeholder, iClicks.value);
+				const val = parseInt(iClicks.value) || parseInt(iClicks.placeholder);
 				controller.getEnchantmentStep(es_index)?.clicks.changed(val);
 			});
 		}
 
 		this.iClicksPerIteration.addEventListener('change', evt => {
-			Logger.debug('clicks-per-iteration onchange', this.iClicksPerIteration.value);
-			const val = parseInt(this.iClicksPerIteration.value);
+			Logger.debug('clicks-per-iteration onchange', this.iClicksPerIteration.placeholder, this.iClicksPerIteration.value);
+			const val = parseInt(this.iClicksPerIteration.value) || parseInt(this.iClicksPerIteration.placeholder);
 			controller.getClicksPerIteration().changed(val);
 		});
 		this.iIterationsPerSecond.addEventListener('change', evt => {
-			Logger.debug('iterations-per-second onchange', this.iIterationsPerSecond.value);
-			const val = parseInt(this.iIterationsPerSecond.value);
+			Logger.debug('iterations-per-second onchange', this.iIterationsPerSecond.placeholder, this.iIterationsPerSecond.value);
+			const val = parseInt(this.iIterationsPerSecond.value) || parseInt(this.iIterationsPerSecond.placeholder);
 			controller.getIterationsPerSecond().changed(val);
 		});
 		this.bUpgradeStart.addEventListener('click', evt => {
@@ -309,6 +323,26 @@ export default class View {
 		if (!iWorthEach) return Logger.warn(`Enchantment Item(${ei_index}) has no Worth Element`);
 		iWorthEach.value = '' + newWorthEach;
 		iWorthEach.dispatchEvent(new Event('change'));
+	}
+
+	public clicksPerSecond_Set(newClicksPerSecond: number) {
+		Logger.debug('clicks-per-second set', newClicksPerSecond);
+		this.iClicksPerSecond.value = '' + newClicksPerSecond;
+		this.iClicksPerSecond.dispatchEvent(new Event('change'));
+	}
+
+	public duration_Set(newDuration: number) {
+		const scalar = this.controller.getScaleOutput().value() ? 1 / this.controller.getTargetAmount().value() : 1;
+		let hh = '' + Math.floor((newDuration * scalar) / 3600);
+		let mm = '' + Math.floor(((newDuration * scalar) % 3600) / 60);
+		let ss = '' + Math.floor((newDuration * scalar) % 60);
+		// These lines ensure you have two-digits
+		if (hh.length < 2) hh = '0' + hh;
+		if (mm.length < 2) mm = '0' + mm;
+		if (ss.length < 2) ss = '0' + ss;
+		// This formats your string to HH:MM:SS
+		this.iDuration.value = `${hh} : ${mm} : ${ss}`;
+		this.iDuration.dispatchEvent(new Event('change'));
 	}
 
 	public familyFS_Set(oldFamilyFS: number, newFamilyFS: number) {
@@ -615,7 +649,8 @@ export default class View {
 		this.showPrices();
 	}
 
-	public saveState(state: SimulatorState, profile: string = 'Default') {
+	public saveState(state: SimulatorState, profile?: string) {
+		if (!profile) profile = this.profile_default;
 		const oldJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
 		const newAppState = new AppState(profile, state, oldJson);
 		const newJson = JSON.stringify(newAppState);
@@ -623,14 +658,14 @@ export default class View {
 	}
 
 	private loadState() {
-		const profile = this.sProfile.value || 'Default';
+		const profile = this.sProfile.value || this.profile_default;
 		const appJson = localStorage.getItem(this.LOCAL_STORAGE_KEY);
 		if (!appJson) return Logger.warn('No App-State found');
 		const appState: AppState = JSON.parse(appJson);
 		const state = appState.saveStates[profile];
 		if (!state) return Logger.warn('No SaveState found for Profile', profile);
 		const preset = ENCHANTMENT_PRESETS.get(state.simulatorState.preset ?? '');
-		this.sPreset.value = preset?.name ?? 'Default';
+		this.sPreset.value = preset?.name ?? (this.sPreset.getAttribute('placeholder') || 'Default');
 		this.controller.getLoadState().consume(state.simulatorState);
 	}
 }
@@ -681,6 +716,7 @@ export class SimulatorState {
 	enchantment_steps: enchantment_step[];
 	enchantment_items: enchantment_item[];
 	clicks: number;
+	clicksPerSecond: number;
 	failstacks: FailStack[];
 	materials: enchantment_mat[];
 	preset: string | undefined;
@@ -694,6 +730,7 @@ export class SimulatorState {
 		enchantment_steps: enchantment_step[],
 		enchantment_items: enchantment_item[],
 		clicks: number,
+		clicksPerSecond: number,
 		failstacks: FailStack[],
 		materials: enchantment_mat[],
 		preset: string | undefined
@@ -706,6 +743,7 @@ export class SimulatorState {
 		this.enchantment_steps = enchantment_steps;
 		this.enchantment_items = enchantment_items;
 		this.clicks = clicks;
+		this.clicksPerSecond = clicksPerSecond;
 		this.failstacks = failstacks;
 		this.materials = materials;
 		this.preset = preset;

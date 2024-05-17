@@ -256,7 +256,9 @@
 	--color-shadowed: var(--color-hinted-8);
 
 	--color-field: var(--color-hinted-15);
-	--color-field-border: var(--color-hinted-9);
+	--color-field-border: var(--color-hinted-8);
+	--color-field-disabled: var(--color-hinted-15);
+	--color-field-border-disabled: var(--color-hinted-9);
 	--color-button: var(--color-hinted-10);
 	--color-button-hover: var(--color-hinted-9);
 
@@ -295,6 +297,8 @@
 
 	--color-field: var(--color-hinted-6);
 	--color-field-border: var(--color-hinted-12);
+	--color-field-disabled: var(--color-hinted-6);
+	--color-field-border-disabled: var(--color-hinted-8);
 	--color-button: var(--color-hinted-75);
 	--color-button-hover: var(--color-hinted-9);
 
@@ -363,6 +367,19 @@ textarea {
 	color: var(--color-font);
 	background: var(--color-field);
 	border: solid 1px var(--color-field-border);
+
+	&:disabled {
+		background: var(--color-field-disabled);
+		border: solid 1px var(--color-field-border-disabled);
+		-moz-appearance: textfield;
+		-webkit-appearance: textfield;
+		appearance: textfield;
+
+		&::-webkit-inner-spin-button,
+		&::-webkit-outer-spin-button {
+			opacity: 0;
+		}
+	}
 }
 
 input[type='button'],
@@ -378,6 +395,11 @@ button {
 		background: var(--color-button-hover);
 		border-color: var(--color-button-hover);
 	}
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+	opacity: 1;
 }
 
 input,
@@ -596,6 +618,19 @@ section {
 	min-width: 5ch;
 }
 
+#estimation {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: var(--space-05) var(--space-1);
+
+	justify-content: center;
+	align-items: center;
+	justify-items: end;
+
+	margin-top: var(--space-1);
+	text-wrap: nowrap;
+}
+
 #settings {
 	display: flex;
 	flex-direction: column;
@@ -606,9 +641,12 @@ section {
 
 #general {
 	display: grid;
-	grid-template-columns: 1fr 0.5fr;
-	justify-items: center;
-	gap: var(--space-05) var(--space-0);
+	grid-template-columns: auto auto;
+	gap: var(--space-05) var(--space-1);
+
+	justify-content: center;
+	align-items: center;
+	justify-items: end;
 
 	& label {
 		text-align: left;
@@ -640,32 +678,20 @@ section {
 		padding-block: var(--space-025);
 		padding-inline: var(--space-05);
 	}
-
-	& select {
-		width: -moz-fit-content;
-		width: fit-content;
-	}
 }
 
 #iteration {
 	display: grid;
-	grid-template-columns: 1fr 0.5fr;
+	grid-template-columns: auto auto;
 	gap: var(--space-05);
+
+	justify-content: center;
+	align-items: center;
+	justify-items: end;
+
 	width: min-content;
 	margin-block: var(--space-05);
 	text-align: center;
-
-	& label {
-		text-align: left;
-	}
-
-	& input[type='number'] {
-		width: 4rem;
-	}
-	& input[type='button'] {
-		width: -moz-fit-content;
-		width: fit-content;
-	}
 }
 
 #output {
@@ -804,18 +830,7 @@ section {
 	background-color: var(--line-color-y);
 }
 
-.autowidth[autowidth='general'] {
-	width: 6ch !important;
-	transition-duration: var(--timing-long);
-}
-
-.autowidth[autowidth='enchantment_step'] {
-	width: 6ch !important;
-	transition-duration: var(--timing-long);
-}
-
-.autowidth[autowidth='iteration'] {
-	width: 8ch !important;
+.autowidth {
 	transition-duration: var(--timing-long);
 }
 
@@ -845,7 +860,9 @@ section {
 	left: 0;
 	width: calc(100% - 16px);
 	height: 100%;
+	background: var(--color-field) !important;
 	border-right: none !important;
+	border-color: var(--color-field-border) !important;
 	cursor: revert;
 }
 

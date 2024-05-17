@@ -143,6 +143,8 @@ export default class Logic {
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
+		const duration = this.clicks / this.controller.getClicksPerSecond().value();
+		this.controller.getDuration().consume(duration);
 		this.controller.getSaveState().consume(this.getState());
 	}
 
@@ -546,6 +548,11 @@ export default class Logic {
 		Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
 	}
 
+	public clicksPerSecond_OnChange(newClicksPerSecond: number) {
+		Logger.debug(`The Clicks per Second has changed(${newClicksPerSecond})`);
+		this.refresh();
+	}
+
 	public familyFS_OnChange(oldFamilyFS: number, newFamilyFS: number) {
 		Logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
 
@@ -692,6 +699,7 @@ export default class Logic {
 			enchantment_steps,
 			enchantment_items,
 			this.clicks,
+			this.controller.getClicksPerSecond().value(),
 			this.failstacks,
 			enchantment_mats,
 			this.controller.getPreset().value()?.name
@@ -724,6 +732,7 @@ export default class Logic {
 			item.pity.current = enchantment_item.pity.current;
 		}
 		this.clicks = state.clicks;
+		this.controller.getClicksPerSecond().value(state.clicksPerSecond);
 		this.failstacks = state.failstacks;
 		for (const enchantment_mat of state.materials) {
 			const material = ENCHANTMENT_MATERIALS.find(material => material.name == enchantment_mat.name);

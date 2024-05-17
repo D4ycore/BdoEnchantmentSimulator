@@ -125,6 +125,8 @@ export default class Logic {
                 currentTargetFS += fs.amount;
         }
         this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
+        const duration = this.clicks / this.controller.getClicksPerSecond().value();
+        this.controller.getDuration().consume(duration);
         this.controller.getSaveState().consume(this.getState());
     }
     takeFs(x) {
@@ -515,6 +517,10 @@ export default class Logic {
             return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
         Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
     }
+    clicksPerSecond_OnChange(newClicksPerSecond) {
+        Logger.debug(`The Clicks per Second has changed(${newClicksPerSecond})`);
+        this.refresh();
+    }
     familyFS_OnChange(oldFamilyFS, newFamilyFS) {
         Logger.debug(`The Family FS has changed(${oldFamilyFS} => ${newFamilyFS})`);
         const enchantment_step = this.controller.getEnchantmentStep(0);
@@ -635,7 +641,7 @@ export default class Logic {
         const enchantment_mats = ENCHANTMENT_MATERIALS.map(material => {
             return { name: material.name, used: material.used, price: material.price };
         });
-        const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.clicks, this.failstacks, enchantment_mats, this.controller.getPreset().value()?.name);
+        const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.clicks, this.controller.getClicksPerSecond().value(), this.failstacks, enchantment_mats, this.controller.getPreset().value()?.name);
         return state;
     }
     loadState(state) {
@@ -662,6 +668,7 @@ export default class Logic {
             item.pity.current = enchantment_item.pity.current;
         }
         this.clicks = state.clicks;
+        this.controller.getClicksPerSecond().value(state.clicksPerSecond);
         this.failstacks = state.failstacks;
         for (const enchantment_mat of state.materials) {
             const material = ENCHANTMENT_MATERIALS.find(material => material.name == enchantment_mat.name);

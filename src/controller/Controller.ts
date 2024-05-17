@@ -23,6 +23,9 @@ export default class Controller {
 
 	private enchantment_items: EnchantmentItem[];
 
+	private clicksPerSecond: Value<number>;
+	private duration: Consumer<number>;
+
 	private familyFS: Value<number>;
 	private buyFS: Value<number>;
 	private targetAmount: Value<number>;
@@ -69,6 +72,13 @@ export default class Controller {
 		this.enchantment_items = [];
 		for (let i = 0; i < 5; i++) this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
 
+		this.clicksPerSecond = new Value(
+			1,
+			(oldClicksPerSecond, newClicksPerSecond) => view.clicksPerSecond_Set(newClicksPerSecond),
+			(oldClicksPerSecond, newClicksPerSecond) => logic.clicksPerSecond_OnChange(newClicksPerSecond)
+		);
+		this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
+
 		this.familyFS = new Value<number>(
 			0,
 			(oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS),
@@ -113,19 +123,6 @@ export default class Controller {
 		this.clicks = new Holder<number>(0);
 	}
 
-	public getSaveState() {
-		return this.saveState;
-	}
-	public getState() {
-		return this.supplyState;
-	}
-	public getLoadState() {
-		return this.loadState;
-	}
-	public getPreset() {
-		return this.preset;
-	}
-
 	public getScaleOutput() {
 		return this.scaleOutput;
 	}
@@ -133,8 +130,28 @@ export default class Controller {
 		return this.showDebug;
 	}
 
+	public getPreset() {
+		return this.preset;
+	}
+	public getState() {
+		return this.supplyState;
+	}
+	public getSaveState() {
+		return this.saveState;
+	}
+	public getLoadState() {
+		return this.loadState;
+	}
+
 	public getEnchantmentItem(ei_index: number) {
 		return this.enchantment_items[ei_index];
+	}
+
+	public getClicksPerSecond() {
+		return this.clicksPerSecond;
+	}
+	public getDuration() {
+		return this.duration;
 	}
 
 	public getFamilyFS() {

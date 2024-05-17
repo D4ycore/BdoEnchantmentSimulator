@@ -62,9 +62,10 @@ function initAutoWidth() {
                 if (maxWidth < elt.value.length)
                     maxWidth = elt.value.length;
             for (const elt of elements)
-                elt.style.setProperty('width', Math.max(2, maxWidth) + 4 + 'ch', 'important');
+                elt.style.setProperty('width', Math.max(2, maxWidth) + 5 + 'ch', 'important');
         }
     }
+    checkAutoWidth();
 }
 initAutoWidth();
 function initHeaderControl() {

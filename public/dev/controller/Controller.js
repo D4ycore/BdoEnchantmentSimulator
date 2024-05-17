@@ -19,6 +19,8 @@ export default class Controller {
         this.enchantment_items = [];
         for (let i = 0; i < 5; i++)
             this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
+        this.clicksPerSecond = new Value(1, (oldClicksPerSecond, newClicksPerSecond) => view.clicksPerSecond_Set(newClicksPerSecond), (oldClicksPerSecond, newClicksPerSecond) => logic.clicksPerSecond_OnChange(newClicksPerSecond));
+        this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
         this.targetAmount = new Value(0, (oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount), (oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount));
@@ -37,26 +39,32 @@ export default class Controller {
         this.failstacks = new Setter([], (oldFailstacks, newFailstacks) => view.showStats(oldFailstacks, newFailstacks));
         this.clicks = new Holder(0);
     }
-    getSaveState() {
-        return this.saveState;
-    }
-    getState() {
-        return this.supplyState;
-    }
-    getLoadState() {
-        return this.loadState;
-    }
-    getPreset() {
-        return this.preset;
-    }
     getScaleOutput() {
         return this.scaleOutput;
     }
     getShowDebug() {
         return this.showDebug;
     }
+    getPreset() {
+        return this.preset;
+    }
+    getState() {
+        return this.supplyState;
+    }
+    getSaveState() {
+        return this.saveState;
+    }
+    getLoadState() {
+        return this.loadState;
+    }
     getEnchantmentItem(ei_index) {
         return this.enchantment_items[ei_index];
+    }
+    getClicksPerSecond() {
+        return this.clicksPerSecond;
+    }
+    getDuration() {
+        return this.duration;
     }
     getFamilyFS() {
         return this.familyFS;
