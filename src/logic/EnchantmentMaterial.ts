@@ -1,8 +1,8 @@
 export const ENCHANTMENT_MATERIALS: EnchantmentMaterial[] = [];
 
 export default class EnchantmentMaterial {
-	private static readonly DEFAULT_BLACKSTONE = 170_000;
-	private static readonly DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 2_000_000;
+	private static readonly DEFAULT_BLACKSTONE = 120_000;
+	private static readonly DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 1_440_000;
 	private static readonly DEFAULT_MEMORY_FRAGMENT = 3_800_000;
 	private static readonly DEFAULT_BLACKSTAR_MON = 1_990_000_000;
 
