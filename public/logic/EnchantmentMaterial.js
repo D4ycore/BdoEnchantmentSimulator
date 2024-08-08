@@ -22,8 +22,8 @@ class EnchantmentMaterial {
         return this._cost * amount;
     }
 }
-EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', 170000);
-EnchantmentMaterial.SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', 2000000);
+EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', 120000);
+EnchantmentMaterial.SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', 1440000);
 EnchantmentMaterial.MEMORY_FRAGMENT = new EnchantmentMaterial('Memory Fragment', 3800000);
 EnchantmentMaterial.BLACKSTAR_MON = new EnchantmentMaterial('Blackstar Mon', 1990000000);
 EnchantmentMaterial.TOTAL_COST = 0;
