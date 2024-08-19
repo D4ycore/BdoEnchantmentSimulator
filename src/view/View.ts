@@ -489,7 +489,7 @@ export default class View {
 		</div>
 		<div class="grid-list">
 			<div class="grid-item-wrapper grid-header">
-				<span>FS</span>
+				<span>raw FS (w/o Familystack)</span>
 				<span>Amount</span>
 				<span>Value</span>
 				<span>Total Value</span>
