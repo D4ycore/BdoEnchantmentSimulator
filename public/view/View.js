@@ -393,7 +393,7 @@ export default class View {
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
-		<span class="grid-header">FS</span>
+		<span class="grid-header">raw FS (w/o Familystack)</span>
 		<span class="grid-header">Amount</span>
 		<span class="grid-header">Value</span>
 		<span class="grid-header">Total Value</span>
