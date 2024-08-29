@@ -419,23 +419,51 @@ export default class Logic {
 						fsFound = true;
 						break;
 					}
-				}
-			} else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0) {
+				}	
+			} 
+    
+
+			//Start änderung
+			else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS <= 30) {
 				for (let j = esEndFS - 1; j >= esStartFS; j--) {
 					if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS <= 30) {
 						this.failstacks[30]!.amount++;
 						this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
 						this.failstacks[30]!.total_amount++;
 						this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
-						j = 30;
+						j = 30;		
 					}
 					if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
-					}
+					}					
 				}
-			} else if (
+			}
+				else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30 ) {
+					for (let j = esEndFS - 1; j >= esStartFS; j--) {
+						if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS > 30 ) {
+							this.failstacks[30]!.amount++;
+							this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
+							this.failstacks[30]!.total_amount++;
+							this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+							j = 30;
+						}
+						if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
+							this.takeFs(j);
+							fsFound = true;
+							break;
+						}
+						if (j == 30 && this.failstacks[j]!.amount > 0) {
+							this.takeFs(j);
+							fsFound = true;
+							break;
+						}	
+					}		
+			} 
+			//Ende änderung
+			
+			else if (
 				(esItem == EnchantmentItem.Reblath_Mon && EnchantmentItem.Reblath_Mon.amount > 0) ||
 				(esItem == EnchantmentItem.Blackstar_Mon && EnchantmentItem.Blackstar_Mon.amount > 0)
 			) {
