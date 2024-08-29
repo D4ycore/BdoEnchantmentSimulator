@@ -492,7 +492,7 @@ export default class Logic {
 			}
 				else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30 ) {
 					for (let j = esEndFS - 1; j >= esStartFS; j--) {
-						if (j == esStartFS && this.failstacks.get(j).amount == 0 && esStartFS > 30 ) {
+						if (j == esStartFS && this.failstacks.get(j).amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount * 10 >= EnchantmentItem.Reblath_Mon.amount) {
                             this.failstacks.get(30).amount++;
                             this.failstacks.get(30).value += EnchantmentMaterialShadowed.BUY_FS_30.use();
                             this.failstacks.get(30).total_amount++;
