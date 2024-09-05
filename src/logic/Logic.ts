@@ -666,7 +666,6 @@ export default class Logic {
 	public reset_OnClick() {
 		Logger.debug('Reset');
 		this.reset();
-		this.refresh();
 	}
 
 	public getState() {

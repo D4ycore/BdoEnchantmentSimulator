@@ -17,7 +17,9 @@
 	},
 	"keywords": [],
 	"license": "MIT",
-	"dependencies": {},
+	"dependencies": {
+		"bdo-enchantment-simulator": "file:"
+	},
 	"devDependencies": {
 		"@types/node": "^20.12.7",
 		"copyfiles": "^2.4.1",
