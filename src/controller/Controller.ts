@@ -23,7 +23,7 @@ export default class Controller {
 
 	private enchantment_items: EnchantmentItem[];
 
-	private clicksPerSecond: Value<number>;
+	private clicksPerHour: Value<number>;
 	private duration: Consumer<number>;
 
 	private familyFS: Value<number>;
@@ -72,10 +72,10 @@ export default class Controller {
 		this.enchantment_items = [];
 		for (let i = 0; i < 5; i++) this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
 
-		this.clicksPerSecond = new Value(
+		this.clicksPerHour = new Value(
 			1,
-			(oldClicksPerSecond, newClicksPerSecond) => view.clicksPerSecond_Set(newClicksPerSecond),
-			(oldClicksPerSecond, newClicksPerSecond) => logic.clicksPerSecond_OnChange(newClicksPerSecond)
+			(oldClicksPerHour, newClicksPerHour) => view.clicksPerHour_Set(newClicksPerHour),
+			(oldClicksPerHour, newClicksPerHour) => logic.clicksPerHour_OnChange(newClicksPerHour)
 		);
 		this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
 
@@ -147,8 +147,8 @@ export default class Controller {
 		return this.enchantment_items[ei_index];
 	}
 
-	public getClicksPerSecond() {
-		return this.clicksPerSecond;
+	public getClicksPerHour() {
+		return this.clicksPerHour;
 	}
 	public getDuration() {
 		return this.duration;

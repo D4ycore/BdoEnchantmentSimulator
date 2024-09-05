@@ -17,7 +17,7 @@ export default class View {
         this.bSaveState = nonNullElement(document.querySelector('#bSaveState'), 'Save State');
         this.bLoadState = nonNullElement(document.querySelector('#bLoadState'), 'Load State');
         this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll('.enchantment_item'), 'Enchantment Items');
-        this.iClicksPerSecond = nonNullElement(document.querySelector('#iClicksPerSecond'), 'Clicks per Second');
+        this.iClicksPerHour = nonNullElement(document.querySelector('#iClicksPerHour'), 'Clicks per Hour');
         this.iDuration = nonNullElement(document.querySelector('#iDuration'), 'Duration');
         this.sFamilyFS = nonNullElement(document.querySelector('#ffs'), 'Familystack');
         this.sBuyFS = nonNullElement(document.querySelector('#sBuyFS'), 'Failstack to Buy');
@@ -95,10 +95,10 @@ export default class View {
                 controller.getEnchantmentItem(ei_index)?.worthEach.changed(val);
             });
         }
-        this.iClicksPerSecond.addEventListener('change', evt => {
-            Logger.debug('clicks-per-second onchange', this.iClicksPerSecond.placeholder, this.iClicksPerSecond.value);
-            const val = parseFloat(this.iClicksPerSecond.value) || parseFloat(this.iClicksPerSecond.placeholder);
-            controller.getClicksPerSecond().changed(val);
+        this.iClicksPerHour.addEventListener('change', evt => {
+            Logger.debug('clicks-per-hour onchange', this.iClicksPerHour.placeholder, this.iClicksPerHour.value);
+            const val = parseFloat(this.iClicksPerHour.value) || parseFloat(this.iClicksPerHour.placeholder);
+            controller.getClicksPerHour().changed(val);
         });
         this.sFamilyFS.addEventListener('change', evt => {
             Logger.debug('family-fs onchange', this.sFamilyFS.value);
@@ -275,10 +275,10 @@ export default class View {
         iWorthEach.value = '' + newWorthEach;
         iWorthEach.dispatchEvent(new Event('change'));
     }
-    clicksPerSecond_Set(newClicksPerSecond) {
-        Logger.debug('clicks-per-second set', newClicksPerSecond);
-        this.iClicksPerSecond.value = '' + newClicksPerSecond;
-        this.iClicksPerSecond.dispatchEvent(new Event('change'));
+    clicksPerHour_Set(newClicksPerHour) {
+        Logger.debug('clicks-per-hour set', newClicksPerHour);
+        this.iClicksPerHour.value = '' + newClicksPerHour;
+        this.iClicksPerHour.dispatchEvent(new Event('change'));
     }
     duration_Set(newDuration) {
         const scalar = this.controller.getScaleOutput().value() ? 1 / this.controller.getTargetAmount().value() : 1;
@@ -403,15 +403,15 @@ export default class View {
         this.glEvaluation.innerHTML = `
 		<div class="grid-list">
 			<div class="grid-item-wrapper gc-se-35">
-				<span>Combined Sum</span>
+				<span>dead capital by pen Reblath</span>
 				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
 			</div>
 			<div class="grid-item-wrapper gc-se-35">
-				<span>Combined Cost</span>
+				<span>total investment</span>
 				<div class="grid-item combined_cost formatted"><span>${nf_commas(combined_cost * scalar, 3)}</span><span>m</span></div>
 			</div>
 			<div class="grid-item-wrapper gc-se-35">
-				<span>Combined Value</span>
+				<span>Value of FS's</span>
 				<div class="grid-item combined_value formatted"><span>${nf_commas(combined_value * scalar, 3)}</span><span>m</span></div>
 			</div>
 		</div>
@@ -436,7 +436,7 @@ export default class View {
 		</div>
 		<div class="grid-list">
 			<div class="grid-item-wrapper grid-header">
-				<span>FS</span>
+				<span>raw FS (w/o Familystack)</span>
 				<span>Amount</span>
 				<span>Value</span>
 				<span>Total Value</span>

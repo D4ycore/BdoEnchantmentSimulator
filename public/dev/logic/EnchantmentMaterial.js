@@ -32,8 +32,8 @@ class EnchantmentMaterial {
         return this._price * amount;
     }
 }
-EnchantmentMaterial.DEFAULT_BLACKSTONE = 170000;
-EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 2000000;
+EnchantmentMaterial.DEFAULT_BLACKSTONE = 120000;
+EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 1440000;
 EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT = 3800000;
 EnchantmentMaterial.DEFAULT_BLACKSTAR_MON = 1990000000;
 EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', EnchantmentMaterial.DEFAULT_BLACKSTONE);

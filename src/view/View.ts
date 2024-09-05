@@ -25,7 +25,7 @@ export default class View {
 
 	private lEnchantmentItems;
 
-	private iClicksPerSecond;
+	private iClicksPerHour;
 	private iDuration;
 
 	private sFamilyFS;
@@ -61,7 +61,7 @@ export default class View {
 
 		this.lEnchantmentItems = nonNullElementAll(document.querySelectorAll<HTMLTableRowElement>('.enchantment_item'), 'Enchantment Items');
 
-		this.iClicksPerSecond = nonNullElement(document.querySelector<HTMLInputElement>('#iClicksPerSecond'), 'Clicks per Second');
+		this.iClicksPerHour = nonNullElement(document.querySelector<HTMLInputElement>('#iClicksPerHour'), 'Clicks per Hour');
 		this.iDuration = nonNullElement(document.querySelector<HTMLInputElement>('#iDuration'), 'Duration');
 
 		this.sFamilyFS = nonNullElement(document.querySelector<HTMLSelectElement>('#ffs'), 'Familystack');
@@ -142,10 +142,10 @@ export default class View {
 			});
 		}
 
-		this.iClicksPerSecond.addEventListener('change', evt => {
-			Logger.debug('clicks-per-second onchange', this.iClicksPerSecond.placeholder, this.iClicksPerSecond.value);
-			const val = parseFloat(this.iClicksPerSecond.value) || parseFloat(this.iClicksPerSecond.placeholder);
-			controller.getClicksPerSecond().changed(val);
+		this.iClicksPerHour.addEventListener('change', evt => {
+			Logger.debug('clicks-per-hour onchange', this.iClicksPerHour.placeholder, this.iClicksPerHour.value);
+			const val = parseFloat(this.iClicksPerHour.value) || parseFloat(this.iClicksPerHour.placeholder);
+			controller.getClicksPerHour().changed(val);
 		});
 
 		this.sFamilyFS.addEventListener('change', evt => {
@@ -325,10 +325,10 @@ export default class View {
 		iWorthEach.dispatchEvent(new Event('change'));
 	}
 
-	public clicksPerSecond_Set(newClicksPerSecond: number) {
-		Logger.debug('clicks-per-second set', newClicksPerSecond);
-		this.iClicksPerSecond.value = '' + newClicksPerSecond;
-		this.iClicksPerSecond.dispatchEvent(new Event('change'));
+	public clicksPerHour_Set(newClicksPerHour: number) {
+		Logger.debug('clicks-per-hour set', newClicksPerHour);
+		this.iClicksPerHour.value = '' + newClicksPerHour;
+		this.iClicksPerHour.dispatchEvent(new Event('change'));
 	}
 
 	public duration_Set(newDuration: number) {

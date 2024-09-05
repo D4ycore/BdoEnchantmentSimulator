@@ -19,7 +19,7 @@ export default class Controller {
         this.enchantment_items = [];
         for (let i = 0; i < 5; i++)
             this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
-        this.clicksPerSecond = new Value(1, (oldClicksPerSecond, newClicksPerSecond) => view.clicksPerSecond_Set(newClicksPerSecond), (oldClicksPerSecond, newClicksPerSecond) => logic.clicksPerSecond_OnChange(newClicksPerSecond));
+        this.clicksPerHour = new Value(1, (oldClicksPerHour, newClicksPerHour) => view.clicksPerHour_Set(newClicksPerHour), (oldClicksPerHour, newClicksPerHour) => logic.clicksPerHour_OnChange(newClicksPerHour));
         this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
@@ -60,8 +60,8 @@ export default class Controller {
     getEnchantmentItem(ei_index) {
         return this.enchantment_items[ei_index];
     }
-    getClicksPerSecond() {
-        return this.clicksPerSecond;
+    getClicksPerHour() {
+        return this.clicksPerHour;
     }
     getDuration() {
         return this.duration;

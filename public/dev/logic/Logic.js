@@ -125,8 +125,9 @@ export default class Logic {
                 currentTargetFS += fs.amount;
         }
         this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-        const duration = this.clicks / this.controller.getClicksPerSecond().value();
-        this.controller.getDuration().consume(duration);
+        const clicksPerSecond = this.controller.getClicksPerHour().value() / 3600;
+        const durationInSeconds = this.clicks / clicksPerSecond;
+        this.controller.getDuration().consume(durationInSeconds);
         this.controller.getSaveState().consume(this.getState());
     }
     takeFs(x) {
@@ -394,7 +395,7 @@ export default class Logic {
                     }
                 }
             }
-            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0) {
+            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS <= 30) {
                 for (let j = esEndFS - 1; j >= esStartFS; j--) {
                     if (j == esStartFS && this.failstacks[j].amount == 0 && esStartFS <= 30) {
                         this.failstacks[30].amount++;
@@ -404,6 +405,27 @@ export default class Logic {
                         j = 30;
                     }
                     if (j >= esStartFS && this.failstacks[j].amount > 0) {
+                        this.takeFs(j);
+                        fsFound = true;
+                        break;
+                    }
+                }
+            }
+            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30) {
+                for (let j = esEndFS - 1; j >= esStartFS; j--) {
+                    if (j == esStartFS && this.failstacks[j].amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount * 10 >= EnchantmentItem.Reblath_Mon.amount) {
+                        this.failstacks[30].amount++;
+                        this.failstacks[30].value += EnchantmentMaterialShadowed.BUY_FS_30.use();
+                        this.failstacks[30].total_amount++;
+                        this.failstacks[30].total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+                        j = 30;
+                    }
+                    if (j >= esStartFS && this.failstacks[j].amount > 0) {
+                        this.takeFs(j);
+                        fsFound = true;
+                        break;
+                    }
+                    if (j == 30 && this.failstacks[j].amount > 0) {
                         this.takeFs(j);
                         fsFound = true;
                         break;
@@ -517,8 +539,8 @@ export default class Logic {
             return Logger.warn(`There are no ${ei_index + 1} Enchantment Items`);
         Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
     }
-    clicksPerSecond_OnChange(newClicksPerSecond) {
-        Logger.debug(`The Clicks per Second has changed(${newClicksPerSecond})`);
+    clicksPerHour_OnChange(newClicksPerHour) {
+        Logger.debug(`The Clicks per Hour has changed(${newClicksPerHour})`);
         this.refresh();
     }
     familyFS_OnChange(oldFamilyFS, newFamilyFS) {
@@ -618,7 +640,6 @@ export default class Logic {
     reset_OnClick() {
         Logger.debug('Reset');
         this.reset();
-        this.refresh();
     }
     getState() {
         const enchantment_steps = [];
@@ -641,7 +662,7 @@ export default class Logic {
         const enchantment_mats = ENCHANTMENT_MATERIALS.map(material => {
             return { name: material.name, used: material.used, price: material.price };
         });
-        const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.clicks, this.controller.getClicksPerSecond().value(), this.failstacks, enchantment_mats, this.controller.getPreset().value()?.name);
+        const state = new SimulatorState(this.controller.getFamilyFS().value(), this.controller.getBuyFS().value(), this.controller.getTargetAmount().value(), this.controller.getClicksPerIteration().value(), this.controller.getIterationsPerSecond().value(), enchantment_steps, enchantment_items, this.clicks, this.controller.getClicksPerHour().value(), this.failstacks, enchantment_mats, this.controller.getPreset().value()?.name);
         return state;
     }
     loadState(state) {
@@ -668,7 +689,7 @@ export default class Logic {
             item.pity.current = enchantment_item.pity.current;
         }
         this.clicks = state.clicks;
-        this.controller.getClicksPerSecond().value(state.clicksPerSecond);
+        this.controller.getClicksPerHour().value(state.clicksPerSecond);
         this.failstacks = state.failstacks;
         for (const enchantment_mat of state.materials) {
             const material = ENCHANTMENT_MATERIALS.find(material => material.name == enchantment_mat.name);

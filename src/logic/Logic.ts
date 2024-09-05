@@ -143,8 +143,9 @@ export default class Logic {
 			if (fs.amount) currentTargetFS += fs.amount;
 		}
 		this.controller.getCurrentTargetFS().value({ current: currentTargetFS, max: this.controller.getTargetAmount().value() });
-		const duration = this.clicks / this.controller.getClicksPerSecond().value();
-		this.controller.getDuration().consume(duration);
+		const clicksPerSecond = this.controller.getClicksPerHour().value() / 3600;
+		const durationInSeconds = this.clicks / clicksPerSecond;
+		this.controller.getDuration().consume(durationInSeconds);
 		this.controller.getSaveState().consume(this.getState());
 	}
 
@@ -419,9 +420,8 @@ export default class Logic {
 						fsFound = true;
 						break;
 					}
-				}	
-			} 
-    
+				}
+			}
 
 			//Start änderung
 			else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS <= 30) {
@@ -431,38 +431,36 @@ export default class Logic {
 						this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
 						this.failstacks[30]!.total_amount++;
 						this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
-						j = 30;		
+						j = 30;
 					}
 					if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
-					}					
+					}
+				}
+			} else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30) {
+				for (let j = esEndFS - 1; j >= esStartFS; j--) {
+					if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount * 10 >= EnchantmentItem.Reblath_Mon.amount) {
+						this.failstacks[30]!.amount++;
+						this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
+						this.failstacks[30]!.total_amount++;
+						this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+						j = 30;
+					}
+					if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
+						this.takeFs(j);
+						fsFound = true;
+						break;
+					}
+					if (j == 30 && this.failstacks[j]!.amount > 0) {
+						this.takeFs(j);
+						fsFound = true;
+						break;
+					}
 				}
 			}
-				else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30 ) {
-					for (let j = esEndFS - 1; j >= esStartFS; j--) {
-						if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount * 10 >= EnchantmentItem.Reblath_Mon.amount) {
-							this.failstacks[30]!.amount++;
-							this.failstacks[30]!.value += EnchantmentMaterialShadowed.BUY_FS_30.use();
-							this.failstacks[30]!.total_amount++;
-							this.failstacks[30]!.total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
-							j = 30;
-						}
-						if (j >= esStartFS && this.failstacks[j]!.amount > 0) {
-							this.takeFs(j);
-							fsFound = true;
-							break;
-						}
-						if (j == 30 && this.failstacks[j]!.amount > 0) {
-							this.takeFs(j);
-							fsFound = true;
-							break;
-						}	
-					}		
-			} 
 			//Ende änderung
-			
 			else if (
 				(esItem == EnchantmentItem.Reblath_Mon && EnchantmentItem.Reblath_Mon.amount > 0) ||
 				(esItem == EnchantmentItem.Blackstar_Mon && EnchantmentItem.Blackstar_Mon.amount > 0)
@@ -576,8 +574,8 @@ export default class Logic {
 		Logger.debug(`The Worth of each Enchantment Item (${ei_index}) has changed(${oldWorthEach} => ${newWorthEach})`);
 	}
 
-	public clicksPerSecond_OnChange(newClicksPerSecond: number) {
-		Logger.debug(`The Clicks per Second has changed(${newClicksPerSecond})`);
+	public clicksPerHour_OnChange(newClicksPerHour: number) {
+		Logger.debug(`The Clicks per Hour has changed(${newClicksPerHour})`);
 		this.refresh();
 	}
 
@@ -726,7 +724,7 @@ export default class Logic {
 			enchantment_steps,
 			enchantment_items,
 			this.clicks,
-			this.controller.getClicksPerSecond().value(),
+			this.controller.getClicksPerHour().value(),
 			this.failstacks,
 			enchantment_mats,
 			this.controller.getPreset().value()?.name
@@ -759,7 +757,7 @@ export default class Logic {
 			item.pity.current = enchantment_item.pity.current;
 		}
 		this.clicks = state.clicks;
-		this.controller.getClicksPerSecond().value(state.clicksPerSecond);
+		this.controller.getClicksPerHour().value(state.clicksPerSecond);
 		this.failstacks = state.failstacks;
 		for (const enchantment_mat of state.materials) {
 			const material = ENCHANTMENT_MATERIALS.find(material => material.name == enchantment_mat.name);
