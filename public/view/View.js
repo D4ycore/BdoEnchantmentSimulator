@@ -361,15 +361,15 @@ export default class View {
         this.dEvaluation.innerHTML = `
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
-		<span class="eval_space">Combined Sum</span>
+		<span class="eval_space">dead capital by pen Reblath</span>
 		<span class="combined_sum">${nf_commas(combined_sum, 3)} m</span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
-		<span class="eval_space">Combined Cost</span>
+		<span class="eval_space">total investment</span>
 		<span class="grid-item combined_cost">${nf_commas(combined_cost, 3)} m</span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
-		<span class="grid-header">Combined Value</span>
+		<span class="grid-header">Value of FS's</span>
 		<span class="grid-item combined_value">${nf_commas(combined_value, 3)} m</span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
@@ -393,7 +393,7 @@ export default class View {
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
 		<span class="eval_space"></span>
-		<span class="grid-header">FS</span>
+		<span class="grid-header">raw FS (w/o Familystack)</span>
 		<span class="grid-header">Amount</span>
 		<span class="grid-header">Value</span>
 		<span class="grid-header">Total Value</span>
