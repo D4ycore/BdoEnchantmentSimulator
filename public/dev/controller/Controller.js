@@ -12,6 +12,8 @@ export default class Controller {
         this.logic = logic;
         this.scaleOutput = new Value(false, (oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput), (oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput));
         this.showDebug = new Value(false, (oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug), (oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug));
+        this.duoOver30 = new Value(false, (oldDuoOver30, newDuoOver30) => view.duoOver30_Set(oldDuoOver30, newDuoOver30), (oldDuoOver30, newDuoOver30) => logic.duoOver30_OnChange(oldDuoOver30, newDuoOver30));
+        this.limitDuos = new Value(0, (oldLimitDuos, newLimitDuos) => view.limitDuos_Set(oldLimitDuos, newLimitDuos), (oldLimitDuos, newLimitDuos) => logic.limitDuos_OnChange(oldLimitDuos, newLimitDuos));
         this.saveState = new Consumer(state => view.saveState(state));
         this.supplyState = new Supplier(() => logic.getState());
         this.loadState = new Consumer(state => logic.loadState(state));
@@ -44,6 +46,12 @@ export default class Controller {
     }
     getShowDebug() {
         return this.showDebug;
+    }
+    getDuoOver30() {
+        return this.duoOver30;
+    }
+    getLimitDuos() {
+        return this.limitDuos;
     }
     getPreset() {
         return this.preset;

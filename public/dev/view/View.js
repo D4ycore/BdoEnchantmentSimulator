@@ -35,6 +35,8 @@ export default class View {
         this.glEvaluation = nonNullElement(document.querySelector('#evaluation .grid-list-wrapper'), 'Evaluation');
         this.glFailstacks = nonNullElement(document.querySelector('#failstacks .grid-list-wrapper'), 'Failstacks');
         this.glPrices = nonNullElement(document.querySelector('#prices .grid-list-wrapper'), 'Prices');
+        this.cbDuoOver30 = nonNullElement(document.querySelector('#cbDuoOver30'), 'DuoOver30');
+        this.iLimitDuos = nonNullElement(document.querySelector('#iLimitDuos'), 'LimitDuos');
     }
     link(controller) {
         this.controller = controller;
@@ -187,10 +189,21 @@ export default class View {
             Logger.debug('reset click');
             controller.getReset().click();
         });
+        this.cbDuoOver30.addEventListener('change', evt => {
+            Logger.debug('DuoOver30 onchange', this.cbDuoOver30.checked);
+            controller.getDuoOver30().changed(this.cbDuoOver30.checked);
+        });
+        this.iLimitDuos.addEventListener('change', evt => {
+            Logger.debug('LimitDuos onchange', this.iLimitDuos.value);
+            const val = parseInt(this.iLimitDuos.value);
+            controller.getLimitDuos().changed(val);
+        });
     }
     init() {
         this.cbScaleOutput.dispatchEvent(new Event('change'));
         this.cbShowDebug.dispatchEvent(new Event('change'));
+        this.cbDuoOver30.dispatchEvent(new Event('change'));
+        this.iLimitDuos.dispatchEvent(new Event('change'));
         for (const enchantment_item of this.lEnchantmentItems) {
             const iAmount = enchantment_item.querySelector('.ei_amount');
             iAmount?.dispatchEvent(new Event('change'));
@@ -222,6 +235,20 @@ export default class View {
         Logger.debug('show-debug set', oldShowDebug, newShowDebug);
         this.cbShowDebug.checked = newShowDebug;
         this.cbShowDebug.dispatchEvent(new Event('change'));
+    }
+    duoOver30_Set(oldDuoOver30, newDuoOver30) {
+        Logger.debug('DuoOver30 set', oldDuoOver30, newDuoOver30);
+        this.cbDuoOver30.checked = newDuoOver30;
+        this.cbDuoOver30.dispatchEvent(new Event('change'));
+    }
+    limitDuos_Set(oldLimitDuos, newLimitDuos) {
+        Logger.debug('LimitDuos set', oldLimitDuos, newLimitDuos);
+        const min = this.iLimitDuos.getAttribute('min');
+        if (min && newLimitDuos < parseInt(min))
+            return Logger.warn(`Tried to set LimitDuos(${this.iLimitDuos.value} => ${newLimitDuos}) below the allowed minimum(${min})`);
+        this.iLimitDuos.value = '' + newLimitDuos;
+        this.iLimitDuos.title = '' + newLimitDuos;
+        this.iLimitDuos.dispatchEvent(new Event('change'));
     }
     enchantmentItem_Pity_Current_Set(ei_index, oldPityCurrent, newPityCurrent) {
         Logger.debug('enchantment-item-pity-current set', ei_index, newPityCurrent);

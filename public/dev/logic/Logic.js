@@ -19,6 +19,7 @@ export default class Logic {
         this.rand = new TEST_RNG(0);
         this.upgrading = false;
         this.clicks = 0;
+        this.duoOver30Active = false;
         for (let i = 0; i <= 500; i++)
             this.failstacks.push(new FailStack(i));
     }
@@ -345,6 +346,8 @@ export default class Logic {
             if (roll < uppChance) {
                 message += `Succeeded with a Failstack of ${this.currentFailstack.tier}`;
                 message += `, because ${nf_fixed(roll, 2)} < ${nf_fixed(uppChance, 2)}`;
+                if (esItem.name == EnchantmentItem.Reblath_Duo.name)
+                    this.duoOver30Active = false;
                 this.increaseItem(esItem, false);
                 this.resetFS();
                 pity.reset();
@@ -359,6 +362,8 @@ export default class Logic {
                 pity.increase();
             }
         }
+        if (EnchantmentItem.Reblath_Duo.amount <= 0)
+            this.duoOver30Active = false;
         this.controller.getLastClick().value(message);
         const endFS_min = this.controller.getEnchantmentStep(this.controller.getEnchantmentStepsSize() - 1).endFS.value() - this.controller.getFamilyFS().value();
         const targetAmount = this.controller.getTargetAmount().value();
@@ -385,8 +390,7 @@ export default class Logic {
             if ((esItem == EnchantmentItem.Reblath_Tet && EnchantmentItem.Reblath_Tet.amount > 0) ||
                 (esItem == EnchantmentItem.Reblath_Tri && EnchantmentItem.Reblath_Tri.amount > 0) ||
                 (esItem == EnchantmentItem.Blackstar_Tet && EnchantmentItem.Blackstar_Tet.amount > 0) ||
-                (esItem == EnchantmentItem.Blackstar_Tri && EnchantmentItem.Blackstar_Tri.amount > 0) ||
-                (esItem == EnchantmentItem.Blackstar_Duo && EnchantmentItem.Blackstar_Duo.amount > 0)) {
+                (esItem == EnchantmentItem.Blackstar_Tri && EnchantmentItem.Blackstar_Tri.amount > 0)) {
                 for (let j = esEndFS - 1; j >= esStartFS; j--) {
                     if (this.failstacks[j].amount > 0) {
                         this.takeFs(j);
@@ -395,7 +399,7 @@ export default class Logic {
                     }
                 }
             }
-            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS <= 30) {
+            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && (esStartFS <= 30 || !this.controller.getDuoOver30().value())) {
                 for (let j = esEndFS - 1; j >= esStartFS; j--) {
                     if (j == esStartFS && this.failstacks[j].amount == 0 && esStartFS <= 30) {
                         this.failstacks[30].amount++;
@@ -411,21 +415,29 @@ export default class Logic {
                     }
                 }
             }
-            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30) {
-                for (let j = esEndFS - 1; j >= esStartFS; j--) {
-                    if (j == esStartFS && this.failstacks[j].amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount * 10 >= EnchantmentItem.Reblath_Mon.amount) {
+            else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && esStartFS > 30 && this.controller.getDuoOver30().value()) {
+                for (let j = esEndFS - 1; j >= 30; j--) {
+                    if (j == 30 && this.failstacks[j].amount == 0 && esStartFS > 30 && EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value()) {
                         this.failstacks[30].amount++;
                         this.failstacks[30].value += EnchantmentMaterialShadowed.BUY_FS_30.use();
                         this.failstacks[30].total_amount++;
                         this.failstacks[30].total_value += EnchantmentMaterialShadowed.BUY_FS_30.price;
+                        this.duoOver30Active = true;
                         j = 30;
                     }
                     if (j >= esStartFS && this.failstacks[j].amount > 0) {
                         this.takeFs(j);
                         fsFound = true;
+                        this.duoOver30Active = false;
                         break;
                     }
-                    if (j == 30 && this.failstacks[j].amount > 0) {
+                    if (j < esStartFS && j > 30 && this.failstacks[j].amount > 0 && (this.duoOver30Active || EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value())) {
+                        this.takeFs(j);
+                        fsFound = true;
+                        this.duoOver30Active = true;
+                        break;
+                    }
+                    if (j == 30 && this.failstacks[j].amount > 0 && this.duoOver30Active) {
                         this.takeFs(j);
                         fsFound = true;
                         break;
@@ -508,6 +520,15 @@ export default class Logic {
         else
             Logger.debug(`Now hides debugging logs`);
         Logger.showDebugs = newShowDebug;
+    }
+    duoOver30_OnChange(oldDuoOver30, newDuoOver30) {
+        if (newDuoOver30)
+            Logger.debug(`now use DuoOver30`);
+        else
+            Logger.debug(`now doesn't use DuoOver30`);
+    }
+    limitDuos_OnChange(oldLimitDuos, newLimitDuos) {
+        Logger.debug(`The Limit of Duos has changed(${oldLimitDuos} => ${newLimitDuos})`);
     }
     enchantmentItem_Amount_OnChange(ei_index, oldAmount, newAmount) {
         const enchantment_item = this.controller.getEnchantmentItem(ei_index);
