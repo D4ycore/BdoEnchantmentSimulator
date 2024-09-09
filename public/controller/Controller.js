@@ -1,6 +1,10 @@
 import Button from './Button.js';
+import Consumer from './Consumer.js';
 import EnchantmentItem from './EnchantmentItem.js';
-import { EnchantmentStep } from './EnchantmentStep.js';
+import EnchantmentStep from './EnchantmentStep.js';
+import Holder from './Holder.js';
+import Setter from './Setter.js';
+import Supplier from './Supplier.js';
 import Value from './Value.js';
 export default class Controller {
     constructor(view, logic) {
@@ -8,26 +12,34 @@ export default class Controller {
         this.logic = logic;
         this.scaleOutput = new Value(false, (oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput), (oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput));
         this.showDebug = new Value(false, (oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug), (oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug));
+        this.duoOver30 = new Value(false, (oldDuoOver30, newDuoOver30) => view.duoOver30_Set(oldDuoOver30, newDuoOver30), (oldDuoOver30, newDuoOver30) => logic.duoOver30_OnChange(oldDuoOver30, newDuoOver30));
+        this.limitDuos = new Value(0, (oldLimitDuos, newLimitDuos) => view.limitDuos_Set(oldLimitDuos, newLimitDuos), (oldLimitDuos, newLimitDuos) => logic.limitDuos_OnChange(oldLimitDuos, newLimitDuos));
+        this.saveState = new Consumer(state => view.saveState(state));
+        this.supplyState = new Supplier(() => logic.getState());
+        this.loadState = new Consumer(state => logic.loadState(state));
+        this.preset = new Setter(undefined, (oldPreset, newPreset) => logic.setupPreset(newPreset));
         this.enchantment_items = [];
         for (let i = 0; i < 5; i++)
             this.enchantment_items.push(new EnchantmentItem(this.enchantment_items.length, this.view, this.logic));
-        this.addReblath = new Button(() => logic.addReblath_OnClick());
+        this.clicksPerHour = new Value(1, (oldClicksPerHour, newClicksPerHour) => view.clicksPerHour_Set(newClicksPerHour), (oldClicksPerHour, newClicksPerHour) => logic.clicksPerHour_OnChange(newClicksPerHour));
+        this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
         this.familyFS = new Value(0, (oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS), (oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS));
         this.buyFS = new Value(0, (oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS), (oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS));
         this.targetAmount = new Value(0, (oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount), (oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount));
-        this.currentTargetFS = new Value(0, (oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS), (oldCurrentTargetFS, newCurrentTargetFS) => logic.currentTargetFS_OnChange(oldCurrentTargetFS, newCurrentTargetFS));
+        this.currentTargetFS = new Setter({ current: 0, max: 0 }, (oldCurrentTargetFS, newCurrentTargetFS) => view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS));
         this.enchantment_steps = [];
         for (let i = 0; i < 4; i++)
             this.addEnchantmentStep();
-        this.singleClick = new Button(() => logic.singleClick_OnClick());
         this.clicksPerIteration = new Value(0, (oldClicksPerIteration, newClicksPerIteration) => view.clicksPerIteration_Set(oldClicksPerIteration, newClicksPerIteration), (oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration));
         this.iterationsPerSecond = new Value(0, (oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond), (oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond));
         this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
         this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
-        this.lastClick = new Value('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick), (oldLastClick, newLastClick) => logic.lastClick_OnChange(oldLastClick, newLastClick));
-        this.stacksCrafted = new Value('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted), (oldStacksCrafted, newStacksCrafted) => logic.stacksCrafted_OnChange(oldStacksCrafted, newStacksCrafted));
-        this.evaluation = new Setter(newEvaluation => view.showEvaluation(newEvaluation));
-        this.failstacks = new Setter(newFailstacks => view.showFailstacks(newFailstacks));
+        this.singleClick = new Button(() => logic.singleClick_OnClick());
+        this.reset = new Button(() => logic.reset_OnClick());
+        this.lastClick = new Setter('', (oldLastClick, newLastClick) => view.lastClick_Set(oldLastClick, newLastClick));
+        this.stacksCrafted = new Setter('', (oldStacksCrafted, newStacksCrafted) => view.stacksCrafted_Set(oldStacksCrafted, newStacksCrafted));
+        this.failstacks = new Setter([], (oldFailstacks, newFailstacks) => view.showStats(oldFailstacks, newFailstacks));
+        this.clicks = new Holder(0);
     }
     getScaleOutput() {
         return this.scaleOutput;
@@ -35,11 +47,32 @@ export default class Controller {
     getShowDebug() {
         return this.showDebug;
     }
+    getDuoOver30() {
+        return this.duoOver30;
+    }
+    getLimitDuos() {
+        return this.limitDuos;
+    }
+    getPreset() {
+        return this.preset;
+    }
+    getState() {
+        return this.supplyState;
+    }
+    getSaveState() {
+        return this.saveState;
+    }
+    getLoadState() {
+        return this.loadState;
+    }
     getEnchantmentItem(ei_index) {
         return this.enchantment_items[ei_index];
     }
-    getAddReblath() {
-        return this.addReblath;
+    getClicksPerHour() {
+        return this.clicksPerHour;
+    }
+    getDuration() {
+        return this.duration;
     }
     getFamilyFS() {
         return this.familyFS;
@@ -61,6 +94,9 @@ export default class Controller {
     }
     getSingleClick() {
         return this.singleClick;
+    }
+    getReset() {
+        return this.reset;
     }
     getClicksPerIteration() {
         return this.clicksPerIteration;
@@ -86,18 +122,10 @@ export default class Controller {
     removeStep() {
         this.enchantment_steps.splice(this.enchantment_steps.length - 1, 1);
     }
-    getEvaluation() {
-        return this.evaluation;
-    }
     getFailstacks() {
         return this.failstacks;
     }
-}
-class Setter {
-    constructor(set) {
-        this._set = set;
-    }
-    set(newValue) {
-        this._set(newValue);
+    getClicks() {
+        return this.clicks;
     }
 }

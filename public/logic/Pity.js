@@ -9,6 +9,9 @@ class Pity {
     get current() {
         return this._current;
     }
+    set current(newCurrent) {
+        this._current = Math.min(newCurrent, this._max);
+    }
     increase() {
         this._current++;
     }
