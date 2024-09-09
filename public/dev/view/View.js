@@ -426,7 +426,7 @@ export default class View {
         const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * failstacks_75_value) / 1000000;
         const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
         const combined_cost = EnchantmentMaterial.total_cost() / 1000000;
-        const combined_sum = combined_value - combined_cost;
+        const combined_sum = combined_cost - combined_value;
         this.glEvaluation.innerHTML = `
 		<div class="grid-list">
 			<div class="grid-item-wrapper gc-se-35">
