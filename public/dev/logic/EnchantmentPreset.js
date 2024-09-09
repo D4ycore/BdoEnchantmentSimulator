@@ -39,7 +39,7 @@ class EnchantmentPreset {
     }
 }
 EnchantmentPreset.preset_default = new EnchantmentPreset('', 0, 5, 1, 1, 1, 0, { item: EnchantmentItem.Reblath_Mon, clicks: 1 }, { item: EnchantmentItem.Reblath_Duo, clicks: 1 }, { item: EnchantmentItem.Reblath_Tri, clicks: 1 }, { item: EnchantmentItem.Reblath_Tet, clicks: 1 });
-EnchantmentPreset.preset_10_199 = new EnchantmentPreset('10-199', 2, 15, 10, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 5 }, { item: EnchantmentItem.Reblath_Duo, clicks: 4 }, { item: EnchantmentItem.Reblath_Tri, clicks: 9 }, { item: EnchantmentItem.Reblath_Tet, clicks: 18 });
-EnchantmentPreset.preset_20_201 = new EnchantmentPreset('20-201', 2, 20, 10, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 3 }, { item: EnchantmentItem.Reblath_Duo, clicks: 4 }, { item: EnchantmentItem.Reblath_Tri, clicks: 6 }, { item: EnchantmentItem.Reblath_Tet, clicks: 21 });
-EnchantmentPreset.preset_Silver = new EnchantmentPreset('Silver', 2, 15, 100, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 5 }, { item: EnchantmentItem.Reblath_Duo, clicks: 4 }, { item: EnchantmentItem.Reblath_Tri, clicks: 3 }, { item: EnchantmentItem.Reblath_Tet, clicks: 6 });
+EnchantmentPreset.preset_15_200 = new EnchantmentPreset('15-200', 2, 15, 10, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 5 }, { item: EnchantmentItem.Reblath_Duo, clicks: 4 }, { item: EnchantmentItem.Reblath_Tri, clicks: 8 }, { item: EnchantmentItem.Reblath_Tet, clicks: 19 });
+EnchantmentPreset.preset_20_201 = new EnchantmentPreset('20-201', 2, 20, 10, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 5 }, { item: EnchantmentItem.Reblath_Duo, clicks: 3 }, { item: EnchantmentItem.Reblath_Tri, clicks: 8 }, { item: EnchantmentItem.Reblath_Tet, clicks: 19 });
+EnchantmentPreset.preset_25_202 = new EnchantmentPreset('25-202', 2, 25, 100, 1000, 30, 100, { item: EnchantmentItem.Reblath_Mon, clicks: 4 }, { item: EnchantmentItem.Reblath_Duo, clicks: 3 }, { item: EnchantmentItem.Reblath_Tri, clicks: 9 }, { item: EnchantmentItem.Reblath_Tet, clicks: 18 });
 export default EnchantmentPreset;

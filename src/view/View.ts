@@ -495,12 +495,12 @@ export default class View {
 		this.glEvaluation.innerHTML = `
 		<div class="grid-list">
 			<div class="grid-item-wrapper gc-se-35">
-				<span>dead capital by pen Reblath</span>
-				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
-			</div>
-			<div class="grid-item-wrapper gc-se-35">
 				<span>total investment</span>
 				<div class="grid-item combined_cost formatted"><span>${nf_commas(combined_cost * scalar, 3)}</span><span>m</span></div>
+			</div>
+			<div class="grid-item-wrapper gc-se-35">
+				<span>dead capital by pen Reblath</span>
+				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
 			</div>
 			<div class="grid-item-wrapper gc-se-35">
 				<span>Value of FS's</span>
