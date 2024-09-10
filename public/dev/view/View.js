@@ -521,7 +521,7 @@ export default class View {
 		<div class="grid-item-wrapper">
 			<span>${penReblath.name}</span>
 			<span class="grid-item">${nf_commas(penReblath.amount * scalar)}</span>
-			<div class="grid-item formatted faded"><span>${nf_commas((value * penReblath.amount) / 1000000, 3)}</span><span>m</span></div>
+			<div class="grid-item formatted faded"><span>${nf_commas(value / 1000000, 3)}</span><span>m</span></div>
 			<div class="grid-item formatted pen_reblath_total_value"><span>${nf_commas((value * penReblath.amount * scalar) / 1000000, 3)}</span><span>m</span></div>
 		</div>
 		<div class="grid-item-wrapper">
