@@ -223,8 +223,8 @@ export default class View {
             const iStepClicks = step.querySelector('.es_clicks');
             iStepClicks?.dispatchEvent(new Event('change'));
         }
-        this.showPrices();
         this.loadState();
+        this.showPrices();
     }
     scaleOutput_Set(oldScaleOutput, newScaleOutput) {
         Logger.debug('scale-output set', oldScaleOutput, newScaleOutput);

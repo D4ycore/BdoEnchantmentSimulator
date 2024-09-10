@@ -67,4 +67,7 @@ EnchantmentMaterialShadowed.BUY_FS_20 = new _a('Buy FS 20', { material: _a.BLACK
 EnchantmentMaterialShadowed.BUY_FS_25 = new _a('Buy FS 25', { material: _a.BLACKSTONE, amount: 53 });
 EnchantmentMaterialShadowed.BUY_FS_30 = new _a('Buy FS 30', { material: _a.BLACKSTONE, amount: 84 });
 EnchantmentMaterialShadowed.CONCENTRATED_MAGICAL_BLACKSTONE = new _a('Concentrated Magical Blackstone', { material: _a.SHARP_BLACK_CRYSTAL_SHARD, amount: 1 }, { material: _a.BLACKSTONE, amount: 2 });
-EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE = new _a('Flawless Magical Blackstone', { material: _a.SHARP_BLACK_CRYSTAL_SHARD, amount: 2 });
+EnchantmentMaterialShadowed.FLAWLESS_MAGICAL_BLACKSTONE = new _a('Flawless Magical Blackstone', {
+    material: _a.SHARP_BLACK_CRYSTAL_SHARD,
+    amount: 2,
+});

@@ -1,3 +1,4 @@
 node_modules
-public/test
 src/test
+public/test
+public/dev/test

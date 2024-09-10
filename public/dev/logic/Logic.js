@@ -13,7 +13,7 @@ export default class Logic {
         this.currentFailstack = {
             tier: 0,
             value: 0,
-            amount: 0
+            amount: 0,
         };
         this.failstacks = [];
         this.rand = new TEST_RNG(0);
@@ -431,7 +431,10 @@ export default class Logic {
                         this.duoOver30Active = false;
                         break;
                     }
-                    if (j < esStartFS && j > 30 && this.failstacks[j].amount > 0 && (this.duoOver30Active || EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value())) {
+                    if (j < esStartFS &&
+                        j > 30 &&
+                        this.failstacks[j].amount > 0 &&
+                        (this.duoOver30Active || EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value())) {
                         this.takeFs(j);
                         fsFound = true;
                         this.duoOver30Active = true;
@@ -677,7 +680,7 @@ export default class Logic {
                 value: enchantment_item.value,
                 total_amount: enchantment_item.total_amount,
                 total_value: enchantment_item.total_value,
-                pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max }
+                pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max },
             });
         }
         const enchantment_mats = ENCHANTMENT_MATERIALS.map(material => {
