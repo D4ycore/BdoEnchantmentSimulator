@@ -287,8 +287,8 @@ export default class View {
 			iStepClicks?.dispatchEvent(new Event('change'));
 		}
 
-		this.showPrices();
 		this.loadState();
+		this.showPrices();
 	}
 
 	public scaleOutput_Set(oldScaleOutput: boolean, newScaleOutput: boolean) {
