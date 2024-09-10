@@ -17,7 +17,7 @@ export default class Logic {
 	private currentFailstack: { tier: number; value: number; amount: number } = {
 		tier: 0,
 		value: 0,
-		amount: 0
+		amount: 0,
 	};
 	private failstacks: FailStack[] = [];
 
@@ -26,7 +26,7 @@ export default class Logic {
 
 	private clicks: number = 0;
 
-	private duoOver30Active:boolean =false;
+	private duoOver30Active: boolean = false;
 
 	public constructor() {
 		for (let i = 0; i <= 500; i++) this.failstacks.push(new FailStack(i));
@@ -381,7 +381,7 @@ export default class Logic {
 			}
 		}
 
-		if (EnchantmentItem.Reblath_Duo.amount <=0) this.duoOver30Active = false;
+		if (EnchantmentItem.Reblath_Duo.amount <= 0) this.duoOver30Active = false;
 
 		this.controller.getLastClick().value(message);
 
@@ -429,7 +429,7 @@ export default class Logic {
 			}
 
 			//Start änderung
-			else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && (esStartFS <= 30 || !this.controller.getDuoOver30().value()) ) {
+			else if (esItem == EnchantmentItem.Reblath_Duo && EnchantmentItem.Reblath_Duo.amount > 0 && (esStartFS <= 30 || !this.controller.getDuoOver30().value())) {
 				for (let j = esEndFS - 1; j >= esStartFS; j--) {
 					if (j == esStartFS && this.failstacks[j]!.amount == 0 && esStartFS <= 30) {
 						this.failstacks[30]!.amount++;
@@ -460,13 +460,18 @@ export default class Logic {
 						this.duoOver30Active = false;
 						break;
 					}
-					if (j < esStartFS && j >30 && this.failstacks[j]!.amount > 0 && (this.duoOver30Active || EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value())) {
+					if (
+						j < esStartFS &&
+						j > 30 &&
+						this.failstacks[j]!.amount > 0 &&
+						(this.duoOver30Active || EnchantmentItem.Reblath_Duo.amount >= this.controller.getLimitDuos().value())
+					) {
 						this.takeFs(j);
 						fsFound = true;
 						this.duoOver30Active = true;
 						break;
 					}
-					if (j == 30 && this.failstacks[j]!.amount > 0 && this.duoOver30Active ) {
+					if (j == 30 && this.failstacks[j]!.amount > 0 && this.duoOver30Active) {
 						this.takeFs(j);
 						fsFound = true;
 						break;
@@ -730,7 +735,7 @@ export default class Logic {
 				value: enchantment_item.value,
 				total_amount: enchantment_item.total_amount,
 				total_value: enchantment_item.total_value,
-				pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max }
+				pity: { current: enchantment_item.pity.current, max: enchantment_item.pity.max },
 			});
 		}
 		const enchantment_mats: enchantment_mat[] = ENCHANTMENT_MATERIALS.map(material => {
@@ -748,7 +753,7 @@ export default class Logic {
 			this.controller.getClicksPerHour().value(),
 			this.failstacks,
 			enchantment_mats,
-			this.controller.getPreset().value()?.name
+			this.controller.getPreset().value()?.name,
 		);
 		return state;
 	}

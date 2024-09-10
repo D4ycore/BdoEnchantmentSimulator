@@ -14,7 +14,7 @@ export default class EnchantmentPreset {
 		{ item: EnchantmentItem.Reblath_Mon, clicks: 1 },
 		{ item: EnchantmentItem.Reblath_Duo, clicks: 1 },
 		{ item: EnchantmentItem.Reblath_Tri, clicks: 1 },
-		{ item: EnchantmentItem.Reblath_Tet, clicks: 1 }
+		{ item: EnchantmentItem.Reblath_Tet, clicks: 1 },
 	);
 
 	public static readonly preset_15_200 = new EnchantmentPreset(
@@ -28,7 +28,7 @@ export default class EnchantmentPreset {
 		{ item: EnchantmentItem.Reblath_Mon, clicks: 5 },
 		{ item: EnchantmentItem.Reblath_Duo, clicks: 4 },
 		{ item: EnchantmentItem.Reblath_Tri, clicks: 8 },
-		{ item: EnchantmentItem.Reblath_Tet, clicks: 19 }
+		{ item: EnchantmentItem.Reblath_Tet, clicks: 19 },
 	);
 	public static readonly preset_20_201 = new EnchantmentPreset(
 		'20-201',
@@ -41,7 +41,7 @@ export default class EnchantmentPreset {
 		{ item: EnchantmentItem.Reblath_Mon, clicks: 5 },
 		{ item: EnchantmentItem.Reblath_Duo, clicks: 3 },
 		{ item: EnchantmentItem.Reblath_Tri, clicks: 8 },
-		{ item: EnchantmentItem.Reblath_Tet, clicks: 19 }
+		{ item: EnchantmentItem.Reblath_Tet, clicks: 19 },
 	);
 	public static readonly preset_25_202 = new EnchantmentPreset(
 		'25-202',
@@ -54,7 +54,7 @@ export default class EnchantmentPreset {
 		{ item: EnchantmentItem.Reblath_Mon, clicks: 4 },
 		{ item: EnchantmentItem.Reblath_Duo, clicks: 3 },
 		{ item: EnchantmentItem.Reblath_Tri, clicks: 9 },
-		{ item: EnchantmentItem.Reblath_Tet, clicks: 18 }
+		{ item: EnchantmentItem.Reblath_Tet, clicks: 18 },
 	);
 
 	private _name: string;

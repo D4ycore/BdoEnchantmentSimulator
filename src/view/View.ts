@@ -89,7 +89,6 @@ export default class View {
 
 		this.cbDuoOver30 = nonNullElement(document.querySelector<HTMLInputElement>('#cbDuoOver30'), 'DuoOver30');
 		this.iLimitDuos = nonNullElement(document.querySelector<HTMLInputElement>('#iLimitDuos'), 'LimitDuos');
-
 	}
 
 	public link(controller: Controller) {
@@ -264,7 +263,6 @@ export default class View {
 		this.cbDuoOver30.dispatchEvent(new Event('change'));
 		this.iLimitDuos.dispatchEvent(new Event('change'));
 
-
 		for (const enchantment_item of this.lEnchantmentItems) {
 			const iAmount = enchantment_item.querySelector<HTMLInputElement>('.ei_amount');
 			iAmount?.dispatchEvent(new Event('change'));
@@ -314,8 +312,7 @@ export default class View {
 		Logger.debug('LimitDuos set', oldLimitDuos, newLimitDuos);
 
 		const min = this.iLimitDuos.getAttribute('min');
-		if (min && newLimitDuos < parseInt(min))
-			return Logger.warn(`Tried to set LimitDuos(${this.iLimitDuos.value} => ${newLimitDuos}) below the allowed minimum(${min})`);
+		if (min && newLimitDuos < parseInt(min)) return Logger.warn(`Tried to set LimitDuos(${this.iLimitDuos.value} => ${newLimitDuos}) below the allowed minimum(${min})`);
 		this.iLimitDuos.value = '' + newLimitDuos;
 		this.iLimitDuos.title = '' + newLimitDuos;
 		this.iLimitDuos.dispatchEvent(new Event('change'));
@@ -563,7 +560,7 @@ export default class View {
 			<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'faded'}"><span>${nf_commas(material.price / 1_000_000, 3)}</span><span>m</span></div>
 			<div class="grid-item formatted ${isShadowed ? 'shadowed' : 'total_cost'}"><span>${nf_commas(
 			(material.price * material.used * scalar) / 1_000_000,
-			3
+			3,
 		)}</span><span>m</span></div>
 		</div>
 		`;
@@ -772,7 +769,7 @@ export class SimulatorState {
 		clicksPerSecond: number,
 		failstacks: FailStack[],
 		materials: enchantment_mat[],
-		preset: string | undefined
+		preset: string | undefined,
 	) {
 		this.familyFS = familyFS;
 		this.buyFS = buyFS;

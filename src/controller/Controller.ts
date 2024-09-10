@@ -59,24 +59,23 @@ export default class Controller {
 		this.scaleOutput = new Value<boolean>(
 			false,
 			(oldScaleOutput, newScaleOutput) => view.scaleOutput_Set(oldScaleOutput, newScaleOutput),
-			(oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput)
+			(oldScaleOutput, newScaleOutput) => logic.scaleOutput_OnChange(oldScaleOutput, newScaleOutput),
 		);
 		this.showDebug = new Value<boolean>(
 			false,
 			(oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug),
-			(oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug)
+			(oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug),
 		);
 		this.duoOver30 = new Value<boolean>(
 			false,
 			(oldDuoOver30, newDuoOver30) => view.duoOver30_Set(oldDuoOver30, newDuoOver30),
-			(oldDuoOver30, newDuoOver30) => logic.duoOver30_OnChange(oldDuoOver30, newDuoOver30)
+			(oldDuoOver30, newDuoOver30) => logic.duoOver30_OnChange(oldDuoOver30, newDuoOver30),
 		);
 		this.limitDuos = new Value<number>(
 			0,
 			(oldLimitDuos, newLimitDuos) => view.limitDuos_Set(oldLimitDuos, newLimitDuos),
-			(oldLimitDuos, newLimitDuos) => logic.limitDuos_OnChange(oldLimitDuos, newLimitDuos)
+			(oldLimitDuos, newLimitDuos) => logic.limitDuos_OnChange(oldLimitDuos, newLimitDuos),
 		);
-
 
 		this.saveState = new Consumer(state => view.saveState(state));
 		this.supplyState = new Supplier(() => logic.getState());
@@ -89,27 +88,27 @@ export default class Controller {
 		this.clicksPerHour = new Value(
 			1,
 			(oldClicksPerHour, newClicksPerHour) => view.clicksPerHour_Set(newClicksPerHour),
-			(oldClicksPerHour, newClicksPerHour) => logic.clicksPerHour_OnChange(newClicksPerHour)
+			(oldClicksPerHour, newClicksPerHour) => logic.clicksPerHour_OnChange(newClicksPerHour),
 		);
 		this.duration = new Consumer(newDuration => view.duration_Set(newDuration));
 
 		this.familyFS = new Value<number>(
 			0,
 			(oldFamilyFS, newFamilyFS) => view.familyFS_Set(oldFamilyFS, newFamilyFS),
-			(oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS)
+			(oldFamilyFS, newFamilyFS) => logic.familyFS_OnChange(oldFamilyFS, newFamilyFS),
 		);
 		this.buyFS = new Value<number>(
 			0,
 			(oldBuyFS, newBuyFS) => view.buyFS_Set(oldBuyFS, newBuyFS),
-			(oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS)
+			(oldBuyFS, newBuyFS) => logic.buyFS_OnChange(oldBuyFS, newBuyFS),
 		);
 		this.targetAmount = new Value<number>(
 			0,
 			(oldTargetAmount, newTargetAmount) => view.targetAmount_Set(oldTargetAmount, newTargetAmount),
-			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount)
+			(oldTargetAmount, newTargetAmount) => logic.targetAmount_OnChange(oldTargetAmount, newTargetAmount),
 		);
 		this.currentTargetFS = new Setter<{ current: number; max: number }>({ current: 0, max: 0 }, (oldCurrentTargetFS, newCurrentTargetFS) =>
-			view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS)
+			view.currentTargetFS_Set(oldCurrentTargetFS, newCurrentTargetFS),
 		);
 		this.enchantment_steps = [];
 		for (let i = 0; i < 4; i++) this.addEnchantmentStep();
@@ -117,13 +116,13 @@ export default class Controller {
 		this.clicksPerIteration = new Value<number>(
 			0,
 			(oldClicksPerIteration, newClicksPerIteration) => view.clicksPerIteration_Set(oldClicksPerIteration, newClicksPerIteration),
-			(oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration)
+			(oldClicksPerIteration, newClicksPerIteration) => logic.clicksPerIteration_OnChange(oldClicksPerIteration, newClicksPerIteration),
 		);
 
 		this.iterationsPerSecond = new Value<number>(
 			0,
 			(oldIterationsPerSecond, newIterationsPerSecond) => view.iterationsPerSecond_Set(oldIterationsPerSecond, newIterationsPerSecond),
-			(oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond)
+			(oldIterationsPerSecond, newIterationsPerSecond) => logic.iterationsPerSecond_OnChange(oldIterationsPerSecond, newIterationsPerSecond),
 		);
 		this.upgradeStart = new Button(() => logic.upgradeStartOnClick());
 		this.upgradeStop = new Button(() => logic.upgradeStop_OnClick());
@@ -149,7 +148,6 @@ export default class Controller {
 	public getLimitDuos() {
 		return this.limitDuos;
 	}
-
 
 	public getPreset() {
 		return this.preset;

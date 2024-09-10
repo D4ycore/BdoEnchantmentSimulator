@@ -63,9 +63,12 @@ export class EnchantmentMaterialShadowed extends EnchantmentMaterial {
 	public static readonly CONCENTRATED_MAGICAL_BLACKSTONE = new EnchantmentMaterialShadowed(
 		'Concentrated Magical Blackstone',
 		{ material: this.SHARP_BLACK_CRYSTAL_SHARD, amount: 1 },
-		{ material: this.BLACKSTONE, amount: 2 }
+		{ material: this.BLACKSTONE, amount: 2 },
 	);
-	public static readonly FLAWLESS_MAGICAL_BLACKSTONE = new EnchantmentMaterialShadowed('Flawless Magical Blackstone', { material: this.SHARP_BLACK_CRYSTAL_SHARD, amount: 2 });
+	public static readonly FLAWLESS_MAGICAL_BLACKSTONE = new EnchantmentMaterialShadowed('Flawless Magical Blackstone', {
+		material: this.SHARP_BLACK_CRYSTAL_SHARD,
+		amount: 2,
+	});
 
 	public readonly parents: { material: EnchantmentMaterial; amount: number }[];
 
