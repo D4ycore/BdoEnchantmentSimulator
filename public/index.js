@@ -15,14 +15,14 @@ init();
 function initColorSchemeButton() {
     const color_scheme_button = document.querySelector('#bColorScheme');
     if (color_scheme_button)
-        color_scheme_button.onclick = evt => {
+        color_scheme_button.addEventListener('click', evt => {
             const dataTheme = document.documentElement.getAttribute('data-theme');
             const preferedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const currentTheme = dataTheme ?? preferedTheme;
             const newTheme = currentTheme == 'dark' ? 'light' : 'dark';
             Logger.debug(dataTheme, preferedTheme, currentTheme, newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
-        };
+        });
 }
 initColorSchemeButton();
 function detectColorScheme() {
@@ -44,35 +44,45 @@ function detectColorScheme() {
 }
 detectColorScheme();
 function initAutoWidth() {
-    const autoWidthRulesTypes = new Set();
-    const autoWidthRules = new Map();
-    const sheet = document.styleSheets[0];
-    const rules = sheet?.cssRules;
+    const autoWidthElements = new Map();
     const lAutoWidth = document.querySelectorAll('.autowidth');
     lAutoWidth.forEach(elt => {
         const type = elt.getAttribute('autowidth') ?? '';
-        autoWidthRulesTypes.add(type);
-        elt.oninput = () => checkAutoWidth(type);
+        let elements = autoWidthElements.get(type);
+        if (!elements)
+            autoWidthElements.set(type, (elements = []));
+        elements.push(elt);
+        elt.addEventListener('input', checkAutoWidth);
+        elt.addEventListener('change', checkAutoWidth);
     });
-    for (const type of autoWidthRulesTypes)
-        sheet?.insertRule(`.autowidth[autowidth='${type}'] { width: 7ch; transition-duration: var(--timing-long) } `);
-    if (!rules)
-        return;
-    for (const type of autoWidthRulesTypes) {
-        for (const rule of rules)
-            if (rule instanceof CSSStyleRule && rule.selectorText === `.autowidth[autowidth="${type}"]`)
-                autoWidthRules.set(type, rule);
+    function checkAutoWidth() {
+        for (const [, elements] of autoWidthElements) {
+            let maxWidth = 0;
+            for (const elt of elements)
+                if (maxWidth < elt.value.length)
+                    maxWidth = elt.value.length;
+            for (const elt of elements)
+                elt.style.setProperty('width', Math.max(2, maxWidth) + 5 + 'ch', 'important');
+        }
     }
-    function checkAutoWidth(type) {
-        let maxWidth = 0;
-        lAutoWidth.forEach(elt => {
-            if (elt.getAttribute('autowidth') === type && maxWidth < elt.value.length)
-                maxWidth = elt.value.length;
-        });
-        const rule = autoWidthRules.get(type);
-        if (!rule)
-            return;
-        rule.style.width = Math.max(2, maxWidth) + 5 + 'ch';
-    }
+    checkAutoWidth();
 }
 initAutoWidth();
+function initHeaderControl() {
+    const cbOptionsButton = document.querySelector('header .options-button>input');
+    const dOptionsWrapper = document.querySelector('header .options-wrapper');
+    const dOptions = document.querySelector('header .options');
+    if (!cbOptionsButton)
+        return Logger.error('No Options Button Element');
+    if (!dOptionsWrapper || !dOptions)
+        return Logger.error('No Options Element');
+    const updateOptions = () => {
+        if (cbOptionsButton.checked)
+            dOptionsWrapper.style.removeProperty('height');
+        else
+            dOptionsWrapper.style.setProperty('height', '0');
+    };
+    cbOptionsButton.addEventListener('change', updateOptions);
+    updateOptions();
+}
+initHeaderControl();

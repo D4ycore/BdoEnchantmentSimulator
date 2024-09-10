@@ -6,7 +6,7 @@ export default class Value {
     }
     value(newValue) {
         const oldValue = this._value;
-        if (newValue != undefined)
+        if (arguments.length > 0)
             this.set(oldValue, newValue);
         return this._value;
     }

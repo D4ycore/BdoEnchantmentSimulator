@@ -34,7 +34,7 @@ class EnchantmentMaterial {
 }
 EnchantmentMaterial.DEFAULT_BLACKSTONE = 120000;
 EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD = 1440000;
-EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT = 3800000;
+EnchantmentMaterial.DEFAULT_MEMORY_FRAGMENT = 3500000;
 EnchantmentMaterial.DEFAULT_BLACKSTAR_MON = 1990000000;
 EnchantmentMaterial.BLACKSTONE = new EnchantmentMaterial('Blackstone', EnchantmentMaterial.DEFAULT_BLACKSTONE);
 EnchantmentMaterial.SHARP_BLACK_CRYSTAL_SHARD = new EnchantmentMaterial('Sharp Black Crystal Shard', EnchantmentMaterial.DEFAULT_SHARP_BLACK_CRYSTAL_SHARD);

@@ -49,6 +49,9 @@ export default class Controller {
 	private view: View;
 	private logic: Logic;
 
+	private duoOver30: Value<boolean>;
+	private limitDuos: Value<number>;
+
 	public constructor(view: View, logic: Logic) {
 		this.view = view;
 		this.logic = logic;
@@ -63,6 +66,17 @@ export default class Controller {
 			(oldShowDebug, newShowDebug) => view.showDebug_Set(oldShowDebug, newShowDebug),
 			(oldShowDebug, newShowDebug) => logic.showDebug_OnChange(oldShowDebug, newShowDebug)
 		);
+		this.duoOver30 = new Value<boolean>(
+			false,
+			(oldDuoOver30, newDuoOver30) => view.duoOver30_Set(oldDuoOver30, newDuoOver30),
+			(oldDuoOver30, newDuoOver30) => logic.duoOver30_OnChange(oldDuoOver30, newDuoOver30)
+		);
+		this.limitDuos = new Value<number>(
+			0,
+			(oldLimitDuos, newLimitDuos) => view.limitDuos_Set(oldLimitDuos, newLimitDuos),
+			(oldLimitDuos, newLimitDuos) => logic.limitDuos_OnChange(oldLimitDuos, newLimitDuos)
+		);
+
 
 		this.saveState = new Consumer(state => view.saveState(state));
 		this.supplyState = new Supplier(() => logic.getState());
@@ -129,6 +143,13 @@ export default class Controller {
 	public getShowDebug() {
 		return this.showDebug;
 	}
+	public getDuoOver30() {
+		return this.duoOver30;
+	}
+	public getLimitDuos() {
+		return this.limitDuos;
+	}
+
 
 	public getPreset() {
 		return this.preset;

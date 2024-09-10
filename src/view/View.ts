@@ -48,6 +48,9 @@ export default class View {
 	private glFailstacks;
 	private glPrices;
 
+	private cbDuoOver30;
+	private iLimitDuos;
+
 	public constructor() {
 		this.cbScaleOutput = nonNullElement(document.querySelector<HTMLInputElement>('#cbScaleOutput'), 'Scale Output');
 		this.cbShowDebug = nonNullElement(document.querySelector<HTMLInputElement>('#cbShowDebug'), 'Show Debug');
@@ -83,6 +86,10 @@ export default class View {
 		this.glEvaluation = nonNullElement(document.querySelector<HTMLDivElement>('#evaluation .grid-list-wrapper'), 'Evaluation');
 		this.glFailstacks = nonNullElement(document.querySelector<HTMLDivElement>('#failstacks .grid-list-wrapper'), 'Failstacks');
 		this.glPrices = nonNullElement(document.querySelector<HTMLDivElement>('#prices .grid-list-wrapper'), 'Prices');
+
+		this.cbDuoOver30 = nonNullElement(document.querySelector<HTMLInputElement>('#cbDuoOver30'), 'DuoOver30');
+		this.iLimitDuos = nonNullElement(document.querySelector<HTMLInputElement>('#iLimitDuos'), 'LimitDuos');
+
 	}
 
 	public link(controller: Controller) {
@@ -237,11 +244,26 @@ export default class View {
 			Logger.debug('reset click');
 			controller.getReset().click();
 		});
+
+		this.cbDuoOver30.addEventListener('change', evt => {
+			Logger.debug('DuoOver30 onchange', this.cbDuoOver30.checked);
+			controller.getDuoOver30().changed(this.cbDuoOver30.checked);
+		});
+
+		this.iLimitDuos.addEventListener('change', evt => {
+			Logger.debug('LimitDuos onchange', this.iLimitDuos.value);
+			const val = parseInt(this.iLimitDuos.value);
+			controller.getLimitDuos().changed(val);
+		});
 	}
 
 	public init() {
 		this.cbScaleOutput.dispatchEvent(new Event('change'));
 		this.cbShowDebug.dispatchEvent(new Event('change'));
+
+		this.cbDuoOver30.dispatchEvent(new Event('change'));
+		this.iLimitDuos.dispatchEvent(new Event('change'));
+
 
 		for (const enchantment_item of this.lEnchantmentItems) {
 			const iAmount = enchantment_item.querySelector<HTMLInputElement>('.ei_amount');
@@ -280,6 +302,23 @@ export default class View {
 		Logger.debug('show-debug set', oldShowDebug, newShowDebug);
 		this.cbShowDebug.checked = newShowDebug;
 		this.cbShowDebug.dispatchEvent(new Event('change'));
+	}
+
+	public duoOver30_Set(oldDuoOver30: boolean, newDuoOver30: boolean) {
+		Logger.debug('DuoOver30 set', oldDuoOver30, newDuoOver30);
+		this.cbDuoOver30.checked = newDuoOver30;
+		this.cbDuoOver30.dispatchEvent(new Event('change'));
+	}
+
+	public limitDuos_Set(oldLimitDuos: number, newLimitDuos: number) {
+		Logger.debug('LimitDuos set', oldLimitDuos, newLimitDuos);
+
+		const min = this.iLimitDuos.getAttribute('min');
+		if (min && newLimitDuos < parseInt(min))
+			return Logger.warn(`Tried to set LimitDuos(${this.iLimitDuos.value} => ${newLimitDuos}) below the allowed minimum(${min})`);
+		this.iLimitDuos.value = '' + newLimitDuos;
+		this.iLimitDuos.title = '' + newLimitDuos;
+		this.iLimitDuos.dispatchEvent(new Event('change'));
 	}
 
 	public enchantmentItem_Pity_Current_Set(ei_index: number, oldPityCurrent: number, newPityCurrent: number) {
@@ -451,17 +490,17 @@ export default class View {
 		const Pen_Reblath_75_FS_value = (EnchantmentItem.Reblath_Pen.amount * failstacks_75_value) / 1_000_000;
 		const combined_value = combined_item_value + combined_fs_value + Pen_Reblath_75_FS_value;
 		const combined_cost = EnchantmentMaterial.total_cost() / 1_000_000;
-		const combined_sum = combined_value - combined_cost;
+		const combined_sum = combined_cost - combined_value;
 
 		this.glEvaluation.innerHTML = `
 		<div class="grid-list">
 			<div class="grid-item-wrapper gc-se-35">
-				<span>dead capital by pen Reblath</span>
-				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
-			</div>
-			<div class="grid-item-wrapper gc-se-35">
 				<span>total investment</span>
 				<div class="grid-item combined_cost formatted"><span>${nf_commas(combined_cost * scalar, 3)}</span><span>m</span></div>
+			</div>
+			<div class="grid-item-wrapper gc-se-35">
+				<span>dead capital by pen Reblath</span>
+				<div class="combined_sum formatted"><span>${nf_commas(combined_sum * scalar, 3)}</span><span>m</span></div>
 			</div>
 			<div class="grid-item-wrapper gc-se-35">
 				<span>Value of FS's</span>

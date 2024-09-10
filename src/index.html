@@ -20,17 +20,25 @@
 			</nav>
 			<div class="options-wrapper" style="height: 0">
 				<div class="options">
-					<div class="option">
-						<input type="button" id="bColorScheme" title="Switch Color Scheme" />
+					<div class="option" title="Switch Color Scheme">
+						<input type="button" id="bColorScheme"/>
 						<label for="bColorScheme">Switch Color Scheme</label>
 					</div>
-					<div class="option">
-						<input type="checkbox" id="cbScaleOutput" title="Scale Output to match Target Amount" />
+					<div class="option" title="Scale Output to match Target Amount">
+						<input type="checkbox" id="cbScaleOutput"/>
 						<label for="cbScaleOutput">Scale Output</label>
 					</div>
-					<div class="option">
-						<input type="checkbox" id="cbShowDebug" title="Show Debugging Logs" />
+					<div class="option" title="Show Debugging Logs">
+						<input type="checkbox" id="cbShowDebug"/>
 						<label for="cbShowDebug">Debug</label>
+					</div>
+					<div class="option" title="Buy/Use 30Fs for Duo-Clicks if Duo StartFs is over 30 and Limit of Duos reached">
+						<input type="checkbox" id="cbDuoOver30"/>
+						<label for="cbDuoOver30">30Fs for Duo-Clicks</label>
+					</div>
+					<div class="option" title="Limit of Duo before use additional 30Fs">
+						<input type="number" id="iLimitDuos"  min="0" />
+						<label for="iLimitDuos">Limit of Duo</label>
 					</div>
 					<div class="option">
 						<label for="sPreset">Preset</label>
