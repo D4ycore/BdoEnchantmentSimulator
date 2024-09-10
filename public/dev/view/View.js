@@ -6,7 +6,7 @@ import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
 export default class View {
     constructor() {
-        this.DEVELOPING = true;
+        this.DEVELOPING = window.location.pathname.includes('/dev/') || window.location.pathname.includes('/src/');
         this.LOCAL_STORAGE_KEY = `bdo-enchantment-simulator${this.DEVELOPING ? '-dev' : ''}`;
         this.cbScaleOutput = nonNullElement(document.querySelector('#cbScaleOutput'), 'Scale Output');
         this.cbShowDebug = nonNullElement(document.querySelector('#cbShowDebug'), 'Show Debug');

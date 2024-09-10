@@ -8,7 +8,7 @@ import Logger from '../util/Logger.js';
 import { nf_commas, nonNullElement, nonNullElementAll } from '../util/util.js';
 
 export default class View {
-	private readonly DEVELOPING = true;
+	private readonly DEVELOPING = window.location.pathname.includes('/dev/') || window.location.pathname.includes('/src/');
 	private readonly LOCAL_STORAGE_KEY = `bdo-enchantment-simulator${this.DEVELOPING ? '-dev' : ''}`;
 
 	private controller!: Controller;
